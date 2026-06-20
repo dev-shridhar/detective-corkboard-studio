@@ -302,6 +302,98 @@
             font-style: italic;
             color: var(--ink-faded);
         }
+
+        /* ── Custom Retro Modal ── */
+        .retro-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .retro-modal-card {
+            background: var(--paper-light);
+            border: 3px double #8a7a5f;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6), inset 0 0 60px rgba(138, 122, 95, 0.15);
+            padding: 30px 40px;
+            border-radius: 4px;
+            width: 380px;
+            transform: rotate(-0.5deg);
+            font-family: 'Courier Prime', monospace;
+        }
+        .retro-modal-stamp {
+            border: 2px solid #c0392b;
+            color: #c0392b;
+            font-family: 'Special Elite', monospace;
+            font-size: 9px;
+            font-weight: bold;
+            padding: 1px 6px;
+            border-radius: 3px;
+            letter-spacing: 1.5px;
+            transform: rotate(-3deg);
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+        .retro-modal-card h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            color: var(--ink-dark);
+            margin: 0 0 16px 0;
+            border-bottom: 2px solid var(--ink-dark);
+            padding-bottom: 6px;
+        }
+        .retro-modal-card input {
+            width: 100%;
+            box-sizing: border-box;
+            font-family: 'Courier Prime', monospace;
+            font-size: 13px;
+            padding: 10px;
+            background: rgba(0,0,0,0.04);
+            border: 1px solid rgba(0,0,0,0.2);
+            border-radius: 3px;
+            outline: none;
+            color: var(--ink-dark);
+        }
+        .retro-modal-card input:focus {
+            border-color: #8a7a5f;
+            background: rgba(0,0,0,0.02);
+        }
+        .retro-modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .retro-modal-btn {
+            font-family: 'Courier Prime', monospace;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 8px 16px;
+            border: 1px solid rgba(0,0,0,0.2);
+            border-radius: 3px;
+            cursor: pointer;
+            background: transparent;
+            transition: all 0.2s ease;
+        }
+        .retro-modal-btn.cancel-btn {
+            background: #bdc3c7;
+            color: #2c3e50;
+        }
+        .retro-modal-btn.cancel-btn:hover {
+            background: #b2b8bd;
+        }
+        .retro-modal-btn.submit-btn {
+            background: #27ae60;
+            color: white;
+            border-color: #27ae60;
+        }
+        .retro-modal-btn.submit-btn:hover {
+            background: #219653;
+            border-color: #219653;
+        }
     </style>
 </head>
 <body>
@@ -581,6 +673,68 @@
             window.ui.deleteActiveNode();
         }
     }
+
+    /* ── Custom Prompt Dialog Promise Helper ── */
+    window.customPrompt = function(title, placeholder = "") {
+        return new Promise((resolve) => {
+            const overlay = document.getElementById('retro-modal');
+            const titleEl = document.getElementById('retro-modal-title');
+            const inputEl = document.getElementById('retro-modal-input');
+            const cancelBtn = document.getElementById('retro-modal-cancel');
+            const submitBtn = document.getElementById('retro-modal-submit');
+
+            titleEl.innerText = title;
+            inputEl.value = "";
+            inputEl.placeholder = placeholder;
+            overlay.style.display = 'flex';
+            inputEl.focus();
+
+            const cleanup = () => {
+                overlay.style.display = 'none';
+                cancelBtn.onclick = null;
+                submitBtn.onclick = null;
+                inputEl.onkeydown = null;
+            };
+
+            cancelBtn.onclick = () => {
+                cleanup();
+                resolve(null);
+            };
+
+            const submit = () => {
+                const val = inputEl.value.trim();
+                cleanup();
+                resolve(val || null);
+            };
+
+            submitBtn.onclick = submit;
+
+            inputEl.onkeydown = (e) => {
+                if (e.key === 'Enter') {
+                    submit();
+                } else if (e.key === 'Escape') {
+                    cleanup();
+                    resolve(null);
+                }
+            };
+        });
+    };
 </script>
+
+<!-- Custom Retro Modal for prompts -->
+<div id="retro-modal" class="retro-modal-overlay" style="display: none;">
+    <div class="retro-modal-card">
+        <div class="retro-modal-stamp">CLASSIFIED</div>
+        <h2 id="retro-modal-title">Enter New Case Name</h2>
+        <div class="auth-field" style="margin-bottom: 0;">
+            <input id="retro-modal-input" type="text" placeholder="Type case name..." autocomplete="off" />
+        </div>
+        <div class="retro-modal-buttons">
+            <button id="retro-modal-cancel" class="retro-modal-btn cancel-btn">CANCEL</button>
+            <button id="retro-modal-submit" class="retro-modal-btn submit-btn">CREATE</button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
