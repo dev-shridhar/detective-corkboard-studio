@@ -9,6 +9,10 @@ class UIManager {
         
         // Link arrays in edit mode
         this.editLinks = [];
+
+        // Active theme color spools
+        this.defaultTileColor = "#eedeb0"; // Default: Cream
+        this.currentYarnColor = "#c0392b";  // Default: Red yarn
     }
 
     async init() {
@@ -100,7 +104,7 @@ class UIManager {
 
     /* ── Node actions ── */
     
-    async addTile() {
+    async addTile(shape = "note_card", color = null) {
         if (!this.currentBoardId) return;
         
         // Spawn tile at canvas viewport center
@@ -114,8 +118,8 @@ class UIManager {
         const nodePayload = {
             title: "New Clue",
             description: "Double click to write investigation notes...",
-            shape: "note_card",
-            color: "#f5e6c8",
+            shape: shape,
+            color: color || this.defaultTileColor || "#eedeb0",
             x: wx,
             y: wy,
             concepts: [],
@@ -156,7 +160,7 @@ class UIManager {
         const edgePayload = {
             source_node_id: sourceId,
             target_node_id: targetId,
-            color: "#c0392b",
+            color: this.currentYarnColor || "#c0392b",
             label: ""
         };
 
@@ -180,6 +184,14 @@ class UIManager {
     openDetailPanel(node) {
         this.activeNode = node;
         this.disableEditMode();
+        
+        // Set the active tile color swatch in the tray to match the selected node's color
+        document.querySelectorAll('.swatch-btn:not(.yarn-swatch)').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.title.toLowerCase() === this.getColorName(node.color)) {
+                btn.classList.add('active');
+            }
+        });
         
         // Setup View elements
         const badge = document.getElementById('detail-badge');
@@ -234,7 +246,9 @@ class UIManager {
             linksContainer.appendChild(p);
         }
         
-        document.getElementById('detail-panel').classList.add('open');
+        const overlay = document.getElementById('detail-panel-overlay');
+        if (overlay) overlay.style.display = 'flex';
+        
         if (window.canvasEngine) {
             window.canvasEngine.centerOn(node.x, node.y);
         }
@@ -242,11 +256,66 @@ class UIManager {
 
     closeDetailPanel() {
         this.activeNode = null;
-        document.getElementById('detail-panel').classList.remove('open');
+        const overlay = document.getElementById('detail-panel-overlay');
+        if (overlay) overlay.style.display = 'none';
+        
         if (window.canvasEngine) {
             window.canvasEngine.selectedNode = null;
             window.canvasEngine.requestDraw();
         }
+    }
+
+    setTileColor(color) {
+        document.querySelectorAll('.swatch-btn:not(.yarn-swatch)').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.title.toLowerCase() === this.getColorName(color)) {
+                btn.classList.add('active');
+            }
+        });
+
+        this.defaultTileColor = color;
+        
+        if (this.activeNode) {
+            const node = this.activeNode;
+            node.color = color;
+            window.api.updateNode(this.currentBoardId, node.id, { color })
+                .then(() => this.loadBoard(this.currentBoardId))
+                .catch(err => console.error("Failed to update tile color:", err));
+        }
+    }
+
+    setYarnColor(color) {
+        document.querySelectorAll('.yarn-swatch').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.title.toLowerCase().startsWith(this.getYarnColorName(color))) {
+                btn.classList.add('active');
+            }
+        });
+
+        this.currentYarnColor = color;
+    }
+
+    getColorName(color) {
+        const mapping = {
+            '#eedeb0': 'cream',
+            '#ffffff': 'white',
+            '#f1c40f': 'yellow',
+            '#c0392b': 'red',
+            '#2980b9': 'blue',
+            '#27ae60': 'green'
+        };
+        return mapping[color] || '';
+    }
+
+    getYarnColorName(color) {
+        const mapping = {
+            '#c0392b': 'red',
+            '#2980b9': 'blue',
+            '#27ae60': 'green',
+            '#2c3e50': 'black',
+            '#f1c40f': 'yellow'
+        };
+        return mapping[color] || '';
     }
 
     enableEditMode() {
