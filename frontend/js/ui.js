@@ -58,7 +58,7 @@ class UIManager {
     }
 
     async createNewBoard() {
-        const name = prompt("Enter New Case File Name:");
+        const name = await window.customPrompt("Enter New Case File Name:", "Type case name...");
         if (!name || !name.trim()) return;
         
         try {

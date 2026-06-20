@@ -5,9 +5,14 @@ from app.core.config import settings
 
 
 # Create the SQLAlchemy engine
+connect_args = {}
+if settings.DATABASE_URL.startswith("sqlite"):
+    connect_args = {"check_same_thread": False}
+
 engine = create_engine(
     settings.DATABASE_URL,
     echo=(settings.ENVIRONMENT == "development"),  # Log SQL in dev only
+    connect_args=connect_args,
 )
 
 
