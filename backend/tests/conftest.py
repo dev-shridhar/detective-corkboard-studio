@@ -1,4 +1,6 @@
 import os
+os.environ["TESTING"] = "true"
+
 import pytest
 from typing import Generator
 from sqlmodel import SQLModel, create_engine, Session
@@ -7,8 +9,6 @@ from app.main import app
 from app.core.database import get_session
 
 # Load/determine test database URL
-# If running in CI, it uses PostgreSQL. Locally, if PostgreSQL is not running,
-# we default to an in-memory SQLite database.
 TEST_DATABASE_URL = os.getenv(
     "DATABASE_URL", "sqlite:///:memory:"
 )

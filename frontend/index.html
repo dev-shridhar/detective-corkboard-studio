@@ -176,7 +176,7 @@
             justify-content: center;
         }
 
-        #detail-title {
+        .detail-title {
             font-family: 'Playfair Display', serif;
             font-size: 18px;
             font-weight: 800;
@@ -186,11 +186,121 @@
             margin-bottom: 16px;
         }
 
-        #detail-description {
+        .detail-desc {
             font-family: 'Courier Prime', monospace;
             font-size: 12px;
             color: var(--ink-faded);
             line-height: 1.7;
+            white-space: pre-wrap;
+        }
+
+        /* Retro Board Selector Styles */
+        .retro-select {
+            font-family: 'Courier Prime', monospace;
+            font-size: 11px;
+            font-weight: bold;
+            background: var(--paper-light);
+            color: var(--ink-dark);
+            border: 1px solid rgba(0,0,0,0.3);
+            border-radius: 3px;
+            padding: 3px 8px;
+            outline: none;
+            cursor: pointer;
+        }
+        .retro-inline-btn {
+            font-family: 'Special Elite', monospace;
+            font-size: 10px;
+            font-weight: bold;
+            background: var(--ink-dark);
+            color: var(--paper-light);
+            border: none;
+            border-radius: 3px;
+            padding: 4px 10px;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            transition: background 0.2s;
+        }
+        .retro-inline-btn:hover {
+            background: #333;
+        }
+
+        /* Detail Panel Inner Sections */
+        .detail-badge {
+            border: 1px solid var(--ink-dark);
+            color: var(--ink-dark);
+            font-family: 'Special Elite', monospace;
+            font-size: 9px;
+            padding: 1px 6px;
+            border-radius: 2px;
+            display: inline-block;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+        .detail-section {
+            margin-top: 20px;
+            border-top: 1px dashed rgba(0,0,0,0.15);
+            padding-top: 12px;
+        }
+        .detail-section h3 {
+            font-family: 'Courier Prime', monospace;
+            font-size: 10px;
+            font-weight: bold;
+            color: var(--ink-faded);
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .detail-concepts-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .detail-concepts-list li {
+            font-family: 'Courier Prime', monospace;
+            font-size: 11px;
+            background: rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.1);
+            padding: 2px 8px;
+            border-radius: 3px;
+            color: var(--ink-dark);
+        }
+        .detail-links-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .detail-links-list a.paper-item {
+            display: block;
+            background: rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.15);
+            padding: 8px 12px;
+            border-radius: 3px;
+            text-decoration: none;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .detail-links-list a.paper-item:hover {
+            background: rgba(0,0,0,0.06);
+            border-color: #8a7a5f;
+        }
+        .paper-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--ink-dark);
+        }
+        .paper-author {
+            font-family: 'Courier Prime', monospace;
+            font-size: 10px;
+            color: var(--ink-faded);
+            margin-top: 2px;
+        }
+        .no-papers {
+            font-family: 'Courier Prime', monospace;
+            font-size: 11px;
+            font-style: italic;
+            color: var(--ink-faded);
         }
     </style>
 </head>
@@ -252,7 +362,10 @@
         <div class="header-stamp">TOP SECRET</div>
         <div class="header-title">
             <h1>🕵️ CASE BOARD</h1>
-            <p id="board-name-label">Loading board...</p>
+            <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                <select id="board-selector" onchange="switchBoard(this.value)" class="retro-select"></select>
+                <button onclick="createNewBoard()" class="retro-inline-btn" title="Create New Case">+ NEW CASE</button>
+            </div>
         </div>
         <!-- Search bar -->
         <div class="search-box">
@@ -290,14 +403,88 @@
             <div class="control-label">ACTIONS</div>
             <button class="control-btn" onclick="addTile()" title="Add Tile" style="width:auto;padding:0 8px;font-size:11px;">+ TILE</button>
             <button class="control-btn" onclick="window.history_manager.undo()" title="Undo (Ctrl+Z)" style="width:auto;padding:0 8px;font-size:11px;">UNDO</button>
+            <button class="control-btn" onclick="window.auth.logout()" title="Logout" style="width:auto;padding:0 8px;font-size:11px;background:#95a5a6;color:#000;">LOGOUT</button>
         </div>
     </div>
 
     <!-- Sliding detail panel -->
     <div id="detail-panel">
         <button id="detail-close" onclick="window.ui.closeDetailPanel()" title="Close">✕</button>
-        <div id="detail-title">Select a tile</div>
-        <div id="detail-description"></div>
+        
+        <!-- View Mode -->
+        <div id="detail-view-mode">
+            <div id="detail-badge" class="detail-badge">NOTE CARD</div>
+            <h2 id="detail-title" class="detail-title">Select a tile</h2>
+            <p id="detail-description" class="detail-desc"></p>
+            
+            <div class="detail-section">
+                <h3>CONCEPTS</h3>
+                <ul id="detail-concepts" class="detail-concepts-list"></ul>
+            </div>
+            
+            <div class="detail-section">
+                <h3>RESOURCE LINKS</h3>
+                <div id="detail-links" class="detail-links-list"></div>
+            </div>
+            
+            <div style="display:flex; gap: 8px; margin-top: 24px;">
+                <button onclick="window.ui.enableEditMode()" class="auth-submit" style="width:auto;flex:1;">EDIT DOSSIER</button>
+                <button onclick="deleteActiveNode()" class="auth-submit" style="width:auto; background:#c0392b; color:#fff;">DELETE</button>
+            </div>
+        </div>
+
+        <!-- Edit Mode -->
+        <div id="detail-edit-mode" style="display:none;">
+            <h2 class="detail-title" style="border-bottom: 2px solid #8a7a5f; padding-bottom:4px; margin-bottom:16px;">EDIT CASE FILE</h2>
+            
+            <div class="auth-field">
+                <label>TITLE</label>
+                <input id="edit-title" type="text" />
+            </div>
+            
+            <div class="auth-field">
+                <label>DESCRIPTION / NOTES</label>
+                <textarea id="edit-desc" rows="4" style="width:100%; font-family:'Courier Prime', monospace; font-size:12px; background:rgba(0,0,0,0.04); border:1px solid rgba(0,0,0,0.2); border-radius:3px; padding:8px; outline:none; resize:vertical;"></textarea>
+            </div>
+
+            <div class="auth-field" style="display:flex; gap:8px;">
+                <div style="flex:1;">
+                    <label>SHAPE</label>
+                    <select id="edit-shape" class="retro-select" style="width:100%; padding:6px; font-size:11px;">
+                        <option value="note_card">Note Card</option>
+                        <option value="tape_label">Tape Label</option>
+                        <option value="polaroid">Polaroid</option>
+                        <option value="newspaper_clipping">Clipping</option>
+                    </select>
+                </div>
+                <div style="flex:1;">
+                    <label>COLOR</label>
+                    <select id="edit-color" class="retro-select" style="width:100%; padding:6px; font-size:11px;">
+                        <option value="#f5e6c8">Yellow Card</option>
+                        <option value="#fbf4db">Pale Cream</option>
+                        <option value="#e8f8f5">Mint green</option>
+                        <option value="#ebf5fb">Ice Blue</option>
+                        <option value="#fdf2e9">Soft Rose</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="auth-field">
+                <label>CONCEPTS (comma separated)</label>
+                <input id="edit-concepts" type="text" placeholder="e.g. suspect, alibi, evidence" />
+            </div>
+
+            <div class="auth-field">
+                <label>RESOURCE LINKS (Title, URL)</label>
+                <div id="edit-links-container" style="display:flex; flex-direction:column; gap:6px;"></div>
+                <button onclick="window.ui.addEditLinkField()" class="retro-inline-btn" style="margin-top:6px; font-size:9px;">+ ADD LINK</button>
+            </div>
+            
+            <div style="display:flex; gap: 8px; margin-top: 24px;">
+                <button onclick="window.ui.saveEdits()" class="auth-submit" style="width:auto;flex:1;">SAVE CHANGES</button>
+                <button onclick="window.ui.disableEditMode()" class="auth-submit" style="width:auto;background:none; border:1px solid rgba(0,0,0,0.3); color:var(--ink-dark);">CANCEL</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -318,7 +505,7 @@
         document.getElementById('tab-register').classList.toggle('active', tab === 'register');
     }
 
-    /* ── Auth handlers (Phase 2 will wire to window.auth) ── */
+    /* ── Auth handlers ── */
     async function handleLogin(e) {
         e.preventDefault();
         document.getElementById('login-error').style.display = 'none';
@@ -326,7 +513,6 @@
             const username = document.getElementById('login-username').value;
             const password = document.getElementById('login-password').value;
             await window.auth.login(username, password);
-            showBoardScreen();
         } catch (err) {
             const el = document.getElementById('login-error');
             el.textContent = err.message;
@@ -355,22 +541,45 @@
     function showBoardScreen() {
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('board-screen').style.display = 'block';
+        if (window.ui && typeof window.ui.init === 'function') {
+            window.ui.init();
+        }
     }
 
-    /* ── Canvas controls (delegate to canvas engine) ── */
+    /* ── Board Navigation handlers ── */
+    async function createNewBoard() {
+        if (window.ui) {
+            await window.ui.createNewBoard();
+        }
+    }
+
+    async function switchBoard(boardId) {
+        if (window.ui) {
+            await window.ui.switchBoard(boardId);
+        }
+    }
+
+    /* ── Canvas controls ── */
     function pan(dx, dy) { if (window.canvasEngine) window.canvasEngine.pan(dx, dy); }
     function zoom(factor) { if (window.canvasEngine) window.canvasEngine.zoom(factor); }
     function resetView() { if (window.canvasEngine) window.canvasEngine.resetView(); }
 
     function handleSearch(query) {
-        if (window.nodeManager) {
-            window.nodeManager.filterBySearch(query);
+        if (window.ui) {
+            window.ui.handleSearch(query);
         }
     }
 
     function addTile() {
-        // Phase 4: opens a new tile creation dialog at the canvas center
-        console.log('[UI] Add tile — to be implemented in Phase 4');
+        if (window.ui) {
+            window.ui.addTile();
+        }
+    }
+
+    function deleteActiveNode() {
+        if (window.ui) {
+            window.ui.deleteActiveNode();
+        }
     }
 </script>
 </body>
