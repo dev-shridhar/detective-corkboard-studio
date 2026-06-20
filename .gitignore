@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+pip-log.txt
+pip-delete-this-directory.txt
+.eggs/
+*.egg-info/
+dist/
+build/
+*.egg
+
+# FastAPI / Uvicorn
+*.log
+
+# SQLite (local dev only)
+*.db
+*.sqlite3
+
+# Alembic
+# (keep alembic/versions/ tracked)
+
+# Environment variables — NEVER commit secrets
+.env
+.env.*
+!.env.example
+
+# Node / Frontend tooling (if added later)
+node_modules/
+.npm/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Docker
+*.dockerignore
+
+# Distribution
+dist/
