@@ -17,8 +17,10 @@ class AuthManager {
     async login(username, password) {
         const result = await window.api.login(username, password);
         this._accessToken = result.access_token;
+        this._username = username;
         window.api.setToken(this._accessToken);
         this._scheduleRefresh();
+        this._setAgentBadge(username);
         this._showBoardScreen();
         return result;
     }
@@ -30,8 +32,10 @@ class AuthManager {
             console.error('[AuthManager] Logout request failed:', err);
         } finally {
             this._accessToken = null;
+            this._username = null;
             window.api.clearToken();
             if (this._refreshTimer) clearTimeout(this._refreshTimer);
+            this._setAgentBadge(null);
             this._showAuthScreen();
         }
     }
@@ -80,6 +84,11 @@ class AuthManager {
     _showBoardScreen() {
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('board-screen').style.display = 'block';
+    }
+
+    _setAgentBadge(username) {
+        const el = document.getElementById('agent-username');
+        if (el) el.textContent = username ? username.toUpperCase() : 'AGENT';
     }
 }
 

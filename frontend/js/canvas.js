@@ -235,17 +235,23 @@ class CanvasEngine {
                         window.edgeManager.startPreview(pinScreen.x, pinScreen.y, activeYarnColor);
                     }
                 } else {
-                    // Start dragging node
+                    // Single click tile body → open right inspector + start drag
                     if (window.nodeManager) {
                         window.nodeManager.startDrag(node, mouseX, mouseY, this);
                     }
                     this.selectedNode = node;
+                    if (window.ui) {
+                        window.ui.openInspector(node);
+                    }
                 }
             } else {
-                // Empty space clicked → Pan camera
+                // Empty space clicked → Pan camera + close inspector
                 this.isPanning = true;
                 this.startX = mouseX - this.offsetX;
                 this.startY = mouseY - this.offsetY;
+                if (window.ui) {
+                    window.ui.closeInspector();
+                }
             }
             this.requestDraw();
         });
@@ -329,13 +335,14 @@ class CanvasEngine {
             this.zoom(factor, e.clientX, e.clientY);
         });
 
-        // Double click to open editor panel details
+        // Single-click selects tile (opens inspector); Double-click opens full dossier modal editor
         this.canvas.addEventListener('dblclick', (e) => {
             const mouseX = e.clientX;
             const mouseY = e.clientY;
             if (window.nodeManager) {
                 const hit = window.nodeManager.hitTest(mouseX, mouseY, this);
                 if (hit && window.ui) {
+                    // Double-click: open the centered dossier modal for full editing
                     window.ui.openDetailPanel(hit.node);
                 }
             }
