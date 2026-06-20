@@ -14,34 +14,62 @@ class AuthManager {
         this._refreshTimer = null;
     }
 
-    isAuthenticated() {
-        return !!this._accessToken;
-    }
-
     async login(username, password) {
         const result = await window.api.login(username, password);
         this._accessToken = result.access_token;
         window.api.setToken(this._accessToken);
         this._scheduleRefresh();
+        this._showBoardScreen();
         return result;
     }
 
-    logout() {
-        this._accessToken = null;
-        window.api.clearToken();
-        if (this._refreshTimer) clearTimeout(this._refreshTimer);
-        this._showAuthScreen();
+    async logout() {
+        try {
+            await window.api.logout();
+        } catch (err) {
+            console.error('[AuthManager] Logout request failed:', err);
+        } finally {
+            this._accessToken = null;
+            window.api.clearToken();
+            if (this._refreshTimer) clearTimeout(this._refreshTimer);
+            this._showAuthScreen();
+        }
     }
 
     _scheduleRefresh() {
+        if (this._refreshTimer) clearTimeout(this._refreshTimer);
         // Refresh the access token 60s before it expires (30 min - 60s = 29 min)
         const msUntilRefresh = (30 * 60 - 60) * 1000;
         this._refreshTimer = setTimeout(() => this._refreshToken(), msUntilRefresh);
     }
 
     async _refreshToken() {
-        // Phase 2: call POST /auth/refresh with the HttpOnly cookie
-        console.log('[AuthManager] Token refresh — to be implemented in Phase 2');
+        try {
+            const result = await window.api.refresh();
+            this._accessToken = result.access_token;
+            window.api.setToken(this._accessToken);
+            this._scheduleRefresh();
+            return true;
+        } catch (err) {
+            console.warn('[AuthManager] Token refresh failed, user session expired:', err);
+            this.logout();
+            return false;
+        }
+    }
+
+    async checkSession() {
+        console.log('[AuthManager] Checking for active session...');
+        const success = await this._refreshToken();
+        if (success) {
+            console.log('[AuthManager] Active session restored.');
+            this._showBoardScreen();
+            // Trigger board listing / loading once UI is fully ready
+            if (window.ui && typeof window.ui.init === 'function') {
+                window.ui.init();
+            }
+        } else {
+            this._showAuthScreen();
+        }
     }
 
     _showAuthScreen() {
@@ -56,3 +84,9 @@ class AuthManager {
 }
 
 window.auth = new AuthManager();
+
+// Automatically check session on page load
+window.addEventListener('DOMContentLoaded', () => {
+    window.auth.checkSession();
+});
+

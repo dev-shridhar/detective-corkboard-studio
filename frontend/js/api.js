@@ -32,7 +32,7 @@ class ApiClient {
     }
 
     async _request(method, path, body = null) {
-        const options = { method, headers: this._headers() };
+        const options = { method, headers: this._headers(), credentials: 'include' };
         if (body) options.body = JSON.stringify(body);
         const res = await fetch(`${API_BASE}${path}`, options);
         if (!res.ok) {
@@ -44,12 +44,23 @@ class ApiClient {
 
     // --- Auth ---
     register(payload) { return this._request('POST', '/auth/register', payload); }
-    login(username, password) {
+    async login(username, password) {
         const form = new URLSearchParams({ username, password });
-        return fetch(`${API_BASE}/auth/login`, { method: 'POST', body: form })
-            .then(r => r.json());
+        const res = await fetch(`${API_BASE}/auth/login`, {
+            method: 'POST',
+            body: form,
+            credentials: 'include'
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({ detail: res.statusText }));
+            throw new Error(err.detail || 'Login failed');
+        }
+        return res.json();
     }
+    refresh() { return this._request('POST', '/auth/refresh'); }
+    logout() { return this._request('POST', '/auth/logout'); }
     getMe() { return this._request('GET', '/auth/me'); }
+
 
     // --- Boards ---
     listBoards() { return this._request('GET', '/boards'); }
