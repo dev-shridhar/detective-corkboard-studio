@@ -1,0 +1,594 @@
+/* Vintage Color Palette & Design Tokens */
+:root {
+    --cork-bg: #1e1510;
+    --paper-light: #eedeb0; /* Age-stained yellowed paper */
+    --paper-dark: #dfcca2;
+    --ink-dark: #1c1c1e;   /* Authentic printers ink */
+    --ink-faded: #48484a;
+    --border-paper: rgba(0, 0, 0, 0.15);
+    
+    /* Classification colors (Red-pinned strings, brass, copper, etc.) */
+    --color-programming: #c0392b;   /* Deep crimson */
+    --color-architecture: #d35400;  /* Burnt orange */
+    --color-ai: #27ae60;           /* Forest green */
+    --color-dsa: #2980b9;          /* Deep Prussian blue */
+    --color-devops: #8e44ad;       /* Dark Royal purple */
+    --string-color: #e74c3c;       /* Red yarn string */
+}
+
+/* Reset and Layout */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--cork-bg);
+    color: var(--ink-dark);
+    font-family: 'Outfit', sans-serif;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    user-select: none;
+}
+
+/* 2D Canvas underlay */
+#graphCanvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+}
+
+#graphCanvas:active {
+    cursor: grabbing;
+}
+
+/* Retro Top Secret Header */
+.retro-header {
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--paper-light);
+    border: 3px double #8a7a5f;
+    box-shadow: 8px 8px 24px rgba(0, 0, 0, 0.6), inset 0 0 40px rgba(138, 122, 95, 0.15);
+    padding: 16px 24px;
+    border-radius: 4px;
+    z-index: 10;
+    max-width: 420px;
+    pointer-events: auto;
+    transform: rotate(-1deg);
+}
+
+.header-stamp {
+    align-self: flex-start;
+    border: 3px solid #c0392b;
+    color: #c0392b;
+    font-family: 'Special Elite', monospace;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 3px;
+    letter-spacing: 2px;
+    transform: rotate(-6deg);
+    margin-bottom: 4px;
+}
+
+.header-title h1 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--ink-dark);
+    letter-spacing: -0.5px;
+    border-bottom: 2px solid var(--ink-dark);
+    padding-bottom: 4px;
+    margin-bottom: 4px;
+}
+
+.header-title p {
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    color: var(--ink-faded);
+}
+
+/* Search Bar (Typewriter scrap style) */
+.search-box {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    padding: 8px 12px;
+    border-radius: 4px;
+}
+
+.search-box input {
+    background: none;
+    border: none;
+    outline: none;
+    font-family: 'Courier Prime', monospace;
+    font-size: 12px;
+    color: var(--ink-dark);
+    width: 100%;
+    margin-left: 8px;
+}
+
+.search-box input::placeholder {
+    color: #8e8e93;
+}
+
+/* Bottom Right Brass Controls Overlay */
+.retro-controls {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    gap: 16px;
+    z-index: 10;
+    background: #2c2520;
+    border: 2px solid #5a4b40;
+    border-radius: 8px;
+    padding: 12px 16px;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.knob-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.control-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: 9px;
+    color: #a58e7f;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* Pan direction pad styling */
+.pan-pad {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.pan-row {
+    display: flex;
+    gap: 2px;
+}
+
+.control-btn {
+    background: #3e322a;
+    border: 1px solid #665243;
+    color: #d8c2b1;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+}
+
+.control-btn:hover {
+    background: #504036;
+    color: #fff;
+}
+
+.control-btn:active {
+    background: #251d19;
+}
+
+.control-btn.reset {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Zoom controls styling */
+.zoom-pad {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.control-btn.zoom {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+}
+
+/* Classification Legend Overlay */
+.retro-legend {
+    position: absolute;
+    bottom: 24px;
+    left: 24px;
+    background: var(--paper-light);
+    border: 2px solid #8a7a5f;
+    padding: 12px 16px;
+    border-radius: 4px;
+    z-index: 10;
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.4);
+    transform: rotate(0.5deg);
+    max-width: 220px;
+}
+
+.legend-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    padding-bottom: 4px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Courier Prime', monospace;
+    font-size: 10px;
+    margin-bottom: 6px;
+    color: var(--ink-dark);
+}
+
+.legend-color {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 0 3px rgba(0,0,0,0.4);
+}
+
+.legend-color.programming { background-color: var(--color-programming); }
+.legend-color.architecture { background-color: var(--color-architecture); }
+.legend-color.ai { background-color: var(--color-ai); }
+.legend-color.dsa { background-color: var(--color-dsa); }
+.legend-color.devops { background-color: var(--color-devops); }
+
+/* Old Newspaper Modal Drawer (Slides from Right) */
+.newspaper-card {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    bottom: 24px;
+    width: 600px;
+    background-color: var(--paper-light);
+    background-image: radial-gradient(circle, rgba(240, 220, 180, 0.15) 0%, rgba(138, 110, 80, 0.15) 100%);
+    border: 8px solid var(--paper-light); /* Double paper framing */
+    outline: 2px solid #d4cbb8;
+    box-shadow: -15px 0 35px rgba(0, 0, 0, 0.6);
+    border-radius: 2px;
+    z-index: 100;
+    overflow-y: auto;
+    transform: translateX(650px);
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: auto;
+}
+
+.newspaper-card.active {
+    transform: translateX(0);
+}
+
+/* Inner Container for Printing columns */
+.newspaper-inner {
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.close-btn {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 28px;
+    font-weight: 300;
+    color: var(--ink-dark);
+    cursor: pointer;
+    transition: transform 0.2s;
+    z-index: 10;
+}
+
+.close-btn:hover {
+    transform: scale(1.15) rotate(90deg);
+}
+
+/* Vintage Newspaper Header Columns */
+.newspaper-header {
+    margin-bottom: 20px;
+}
+
+.issue-info {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Courier Prime', monospace;
+    font-size: 9px;
+    color: var(--ink-faded);
+    border-bottom: 1px solid var(--ink-dark);
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.newspaper-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 38px;
+    font-weight: 800;
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 1.1;
+    color: var(--ink-dark);
+    margin: 8px 0;
+    letter-spacing: -1px;
+}
+
+.newspaper-divider {
+    height: 5px;
+    border-top: 3px solid var(--ink-dark);
+    border-bottom: 1px solid var(--ink-dark);
+    margin-top: 4px;
+}
+
+/* Newspaper Grid Columns */
+.newspaper-body {
+    display: flex;
+    gap: 24px;
+    flex: 1;
+    overflow: visible;
+}
+
+.newspaper-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.newspaper-column.main-col {
+    flex: 1.3;
+    border-right: 1.5px solid var(--ink-dark);
+    padding-right: 20px;
+}
+
+.newspaper-column.side-col {
+    flex: 1;
+}
+
+.column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.newspaper-column .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 2px;
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border: 1px solid var(--ink-dark);
+}
+
+.tag-meta {
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    color: var(--ink-faded);
+}
+
+.lead-paragraph {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--ink-dark);
+    margin-bottom: 20px;
+    text-align: justify;
+    text-indent: 0;
+}
+
+.lead-paragraph::first-letter {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 52px;
+    font-weight: 800;
+    float: left;
+    margin-top: 4px;
+    margin-right: 8px;
+    line-height: 0.8;
+    color: var(--ink-dark);
+}
+
+/* Newspaper Subheadings */
+.newspaper-subheading {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--ink-dark);
+    padding-bottom: 4px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+}
+
+/* Bullet list style like column notes */
+.concept-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.concept-list li {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--ink-dark);
+    margin-bottom: 8px;
+    position: relative;
+    padding-left: 16px;
+    text-align: justify;
+}
+
+.concept-list li::before {
+    content: "■";
+    font-size: 8px;
+    position: absolute;
+    left: 0;
+    top: 5px;
+    color: var(--ink-dark);
+}
+
+/* Papers Evidence Lists */
+.papers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.paper-item {
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    padding: 10px 12px;
+    transition: background-color 0.2s, border-color 0.2s;
+    text-decoration: none;
+    display: block;
+}
+
+.paper-item:hover {
+    background: rgba(0, 0, 0, 0.06);
+    border-color: var(--ink-dark);
+}
+
+.paper-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--ink-dark);
+    margin-bottom: 4px;
+    line-height: 1.3;
+}
+
+.paper-author {
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    color: var(--ink-faded);
+}
+
+.no-papers {
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    color: var(--ink-faded);
+    font-style: italic;
+    padding: 10px;
+    text-align: center;
+    border: 1px dashed rgba(0, 0, 0, 0.15);
+    background: rgba(0,0,0,0.01);
+}
+
+/* Bottom actions */
+.card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 24px;
+}
+
+.btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+    border: 1px solid var(--ink-dark);
+}
+
+.btn-primary {
+    background-color: var(--ink-dark);
+    color: var(--paper-light);
+}
+
+.btn-primary:hover {
+    background-color: var(--paper-light);
+    color: var(--ink-dark);
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: var(--ink-dark);
+}
+
+.btn-secondary:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+
+/* Custom Scrollbar for vintage paper look */
+.newspaper-card::-webkit-scrollbar {
+    width: 8px;
+}
+
+.newspaper-card::-webkit-scrollbar-track {
+    background: var(--paper-dark);
+    border-left: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.newspaper-card::-webkit-scrollbar-thumb {
+    background: #cbd0d6;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+}
+
+.newspaper-card::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive Scaling */
+@media (max-width: 900px) {
+    .newspaper-card {
+        width: 100%;
+        right: 0;
+        top: auto;
+        bottom: 0;
+        height: 60vh;
+        transform: translateY(650px);
+        border-right: none;
+        border-left: none;
+    }
+    
+    .newspaper-card.active {
+        transform: translateY(0);
+    }
+    
+    .newspaper-body {
+        flex-direction: column;
+    }
+    
+    .newspaper-column.main-col {
+        border-right: none;
+        border-bottom: 1px dashed rgba(0,0,0,0.25);
+        padding-right: 0;
+        padding-bottom: 20px;
+    }
+    
+    .retro-header {
+        max-width: calc(100% - 48px);
+        right: 24px;
+    }
+}
