@@ -66,7 +66,74 @@ class AuthService:
         user_id = payload.get("sub")
         if not user_id:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-        user = self.user_repo.get(user_id)
+        
+        import uuid
+        try:
+            user_uuid = uuid.UUID(user_id)
+        except ValueError:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token ID")
+
+        user = self.user_repo.get(user_uuid)
         if not user:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
         return user
+
+    def save_refresh_token(self, user: User, refresh_token: str) -> None:
+        """Hash and save the active refresh token on the user object."""
+        user.hashed_refresh_token = SecurityUtils.hash_token(refresh_token)
+        self.user_repo.update(user)
+
+    def rotate_refresh_token(self, refresh_token: str) -> tuple[User, str, str]:
+        """
+        Validate the existing refresh token, ensure it matches the database,
+        and generate a brand new rotated access/refresh token pair.
+        """
+        payload = SecurityUtils.decode_token(refresh_token)
+        if payload.get("type") != "refresh":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token type",
+            )
+        user_id = payload.get("sub")
+        if not user_id:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token subject",
+            )
+
+        import uuid
+        try:
+            user_uuid = uuid.UUID(user_id)
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token subject ID",
+            )
+        user = self.user_repo.get(user_uuid)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User not found",
+            )
+        if not user.hashed_refresh_token or not SecurityUtils.verify_token(
+            refresh_token, user.hashed_refresh_token
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or expired refresh token",
+            )
+
+        # Generate new rotated tokens
+        new_access_token = SecurityUtils.create_access_token(str(user.id))
+        new_refresh_token = SecurityUtils.create_refresh_token(str(user.id))
+
+        # Persist new refresh token hash
+        self.save_refresh_token(user, new_refresh_token)
+
+        return user, new_access_token, new_refresh_token
+
+    def revoke_refresh_token(self, user: User) -> None:
+        """Revoke the current refresh token by setting it to None in the database."""
+        user.hashed_refresh_token = None
+        self.user_repo.update(user)
+

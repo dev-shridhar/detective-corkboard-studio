@@ -2,7 +2,8 @@
 
 ## 1. Project Vision
 
-Detective Corkboard Studio is a **premium, real-time collaborative** investigation board builder. It gives any user the power to create, customize, and share beautiful corkboard-style visual knowledge maps — like Figma, but with the aesthetic of a vintage detective's case board.
+Detective Corkboard Studio is a **premium multi-user** investigation board builder. It gives any user the power to create, customize, and share beautiful corkboard-style visual knowledge maps — like Figma, but with the aesthetic of a vintage detective's case board.
+
 
 The app targets:
 - Students building visual study maps
@@ -296,7 +297,7 @@ Each subsequent request includes Authorization: Bearer <access_token>
 
 | Decision | Options | Leaning |
 |----------|---------|---------|
-| Real-time multi-user sync | WebSockets vs. Polling | WebSockets (Socket.IO or FastAPI native) |
+| Multi-user sync | Real-time vs. Page reload | Resolved: Option 1 (No real-time sync, update on page reload) |
 | Frontend framework | Vanilla JS vs. React | Vanilla JS (simpler, zero build step) |
 | Hosting | Self-hosted VPS vs. Fly.io vs. Railway | TBD based on existing subdomain setup |
 | Board sharing | Public link sharing vs. invite-only | Both: public read + invite for edit |
