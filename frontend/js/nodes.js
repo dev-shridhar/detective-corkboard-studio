@@ -316,6 +316,31 @@ class NodeManager {
             ctx.fillText('✕', btnX, btnY);
             ctx.restore();
         }
+
+        // Draw "Drag to link" tooltip when hovering near the pushpin center
+        if (isHovered && this._engine._pinHintNode === node) {
+            ctx.save();
+            ctx.shadowColor = 'transparent';
+            const tooltipText = '🧵 Drag to link';
+            ctx.font = 'bold 9px "Courier Prime", monospace';
+            const tw = ctx.measureText(tooltipText).width + 12;
+            const th = 18;
+            const tx = 0;
+            const ty = -dims.h / 2 - 24;
+
+            // Tooltip background
+            ctx.fillStyle = 'rgba(30, 20, 10, 0.82)';
+            ctx.beginPath();
+            ctx.roundRect(tx - tw / 2, ty - th / 2, tw, th, 4);
+            ctx.fill();
+
+            // Tooltip text
+            ctx.fillStyle = '#eedeb0';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(tooltipText, tx, ty);
+            ctx.restore();
+        }
         
         ctx.restore();
         
@@ -325,6 +350,7 @@ class NodeManager {
         this._drawPushpin(ctx, screenPos.x, screenPos.y, scale, '#c0392b');
         ctx.restore();
     }
+
 
     _drawFittedText(ctx, text, maxWidth, yOffset) {
         let size = 11;

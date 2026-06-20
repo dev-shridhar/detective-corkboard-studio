@@ -265,6 +265,109 @@ class UIManager {
         }
     }
 
+    /* ── Right Inspector Panel (single-click quick-view) ── */
+
+    openInspector(node) {
+        this.activeNode = node;
+
+        // Update tray swatch highlight to match tile color
+        document.querySelectorAll('.swatch-btn:not(.yarn-swatch)').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.title.toLowerCase() === this.getColorName(node.color)) btn.classList.add('active');
+        });
+
+        // Populate header
+        const shapeBadge = document.getElementById('inspector-shape-badge');
+        if (shapeBadge) shapeBadge.textContent = node.shape.replace(/_/g, ' ').toUpperCase();
+
+        // Color accent stripe
+        const stripe = document.getElementById('inspector-color-stripe');
+        if (stripe) stripe.style.background = node.color || '#eedeb0';
+
+        // Title
+        const titleEl = document.getElementById('inspector-title');
+        if (titleEl) titleEl.textContent = node.title || '— untitled —';
+
+        // Description
+        const descEl = document.getElementById('inspector-desc');
+        if (descEl) descEl.textContent = node.description || '— no notes written —';
+
+        // Concept tags
+        const tagsEl = document.getElementById('inspector-tags');
+        if (tagsEl) {
+            tagsEl.innerHTML = '';
+            const concepts = node.concepts || [];
+            if (concepts.length === 0) {
+                tagsEl.innerHTML = '<span style="font-family:Courier Prime,monospace;font-size:10px;color:#8a7a5f;font-style:italic;">No concepts tagged</span>';
+            } else {
+                concepts.forEach(c => {
+                    const tag = document.createElement('span');
+                    tag.className = 'inspector-tag';
+                    tag.textContent = c;
+                    tagsEl.appendChild(tag);
+                });
+            }
+        }
+
+        // Yarn connections
+        const yarnsEl = document.getElementById('inspector-yarns');
+        if (yarnsEl) {
+            yarnsEl.innerHTML = '';
+            const edges = (window.edgeManager && window.edgeManager._edges) || [];
+            const nodes = (window.nodeManager && window.nodeManager.getNodes()) || [];
+            const connected = edges.filter(e => e.source_node_id === node.id || e.target_node_id === node.id);
+            if (connected.length === 0) {
+                yarnsEl.innerHTML = '<span style="font-family:Courier Prime,monospace;font-size:10px;color:#8a7a5f;font-style:italic;">No yarn connections</span>';
+            } else {
+                connected.forEach(edge => {
+                    const otherId = edge.source_node_id === node.id ? edge.target_node_id : edge.source_node_id;
+                    const other = nodes.find(n => n.id === otherId);
+                    const item = document.createElement('div');
+                    item.className = 'inspector-yarn-item';
+                    item.innerHTML = `
+                        <span class="inspector-yarn-dot" style="background:${edge.color || '#c0392b'};"></span>
+                        <span>${other ? other.title : 'Unknown tile'}</span>
+                    `;
+                    yarnsEl.appendChild(item);
+                });
+            }
+        }
+
+        // Resource links
+        const linksEl = document.getElementById('inspector-links');
+        if (linksEl) {
+            linksEl.innerHTML = '';
+            const links = node.links || [];
+            if (links.length === 0) {
+                linksEl.innerHTML = '<span style="font-family:Courier Prime,monospace;font-size:10px;color:#8a7a5f;font-style:italic;">No resources linked</span>';
+            } else {
+                links.forEach(l => {
+                    const a = document.createElement('a');
+                    a.className = 'paper-item';
+                    a.href = l.url.startsWith('http') ? l.url : `https://${l.url}`;
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    a.innerHTML = `<div class="paper-title">${l.title}</div><div class="paper-author">${l.url}</div>`;
+                    linksEl.appendChild(a);
+                });
+            }
+        }
+
+        // Slide open the panel
+        const panel = document.getElementById('right-inspector');
+        if (panel) panel.classList.add('open');
+    }
+
+    closeInspector() {
+        const panel = document.getElementById('right-inspector');
+        if (panel) panel.classList.remove('open');
+        this.activeNode = null;
+        if (window.canvasEngine) {
+            window.canvasEngine.selectedNode = null;
+            window.canvasEngine.requestDraw();
+        }
+    }
+
     setTileColor(color) {
         document.querySelectorAll('.swatch-btn:not(.yarn-swatch)').forEach(btn => {
             btn.classList.remove('active');

@@ -141,6 +141,56 @@
         /* ── Board screen ── */
         #board-screen { display: none; width: 100vw; height: 100vh; position: relative; }
 
+        /* ── Top-right detective badge (username + logout) ── */
+        .top-right-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 10;
+            pointer-events: auto;
+        }
+        .agent-badge {
+            background: var(--paper-light);
+            border: 2px solid #8a7a5f;
+            box-shadow: 4px 4px 12px rgba(0,0,0,0.5), inset 0 0 20px rgba(138,122,95,0.1);
+            border-radius: 3px;
+            padding: 6px 14px;
+            font-family: 'Special Elite', monospace;
+            font-size: 11px;
+            color: var(--ink-dark);
+            letter-spacing: 1px;
+            transform: rotate(0.5deg);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .agent-badge .agent-icon {
+            font-size: 13px;
+        }
+        .logout-top-btn {
+            background: linear-gradient(180deg, #3d2f24 0%, #221813 100%);
+            border: 2px solid #c0392b;
+            color: #f7e9d7;
+            border-radius: 3px;
+            padding: 6px 14px;
+            font-family: 'Special Elite', monospace;
+            font-size: 11px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 3px 3px 8px rgba(0,0,0,0.5);
+            transition: all 0.15s ease;
+            transform: rotate(-0.5deg);
+        }
+        .logout-top-btn:hover {
+            background: #c0392b;
+            color: #fff;
+            border-color: #e74c3c;
+            transform: rotate(0deg) translateY(-1px);
+        }
+
         /* ── Detail Panel Modal ── */
         .detail-panel-overlay {
             position: fixed;
@@ -580,6 +630,15 @@
         </div>
     </div>
 
+    <!-- Top-right agent badge + logout -->
+    <div class="top-right-controls">
+        <div class="agent-badge">
+            <span class="agent-icon">🕵️</span>
+            <span id="agent-username">AGENT</span>
+        </div>
+        <button class="logout-top-btn" onclick="window.auth.logout()" title="Close Case File & Logout">CLOSE CASE ✕</button>
+    </div>
+
     <!-- Horizontal Tool Tray -->
     <div class="retro-tool-tray">
         <!-- Tile Types -->
@@ -628,9 +687,8 @@
         <div class="tray-section">
             <span class="tray-label">COMMANDS</span>
             <div class="tray-group">
-                <button class="tray-btn" onclick="window.history_manager.undo()" title="Undo (Ctrl+Z)">↩ Undo</button>
-                <button class="tray-btn" onclick="window.history_manager.redo()" title="Redo (Ctrl+Y)">↪ Redo</button>
-                <button class="tray-btn logout-btn" onclick="window.auth.logout()" title="Logout Dossier">Logout ✕</button>
+                <button class="tray-btn" onclick="window.history_manager.undo()" title="Undo last action (Ctrl+Z)">↩ Undo</button>
+                <button class="tray-btn" onclick="window.history_manager.redo()" title="Redo last action (Ctrl+Y)">↪ Redo</button>
             </div>
         </div>
     </div>
@@ -711,12 +769,52 @@
                 </div>
                 
                 <div style="display:flex; gap: 8px; margin-top: 24px;">
-                    <button onclick="window.ui.saveEdits()" class="auth-submit" style="width:auto;flex:1;">SAVE CHANGES</button>
+                    <button onclick="window.ui.saveEdits()" class="auth-submit" style="width:auto;flex:1;">📁 FILE REPORT</button>
                     <button onclick="window.ui.disableEditMode()" class="auth-submit" style="width:auto;background:none; border:1px solid rgba(0,0,0,0.3); color:var(--ink-dark);">CANCEL</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Right Sliding Inspector Panel — opens on tile single-click -->
+    <div id="right-inspector">
+        <!-- Dark header strip -->
+        <div class="inspector-header">
+            <div class="inspector-header-left">
+                <span class="inspector-eyebrow">CASE FILE INTEL</span>
+                <span id="inspector-shape-badge" class="inspector-shape-badge">NOTE CARD</span>
+            </div>
+            <button class="inspector-close-btn" onclick="window.ui.closeInspector()" title="Close Inspector">✕</button>
+        </div>
+        <!-- Tile color accent stripe -->
+        <div id="inspector-color-stripe" style="background: #eedeb0;"></div>
+        <!-- Scrollable body -->
+        <div class="inspector-body">
+            <div class="inspector-title" id="inspector-title">Select a tile</div>
+            <div class="inspector-section">
+                <div class="inspector-section-label">📋 Investigation Notes</div>
+                <div class="inspector-desc" id="inspector-desc">— no notes written —</div>
+            </div>
+            <div class="inspector-section">
+                <div class="inspector-section-label">🏷️ Concepts</div>
+                <div class="inspector-tags" id="inspector-tags"></div>
+            </div>
+            <div class="inspector-section">
+                <div class="inspector-section-label">🧵 Connected Via Yarn</div>
+                <div id="inspector-yarns" style="display:flex;flex-direction:column;"></div>
+            </div>
+            <div class="inspector-section">
+                <div class="inspector-section-label">🔗 Resource Links</div>
+                <div id="inspector-links" style="display:flex;flex-direction:column;gap:4px;"></div>
+            </div>
+        </div>
+        <!-- Footer actions -->
+        <div class="inspector-footer">
+            <button class="inspector-btn inspector-btn-primary" onclick="window.ui.openDetailPanel(window.ui.activeNode)">📁 EDIT DOSSIER</button>
+            <button class="inspector-btn inspector-btn-danger" onclick="deleteActiveNode()">✕ DELETE EVIDENCE</button>
+        </div>
+    </div>
+
 </div>
 
 <!-- ═══════════════════ SCRIPTS ═══════════════════ -->
