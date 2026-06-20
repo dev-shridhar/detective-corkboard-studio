@@ -1,4 +1,3 @@
-from typing import Optional
 from sqlmodel import Session
 from fastapi import HTTPException, status
 
