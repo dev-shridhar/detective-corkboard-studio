@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detective Corkboard Studio</title>
+    <meta name="description" content="A premium multi-user investigation board builder. Drag tiles, hang yarn strings, and collaborate in real time on an infinite corkboard canvas." />
+
+    <!-- Same Google Fonts as architect-of-intelligence -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Playfair+Display:wght@700;800&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+        /* ── Auth Screen overlay ── */
+        #auth-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--cork-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .auth-card {
+            background: var(--paper-light);
+            border: 3px double #8a7a5f;
+            box-shadow: 12px 12px 40px rgba(0,0,0,0.7), inset 0 0 60px rgba(138,122,95,0.1);
+            padding: 40px 48px;
+            border-radius: 4px;
+            width: 380px;
+            transform: rotate(-0.5deg);
+        }
+
+        .auth-stamp {
+            border: 3px solid #c0392b;
+            color: #c0392b;
+            font-family: 'Special Elite', monospace;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 10px;
+            border-radius: 3px;
+            letter-spacing: 2px;
+            transform: rotate(-4deg);
+            display: inline-block;
+            margin-bottom: 16px;
+        }
+
+        .auth-card h1 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 800;
+            font-size: 22px;
+            color: var(--ink-dark);
+            border-bottom: 2px solid var(--ink-dark);
+            padding-bottom: 6px;
+            margin-bottom: 24px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .auth-tab {
+            font-family: 'Courier Prime', monospace;
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--ink-faded);
+            border: none;
+            background: none;
+            cursor: pointer;
+            padding: 4px 0;
+            border-bottom: 2px solid transparent;
+            transition: color 0.2s, border-color 0.2s;
+        }
+
+        .auth-tab.active {
+            color: var(--ink-dark);
+            border-bottom-color: var(--ink-dark);
+        }
+
+        .auth-field {
+            margin-bottom: 14px;
+        }
+
+        .auth-field label {
+            display: block;
+            font-family: 'Courier Prime', monospace;
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--ink-faded);
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+
+        .auth-field input {
+            width: 100%;
+            background: rgba(0,0,0,0.04);
+            border: 1px solid rgba(0,0,0,0.2);
+            border-radius: 3px;
+            padding: 8px 12px;
+            font-family: 'Courier Prime', monospace;
+            font-size: 13px;
+            color: var(--ink-dark);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .auth-field input:focus {
+            border-color: #8a7a5f;
+        }
+
+        .auth-submit {
+            width: 100%;
+            margin-top: 8px;
+            background: var(--ink-dark);
+            color: var(--paper-light);
+            border: none;
+            border-radius: 3px;
+            padding: 10px;
+            font-family: 'Special Elite', monospace;
+            font-size: 13px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .auth-submit:hover { background: #333; }
+
+        .auth-error {
+            font-family: 'Courier Prime', monospace;
+            font-size: 11px;
+            color: #c0392b;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* ── Board screen ── */
+        #board-screen { display: none; width: 100vw; height: 100vh; position: relative; }
+
+        /* ── Detail panel ── */
+        #detail-panel {
+            position: absolute;
+            right: -400px;
+            top: 0;
+            bottom: 0;
+            width: 380px;
+            background: var(--paper-light);
+            border-left: 3px double #8a7a5f;
+            box-shadow: -8px 0 30px rgba(0,0,0,0.5);
+            padding: 32px 28px;
+            z-index: 20;
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+        }
+
+        #detail-panel.open { right: 0; }
+
+        #detail-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: 1px solid rgba(0,0,0,0.2);
+            border-radius: 3px;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            font-size: 16px;
+            color: var(--ink-faded);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #detail-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--ink-dark);
+            border-bottom: 2px solid var(--ink-dark);
+            padding-bottom: 8px;
+            margin-bottom: 16px;
+        }
+
+        #detail-description {
+            font-family: 'Courier Prime', monospace;
+            font-size: 12px;
+            color: var(--ink-faded);
+            line-height: 1.7;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════ AUTH SCREEN ═══════════════════ -->
+<div id="auth-screen">
+    <div class="auth-card">
+        <div class="auth-stamp">CLASSIFIED</div>
+        <h1>Detective Corkboard Studio</h1>
+
+        <div class="auth-tabs">
+            <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">LOGIN</button>
+            <button class="auth-tab" id="tab-register" onclick="switchTab('register')">REGISTER</button>
+        </div>
+
+        <!-- Login Form -->
+        <form id="form-login" onsubmit="handleLogin(event)">
+            <div class="auth-field">
+                <label for="login-username">USERNAME</label>
+                <input id="login-username" type="text" placeholder="detective_name" required />
+            </div>
+            <div class="auth-field">
+                <label for="login-password">PASSWORD</label>
+                <input id="login-password" type="password" placeholder="••••••••" required />
+            </div>
+            <button type="submit" class="auth-submit">OPEN CASE FILE →</button>
+            <p class="auth-error" id="login-error"></p>
+        </form>
+
+        <!-- Register Form -->
+        <form id="form-register" style="display:none;" onsubmit="handleRegister(event)">
+            <div class="auth-field">
+                <label for="reg-username">USERNAME</label>
+                <input id="reg-username" type="text" placeholder="detective_name" required />
+            </div>
+            <div class="auth-field">
+                <label for="reg-email">EMAIL</label>
+                <input id="reg-email" type="email" placeholder="you@example.com" required />
+            </div>
+            <div class="auth-field">
+                <label for="reg-password">PASSWORD</label>
+                <input id="reg-password" type="password" placeholder="••••••••" required />
+            </div>
+            <button type="submit" class="auth-submit">CREATE DOSSIER →</button>
+            <p class="auth-error" id="register-error"></p>
+        </form>
+    </div>
+</div>
+
+<!-- ═══════════════════ BOARD SCREEN ═══════════════════ -->
+<div id="board-screen">
+
+    <!-- Infinite canvas -->
+    <canvas id="graphCanvas"></canvas>
+
+    <!-- Top-left header — same vintage style as architect-of-intelligence -->
+    <div class="retro-header">
+        <div class="header-stamp">TOP SECRET</div>
+        <div class="header-title">
+            <h1>🕵️ CASE BOARD</h1>
+            <p id="board-name-label">Loading board...</p>
+        </div>
+        <!-- Search bar -->
+        <div class="search-box">
+            <span>🔍</span>
+            <input id="search-input" type="text" placeholder="Search tiles..." oninput="handleSearch(this.value)" />
+        </div>
+    </div>
+
+    <!-- Bottom-right controls — same brass panel design -->
+    <div class="retro-controls">
+        <div class="knob-group">
+            <div class="control-label">PAN</div>
+            <div class="pan-pad">
+                <div class="pan-row">
+                    <button class="control-btn" onclick="pan(0,-50)" title="Pan Up">↑</button>
+                </div>
+                <div class="pan-row">
+                    <button class="control-btn" onclick="pan(-50,0)" title="Pan Left">←</button>
+                    <button class="control-btn reset" onclick="resetView()" title="Reset View">⌂</button>
+                    <button class="control-btn" onclick="pan(50,0)" title="Pan Right">→</button>
+                </div>
+                <div class="pan-row">
+                    <button class="control-btn" onclick="pan(0,50)" title="Pan Down">↓</button>
+                </div>
+            </div>
+        </div>
+        <div class="knob-group">
+            <div class="control-label">ZOOM</div>
+            <div class="zoom-pad">
+                <button class="control-btn" onclick="zoom(1.2)" title="Zoom In">+</button>
+                <button class="control-btn" onclick="zoom(0.8)" title="Zoom Out">−</button>
+            </div>
+        </div>
+        <div class="knob-group">
+            <div class="control-label">ACTIONS</div>
+            <button class="control-btn" onclick="addTile()" title="Add Tile" style="width:auto;padding:0 8px;font-size:11px;">+ TILE</button>
+            <button class="control-btn" onclick="window.history_manager.undo()" title="Undo (Ctrl+Z)" style="width:auto;padding:0 8px;font-size:11px;">UNDO</button>
+        </div>
+    </div>
+
+    <!-- Sliding detail panel -->
+    <div id="detail-panel">
+        <button id="detail-close" onclick="window.ui.closeDetailPanel()" title="Close">✕</button>
+        <div id="detail-title">Select a tile</div>
+        <div id="detail-description"></div>
+    </div>
+</div>
+
+<!-- ═══════════════════ SCRIPTS ═══════════════════ -->
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/history.js"></script>
+<script src="js/canvas.js"></script>
+<script src="js/nodes.js"></script>
+<script src="js/edges.js"></script>
+<script src="js/ui.js"></script>
+<script>
+    /* ── Tab switching ── */
+    function switchTab(tab) {
+        document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
+        document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
+        document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+        document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+    }
+
+    /* ── Auth handlers (Phase 2 will wire to window.auth) ── */
+    async function handleLogin(e) {
+        e.preventDefault();
+        document.getElementById('login-error').style.display = 'none';
+        try {
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            await window.auth.login(username, password);
+            showBoardScreen();
+        } catch (err) {
+            const el = document.getElementById('login-error');
+            el.textContent = err.message;
+            el.style.display = 'block';
+        }
+    }
+
+    async function handleRegister(e) {
+        e.preventDefault();
+        document.getElementById('register-error').style.display = 'none';
+        try {
+            const payload = {
+                username: document.getElementById('reg-username').value,
+                email: document.getElementById('reg-email').value,
+                password: document.getElementById('reg-password').value,
+            };
+            await window.api.register(payload);
+            switchTab('login');
+        } catch (err) {
+            const el = document.getElementById('register-error');
+            el.textContent = err.message;
+            el.style.display = 'block';
+        }
+    }
+
+    function showBoardScreen() {
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('board-screen').style.display = 'block';
+    }
+
+    /* ── Canvas controls (delegate to canvas engine) ── */
+    function pan(dx, dy) { if (window.canvasEngine) window.canvasEngine.pan(dx, dy); }
+    function zoom(factor) { if (window.canvasEngine) window.canvasEngine.zoom(factor); }
+    function resetView() { if (window.canvasEngine) window.canvasEngine.resetView(); }
+
+    function handleSearch(query) {
+        if (window.nodeManager) {
+            window.nodeManager.filterBySearch(query);
+        }
+    }
+
+    function addTile() {
+        // Phase 4: opens a new tile creation dialog at the canvas center
+        console.log('[UI] Add tile — to be implemented in Phase 4');
+    }
+</script>
+</body>
+</html>
