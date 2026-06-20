@@ -45,14 +45,33 @@ class NodeManager {
             const node = this._nodes[i];
             const dims = this.getNodeDimensions(node);
             
-            const lx = worldPos.x - node.x;
-            const ly = worldPos.y - node.y;
+            // Map coordinates relative to the rotated card
+            const tilt = this._tilts[node.id] || 0;
+            const cos = Math.cos(-tilt);
+            const sin = Math.sin(-tilt);
+            
+            const dx = worldPos.x - node.x;
+            const dy = worldPos.y - node.y;
+            
+            const lx = dx * cos - dy * sin;
+            const ly = dx * sin + dy * cos;
+            
+            // Check distance to delete button (drawn at top-right corner if hovered/selected)
+            const isHoveredOrSelected = (this._engine.selectedNode === node || this._engine.hoveredNode === node);
+            if (isHoveredOrSelected) {
+                const btnX = dims.w / 2 - 8;
+                const btnY = -dims.h / 2 + 8;
+                const distToDelete = Math.hypot(lx - btnX, ly - btnY);
+                if (distToDelete < 10) {
+                    return { node, isPin: false, isDelete: true };
+                }
+            }
             
             if (lx >= -dims.w / 2 && lx <= dims.w / 2 &&
                 ly >= -dims.h / 2 && ly <= dims.h / 2) {
                 // If clicked within 12px of center, they clicked the pushpin!
                 const isPin = Math.hypot(lx, ly) < 12;
-                return { node, isPin };
+                return { node, isPin, isDelete: false };
             }
         }
         return null;
@@ -273,6 +292,29 @@ class NodeManager {
             } else {
                 this._drawFittedText(ctx, node.title, dims.w - 22, 0);
             }
+        }
+        
+        // Draw delete button on hovered or selected tiles (invisible action)
+        const isHovered = (this._engine.hoveredNode === node);
+        const isSelected = (this._engine.selectedNode === node);
+        if (isHovered || isSelected) {
+            const btnX = dims.w / 2 - 8;
+            const btnY = -dims.h / 2 + 8;
+            const btnRadius = 6;
+            
+            ctx.save();
+            ctx.shadowColor = 'transparent';
+            ctx.fillStyle = '#c0392b';
+            ctx.beginPath();
+            ctx.arc(btnX, btnY, btnRadius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 8px Arial, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('✕', btnX, btnY);
+            ctx.restore();
         }
         
         ctx.restore();

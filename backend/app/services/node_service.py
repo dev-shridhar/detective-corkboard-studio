@@ -45,4 +45,18 @@ class NodeService:
         node = self.node_repo.get(node_id)
         if not node or node.board_id != board_id:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Node not found")
+        
+        # Cascade delete connected edges from database first
+        from app.models.edge import Edge
+        from sqlmodel import select
+        session = self.node_repo.session
+        connected_edges = session.exec(
+            select(Edge).where(
+                (Edge.board_id == board_id) &
+                ((Edge.source_node_id == node_id) | (Edge.target_node_id == node_id))
+            )
+        ).all()
+        for edge in connected_edges:
+            session.delete(edge)
+        
         self.node_repo.delete(node)

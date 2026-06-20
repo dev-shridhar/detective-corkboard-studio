@@ -6,9 +6,9 @@
  * Phase 2+ will implement full request logic.
  */
 
-const API_BASE = (window.location.hostname === 'localhost')
+const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
     ? 'http://localhost:8000/api/v1'
-    : 'https://api.corkboard.learnwitharies.com/api/v1';
+    : 'https://api.detectivecorkboard.com/api/v1';
 
 class ApiClient {
     constructor() {

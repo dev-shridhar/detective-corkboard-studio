@@ -198,29 +198,41 @@ class CanvasEngine {
         window.addEventListener('resize', () => this.resize());
         
         this.canvas.addEventListener('mousedown', (e) => {
+            // Prevent browser text selection or drag-and-drop actions from hijacking the pan/drag logic
+            e.preventDefault();
+            
             const mouseX = e.clientX;
             const mouseY = e.clientY;
             const worldPos = this.screenToWorld(mouseX, mouseY);
             
-            // Check if user clicked on any pushpin or tile
+            // Check if user clicked on any pushpin, tile, or delete button
             let node = null;
             let isPin = false;
+            let isDelete = false;
             
             if (window.nodeManager) {
                 const hit = window.nodeManager.hitTest(mouseX, mouseY, this);
                 if (hit) {
                     node = hit.node;
                     isPin = hit.isPin;
+                    isDelete = hit.isDelete;
                 }
             }
             
             if (node) {
-                if (isPin) {
+                if (isDelete) {
+                    // Trigger immediate direct tile deletion
+                    if (window.ui) {
+                        window.ui.activeNode = node;
+                        window.ui.deleteActiveNode();
+                    }
+                } else if (isPin) {
                     // Start string connection flow
                     this.connectingSource = node;
                     if (window.edgeManager) {
                         const pinScreen = this.worldToScreen(node.x, node.y);
-                        window.edgeManager.startPreview(pinScreen.x, pinScreen.y, '#c0392b');
+                        const activeYarnColor = window.ui && window.ui.currentYarnColor || '#c0392b';
+                        window.edgeManager.startPreview(pinScreen.x, pinScreen.y, activeYarnColor);
                     }
                 } else {
                     // Start dragging node
@@ -263,10 +275,18 @@ class CanvasEngine {
                     if (hit) hover = hit;
                 }
                 
-                if (hover) {
+                let newHoveredNode = hover ? hover.node : null;
+                if (hover && hover.isDelete) {
+                    this.canvas.style.cursor = 'pointer';
+                } else if (hover) {
                     this.canvas.style.cursor = hover.isPin ? 'crosshair' : 'grab';
                 } else {
                     this.canvas.style.cursor = 'default';
+                }
+
+                if (this.hoveredNode !== newHoveredNode) {
+                    this.hoveredNode = newHoveredNode;
+                    this.requestDraw(); // Redraw immediately to render/hide the delete button
                 }
             }
         });

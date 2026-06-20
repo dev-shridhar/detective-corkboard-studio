@@ -141,23 +141,29 @@
         /* ── Board screen ── */
         #board-screen { display: none; width: 100vw; height: 100vh; position: relative; }
 
-        /* ── Detail panel ── */
-        #detail-panel {
-            position: absolute;
-            right: -400px;
-            top: 0;
-            bottom: 0;
-            width: 380px;
-            background: var(--paper-light);
-            border-left: 3px double #8a7a5f;
-            box-shadow: -8px 0 30px rgba(0,0,0,0.5);
-            padding: 32px 28px;
-            z-index: 20;
-            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow-y: auto;
+        /* ── Detail Panel Modal ── */
+        .detail-panel-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
         }
-
-        #detail-panel.open { right: 0; }
+        #detail-panel {
+            background: var(--paper-light);
+            border: 3px double #8a7a5f;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6), inset 0 0 60px rgba(138, 122, 95, 0.15);
+            padding: 32px 28px;
+            border-radius: 4px;
+            width: 440px;
+            max-height: 85vh;
+            overflow-y: auto;
+            transform: rotate(-0.5deg);
+            position: relative;
+        }
 
         #detail-close {
             position: absolute;
@@ -196,16 +202,124 @@
 
         /* Retro Board Selector Styles */
         .retro-select {
-            font-family: 'Courier Prime', monospace;
-            font-size: 11px;
+            font-family: 'Special Elite', monospace;
+            font-size: 12px;
             font-weight: bold;
-            background: var(--paper-light);
-            color: var(--ink-dark);
-            border: 1px solid rgba(0,0,0,0.3);
-            border-radius: 3px;
-            padding: 3px 8px;
+            background: #eedeb0; /* Warm stained paper */
+            color: #1c1c1e;
+            border: 2px solid #8a7a5f;
+            border-radius: 2px;
+            padding: 4px 24px 4px 8px;
             outline: none;
             cursor: pointer;
+            box-shadow: inset 1px 1px 3px rgba(0,0,0,0.1);
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M0 0l5 5 5-5z' fill='%231c1c1e'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 8px 5px;
+        }
+        .retro-select:hover {
+            border-color: #5a4b40;
+            background: #e5d4a7;
+        }
+
+        /* ── Themed Horizontal Tool Tray ── */
+        .retro-tool-tray {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            background: linear-gradient(180deg, #3d2f24 0%, #221813 100%);
+            border: 3px double #cdb898;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.75), inset 0 0 20px rgba(0,0,0,0.4);
+            border-radius: 6px;
+            padding: 12px 24px;
+            z-index: 10;
+            font-family: 'Courier Prime', monospace;
+        }
+        .tray-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        .tray-label {
+            font-size: 9px;
+            color: #cdb898;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            font-family: 'Special Elite', monospace;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        .tray-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tray-btn {
+            background: #4a3b30;
+            border: 1px solid #755f4c;
+            color: #f7e9d7;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 11px;
+            cursor: pointer;
+            font-family: 'Courier Prime', monospace;
+            box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+            transition: all 0.15s ease;
+        }
+        .tray-btn:hover {
+            background: #5c4b3e;
+            color: #fff;
+            border-color: #cdb898;
+            transform: translateY(-1px);
+        }
+        .tray-btn:active {
+            background: #251d19;
+            transform: translateY(1px);
+        }
+        .tray-btn.logout-btn {
+            background: #c0392b;
+            color: #ffffff;
+            border-color: #e74c3c;
+            font-family: 'Special Elite', monospace;
+        }
+        .tray-btn.logout-btn:hover {
+            background: #e74c3c;
+            border-color: #f5b7b1;
+        }
+        .tray-divider {
+            width: 1px;
+            align-self: stretch;
+            background: rgba(205, 184, 152, 0.2);
+            margin: 4px 0;
+        }
+        .color-swatches {
+            gap: 6px;
+        }
+        .swatch-btn {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid #5a4b40;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+            transition: all 0.15s ease;
+        }
+        .swatch-btn:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 6px rgba(255,255,255,0.4);
+        }
+        .swatch-btn.active {
+            border-color: #cdb898;
+            box-shadow: 0 0 8px rgba(205, 184, 152, 0.8), inset 0 0 3px rgba(0,0,0,0.5);
+            transform: scale(1.15);
         }
         .retro-inline-btn {
             font-family: 'Special Elite', monospace;
@@ -466,115 +580,140 @@
         </div>
     </div>
 
-    <!-- Bottom-right controls — same brass panel design -->
-    <div class="retro-controls">
-        <div class="knob-group">
-            <div class="control-label">PAN</div>
-            <div class="pan-pad">
-                <div class="pan-row">
-                    <button class="control-btn" onclick="pan(0,-50)" title="Pan Up">↑</button>
-                </div>
-                <div class="pan-row">
-                    <button class="control-btn" onclick="pan(-50,0)" title="Pan Left">←</button>
-                    <button class="control-btn reset" onclick="resetView()" title="Reset View">⌂</button>
-                    <button class="control-btn" onclick="pan(50,0)" title="Pan Right">→</button>
-                </div>
-                <div class="pan-row">
-                    <button class="control-btn" onclick="pan(0,50)" title="Pan Down">↓</button>
-                </div>
+    <!-- Horizontal Tool Tray -->
+    <div class="retro-tool-tray">
+        <!-- Tile Types -->
+        <div class="tray-section">
+            <span class="tray-label">ADD DOSSIER</span>
+            <div class="tray-group">
+                <button class="tray-btn" onclick="spawnTile('note_card')" title="Add Index Card">📋 Note</button>
+                <button class="tray-btn" onclick="spawnTile('tape_label')" title="Add Tape Label">🏷️ Tape</button>
+                <button class="tray-btn" onclick="spawnTile('polaroid')" title="Add Polaroid Photo">📷 Photo</button>
+                <button class="tray-btn" onclick="spawnTile('newspaper_clipping')" title="Add News Clipping">📰 News</button>
             </div>
         </div>
-        <div class="knob-group">
-            <div class="control-label">ZOOM</div>
-            <div class="zoom-pad">
-                <button class="control-btn" onclick="zoom(1.2)" title="Zoom In">+</button>
-                <button class="control-btn" onclick="zoom(0.8)" title="Zoom Out">−</button>
+
+        <div class="tray-divider"></div>
+
+        <!-- Tile Colors -->
+        <div class="tray-section">
+            <span class="tray-label">TILE COLOR</span>
+            <div class="tray-group color-swatches">
+                <button id="swatch-cream" class="swatch-btn cream active" onclick="setTileColor('#eedeb0')" style="background:#eedeb0;" title="Cream"></button>
+                <button id="swatch-white" class="swatch-btn white" onclick="setTileColor('#ffffff')" style="background:#ffffff;" title="White"></button>
+                <button id="swatch-yellow" class="swatch-btn yellow" onclick="setTileColor('#f1c40f')" style="background:#f1c40f;" title="Yellow"></button>
+                <button id="swatch-red" class="swatch-btn red" onclick="setTileColor('#c0392b')" style="background:#c0392b;" title="Red"></button>
+                <button id="swatch-blue" class="swatch-btn blue" onclick="setTileColor('#2980b9')" style="background:#2980b9;" title="Blue"></button>
+                <button id="swatch-green" class="swatch-btn green" onclick="setTileColor('#27ae60')" style="background:#27ae60;" title="Green"></button>
             </div>
         </div>
-        <div class="knob-group">
-            <div class="control-label">ACTIONS</div>
-            <button class="control-btn" onclick="addTile()" title="Add Tile" style="width:auto;padding:0 8px;font-size:11px;">+ TILE</button>
-            <button class="control-btn" onclick="window.history_manager.undo()" title="Undo (Ctrl+Z)" style="width:auto;padding:0 8px;font-size:11px;">UNDO</button>
-            <button class="control-btn" onclick="window.auth.logout()" title="Logout" style="width:auto;padding:0 8px;font-size:11px;background:#95a5a6;color:#000;">LOGOUT</button>
+
+        <div class="tray-divider"></div>
+
+        <!-- Yarn Colors Spool -->
+        <div class="tray-section">
+            <span class="tray-label">YARN THREAD</span>
+            <div class="tray-group color-swatches yarn-swatches">
+                <button id="yarn-swatch-red" class="swatch-btn yarn-swatch red active" onclick="setYarnColor('#c0392b')" style="background:#c0392b;" title="Red Yarn"></button>
+                <button id="yarn-swatch-blue" class="swatch-btn yarn-swatch blue" onclick="setYarnColor('#2980b9')" style="background:#2980b9;" title="Blue Yarn"></button>
+                <button id="yarn-swatch-green" class="swatch-btn yarn-swatch green" onclick="setYarnColor('#27ae60')" style="background:#27ae60;" title="Green Yarn"></button>
+                <button id="yarn-swatch-black" class="swatch-btn yarn-swatch black" onclick="setYarnColor('#2c3e50')" style="background:#2c3e50;" title="Black Yarn"></button>
+                <button id="yarn-swatch-yellow" class="swatch-btn yarn-swatch yellow" onclick="setYarnColor('#f1c40f')" style="background:#f1c40f;" title="Yellow Yarn"></button>
+            </div>
+        </div>
+
+        <div class="tray-divider"></div>
+
+        <!-- Actions -->
+        <div class="tray-section">
+            <span class="tray-label">COMMANDS</span>
+            <div class="tray-group">
+                <button class="tray-btn" onclick="window.history_manager.undo()" title="Undo (Ctrl+Z)">↩ Undo</button>
+                <button class="tray-btn" onclick="window.history_manager.redo()" title="Redo (Ctrl+Y)">↪ Redo</button>
+                <button class="tray-btn logout-btn" onclick="window.auth.logout()" title="Logout Dossier">Logout ✕</button>
+            </div>
         </div>
     </div>
 
-    <!-- Sliding detail panel -->
-    <div id="detail-panel">
-        <button id="detail-close" onclick="window.ui.closeDetailPanel()" title="Close">✕</button>
-        
-        <!-- View Mode -->
-        <div id="detail-view-mode">
-            <div id="detail-badge" class="detail-badge">NOTE CARD</div>
-            <h2 id="detail-title" class="detail-title">Select a tile</h2>
-            <p id="detail-description" class="detail-desc"></p>
+    <!-- Centered dossier overlay modal -->
+    <div id="detail-panel-overlay" class="detail-panel-overlay" onclick="if(event.target === this) window.ui.closeDetailPanel()">
+        <div id="detail-panel">
+            <button id="detail-close" onclick="window.ui.closeDetailPanel()" title="Close">✕</button>
             
-            <div class="detail-section">
-                <h3>CONCEPTS</h3>
-                <ul id="detail-concepts" class="detail-concepts-list"></ul>
-            </div>
-            
-            <div class="detail-section">
-                <h3>RESOURCE LINKS</h3>
-                <div id="detail-links" class="detail-links-list"></div>
-            </div>
-            
-            <div style="display:flex; gap: 8px; margin-top: 24px;">
-                <button onclick="window.ui.enableEditMode()" class="auth-submit" style="width:auto;flex:1;">EDIT DOSSIER</button>
-                <button onclick="deleteActiveNode()" class="auth-submit" style="width:auto; background:#c0392b; color:#fff;">DELETE</button>
-            </div>
-        </div>
-
-        <!-- Edit Mode -->
-        <div id="detail-edit-mode" style="display:none;">
-            <h2 class="detail-title" style="border-bottom: 2px solid #8a7a5f; padding-bottom:4px; margin-bottom:16px;">EDIT CASE FILE</h2>
-            
-            <div class="auth-field">
-                <label>TITLE</label>
-                <input id="edit-title" type="text" />
-            </div>
-            
-            <div class="auth-field">
-                <label>DESCRIPTION / NOTES</label>
-                <textarea id="edit-desc" rows="4" style="width:100%; font-family:'Courier Prime', monospace; font-size:12px; background:rgba(0,0,0,0.04); border:1px solid rgba(0,0,0,0.2); border-radius:3px; padding:8px; outline:none; resize:vertical;"></textarea>
-            </div>
-
-            <div class="auth-field" style="display:flex; gap:8px;">
-                <div style="flex:1;">
-                    <label>SHAPE</label>
-                    <select id="edit-shape" class="retro-select" style="width:100%; padding:6px; font-size:11px;">
-                        <option value="note_card">Note Card</option>
-                        <option value="tape_label">Tape Label</option>
-                        <option value="polaroid">Polaroid</option>
-                        <option value="newspaper_clipping">Clipping</option>
-                    </select>
+            <!-- View Mode -->
+            <div id="detail-view-mode">
+                <div id="detail-badge" class="detail-badge">NOTE CARD</div>
+                <h2 id="detail-title" class="detail-title">Select a tile</h2>
+                <p id="detail-description" class="detail-desc"></p>
+                
+                <div class="detail-section">
+                    <h3>CONCEPTS</h3>
+                    <ul id="detail-concepts" class="detail-concepts-list"></ul>
                 </div>
-                <div style="flex:1;">
-                    <label>COLOR</label>
-                    <select id="edit-color" class="retro-select" style="width:100%; padding:6px; font-size:11px;">
-                        <option value="#f5e6c8">Yellow Card</option>
-                        <option value="#fbf4db">Pale Cream</option>
-                        <option value="#e8f8f5">Mint green</option>
-                        <option value="#ebf5fb">Ice Blue</option>
-                        <option value="#fdf2e9">Soft Rose</option>
-                    </select>
+                
+                <div class="detail-section">
+                    <h3>RESOURCE LINKS</h3>
+                    <div id="detail-links" class="detail-links-list"></div>
+                </div>
+                
+                <div style="display:flex; gap: 8px; margin-top: 24px;">
+                    <button onclick="window.ui.enableEditMode()" class="auth-submit" style="width:auto;flex:1;">EDIT DOSSIER</button>
+                    <button onclick="deleteActiveNode()" class="auth-submit" style="width:auto; background:#c0392b; color:#fff;">DELETE</button>
                 </div>
             </div>
 
-            <div class="auth-field">
-                <label>CONCEPTS (comma separated)</label>
-                <input id="edit-concepts" type="text" placeholder="e.g. suspect, alibi, evidence" />
-            </div>
+            <!-- Edit Mode -->
+            <div id="detail-edit-mode" style="display:none;">
+                <h2 class="detail-title" style="border-bottom: 2px solid #8a7a5f; padding-bottom:4px; margin-bottom:16px;">EDIT CASE FILE</h2>
+                
+                <div class="auth-field">
+                    <label>TITLE</label>
+                    <input id="edit-title" type="text" />
+                </div>
+                
+                <div class="auth-field">
+                    <label>DESCRIPTION / NOTES</label>
+                    <textarea id="edit-desc" rows="4" style="width:100%; font-family:'Courier Prime', monospace; font-size:12px; background:rgba(0,0,0,0.04); border:1px solid rgba(0,0,0,0.2); border-radius:3px; padding:8px; outline:none; resize:vertical;"></textarea>
+                </div>
 
-            <div class="auth-field">
-                <label>RESOURCE LINKS (Title, URL)</label>
-                <div id="edit-links-container" style="display:flex; flex-direction:column; gap:6px;"></div>
-                <button onclick="window.ui.addEditLinkField()" class="retro-inline-btn" style="margin-top:6px; font-size:9px;">+ ADD LINK</button>
-            </div>
-            
-            <div style="display:flex; gap: 8px; margin-top: 24px;">
-                <button onclick="window.ui.saveEdits()" class="auth-submit" style="width:auto;flex:1;">SAVE CHANGES</button>
-                <button onclick="window.ui.disableEditMode()" class="auth-submit" style="width:auto;background:none; border:1px solid rgba(0,0,0,0.3); color:var(--ink-dark);">CANCEL</button>
+                <div class="auth-field" style="display:flex; gap:8px;">
+                    <div style="flex:1;">
+                        <label>SHAPE</label>
+                        <select id="edit-shape" class="retro-select" style="width:100%; padding:6px; font-size:11px;">
+                            <option value="note_card">Note Card</option>
+                            <option value="tape_label">Tape Label</option>
+                            <option value="polaroid">Polaroid</option>
+                            <option value="newspaper_clipping">Clipping</option>
+                        </select>
+                    </div>
+                    <div style="flex:1;">
+                        <label>COLOR</label>
+                        <select id="edit-color" class="retro-select" style="width:100%; padding:6px; font-size:11px;">
+                            <option value="#eedeb0">Cream</option>
+                            <option value="#ffffff">White</option>
+                            <option value="#f1c40f">Yellow</option>
+                            <option value="#c0392b">Red</option>
+                            <option value="#2980b9">Blue</option>
+                            <option value="#27ae60">Green</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="auth-field">
+                    <label>CONCEPTS (comma separated)</label>
+                    <input id="edit-concepts" type="text" placeholder="e.g. suspect, alibi, evidence" />
+                </div>
+
+                <div class="auth-field">
+                    <label>RESOURCE LINKS (Title, URL)</label>
+                    <div id="edit-links-container" style="display:flex; flex-direction:column; gap:6px;"></div>
+                    <button onclick="window.ui.addEditLinkField()" class="retro-inline-btn" style="margin-top:6px; font-size:9px;">+ ADD LINK</button>
+                </div>
+                
+                <div style="display:flex; gap: 8px; margin-top: 24px;">
+                    <button onclick="window.ui.saveEdits()" class="auth-submit" style="width:auto;flex:1;">SAVE CHANGES</button>
+                    <button onclick="window.ui.disableEditMode()" class="auth-submit" style="width:auto;background:none; border:1px solid rgba(0,0,0,0.3); color:var(--ink-dark);">CANCEL</button>
+                </div>
             </div>
         </div>
     </div>
@@ -651,20 +790,28 @@
         }
     }
 
-    /* ── Canvas controls ── */
-    function pan(dx, dy) { if (window.canvasEngine) window.canvasEngine.pan(dx, dy); }
-    function zoom(factor) { if (window.canvasEngine) window.canvasEngine.zoom(factor); }
-    function resetView() { if (window.canvasEngine) window.canvasEngine.resetView(); }
+    /* ── Horizontal Bar Action Triggers ── */
+    function spawnTile(shape) {
+        if (window.ui) {
+            window.ui.addTile(shape);
+        }
+    }
+
+    function setTileColor(color) {
+        if (window.ui) {
+            window.ui.setTileColor(color);
+        }
+    }
+
+    function setYarnColor(color) {
+        if (window.ui) {
+            window.ui.setYarnColor(color);
+        }
+    }
 
     function handleSearch(query) {
         if (window.ui) {
             window.ui.handleSearch(query);
-        }
-    }
-
-    function addTile() {
-        if (window.ui) {
-            window.ui.addTile();
         }
     }
 
