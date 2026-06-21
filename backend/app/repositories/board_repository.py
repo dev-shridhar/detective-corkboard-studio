@@ -16,10 +16,11 @@ class BoardRepository(BaseRepository[Board]):
         super().__init__(Board, session)
 
     def get_by_owner(self, owner_id: UUID, offset: int = 0, limit: int = 50) -> List[Board]:
-        """Fetch all boards owned by a specific user, paginated."""
+        """Fetch all boards owned by a specific user, paginated, sorted by most recently updated."""
         statement = (
             select(Board)
             .where(Board.owner_id == owner_id)
+            .order_by(Board.updated_at.desc())
             .offset(offset)
             .limit(limit)
         )

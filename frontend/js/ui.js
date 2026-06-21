@@ -66,10 +66,14 @@ class UIManager {
     async showCaseSelector(allowClose = true) {
         try {
             const boards = await window.api.listBoards();
+            this.selectorBoards = boards; // cache for filtering
+            
             const overlay = document.getElementById('case-selector-overlay');
             const listContainer = document.getElementById('existing-cases-list');
             const closeBtn = document.getElementById('case-selector-close');
+            const searchInput = document.getElementById('case-search');
             
+            if (searchInput) searchInput.value = ''; // clear search field
             if (closeBtn) {
                 closeBtn.style.display = (allowClose && this.currentBoardId) ? 'block' : 'none';
             }
@@ -98,6 +102,37 @@ class UIManager {
         } catch (err) {
             console.error('[UIManager] Failed to load cases in selector:', err);
         }
+    }
+
+    filterSelectorCases(query) {
+        const queryClean = query.toLowerCase().trim();
+        const listContainer = document.getElementById('existing-cases-list');
+        if (!listContainer || !this.selectorBoards) return;
+        
+        listContainer.innerHTML = '';
+        
+        const filtered = this.selectorBoards.filter(b => 
+            b.name.toLowerCase().includes(queryClean) || 
+            (b.description && b.description.toLowerCase().includes(queryClean))
+        );
+        
+        if (filtered.length === 0) {
+            listContainer.innerHTML = '<div style="font-family:\'Courier Prime\',monospace; font-size:11px; font-style:italic; color:var(--ink-faded); padding:6px 0;">No matching dossiers.</div>';
+            return;
+        }
+        
+        filtered.forEach(b => {
+            const row = document.createElement('div');
+            row.style.cssText = 'display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed rgba(0,0,0,0.15); padding:6px 0;';
+            row.innerHTML = `
+                <div style="text-align:left; flex: 1; padding-right: 10px;">
+                    <span style="font-family:\'Special Elite\',monospace; font-weight:bold; font-size:13px; color:var(--ink-dark);">${b.name.toUpperCase()}</span>
+                    <div style="font-size:10px; color:var(--ink-faded); margin-top:2px; font-family:\'Courier Prime\',monospace;">${b.description || 'No description'}</div>
+                </div>
+                <button class="retro-inline-btn" style="padding:4px 8px; font-size:11px;" onclick="handleSelectCaseFromOverlay(\'${b.id}\')">OPEN DOSSIER</button>
+            `;
+            listContainer.appendChild(row);
+        });
     }
 
     async loadBoard(boardId) {

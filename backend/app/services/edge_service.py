@@ -24,13 +24,21 @@ class EdgeService:
 
     def create_edge(self, board_id: UUID, payload: EdgeCreate, owner: User) -> Edge:
         """Connect two nodes with a yarn string. Verifies board ownership first."""
-        self.board_service.get_board(board_id, owner)
+        board = self.board_service.get_board(board_id, owner)
+        from datetime import datetime
+        board.updated_at = datetime.utcnow()
+        self.board_service.board_repo.update(board)
+
         edge = Edge(**payload.model_dump(), board_id=board_id)
         return self.edge_repo.create(edge)
 
     def update_edge(self, board_id: UUID, edge_id: UUID, payload: EdgeUpdate, owner: User) -> Edge:
         """Update a yarn string's color or label."""
-        self.board_service.get_board(board_id, owner)
+        board = self.board_service.get_board(board_id, owner)
+        from datetime import datetime
+        board.updated_at = datetime.utcnow()
+        self.board_service.board_repo.update(board)
+
         edge = self.edge_repo.get(edge_id)
         if not edge or edge.board_id != board_id:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Edge not found")
@@ -41,7 +49,11 @@ class EdgeService:
 
     def delete_edge(self, board_id: UUID, edge_id: UUID, owner: User) -> None:
         """Remove a yarn string connection."""
-        self.board_service.get_board(board_id, owner)
+        board = self.board_service.get_board(board_id, owner)
+        from datetime import datetime
+        board.updated_at = datetime.utcnow()
+        self.board_service.board_repo.update(board)
+
         edge = self.edge_repo.get(edge_id)
         if not edge or edge.board_id != board_id:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Edge not found")

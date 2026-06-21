@@ -24,13 +24,21 @@ class NodeService:
 
     def create_node(self, board_id: UUID, payload: NodeCreate, owner: User) -> Node:
         """Create a new tile on the board. Verifies board ownership first."""
-        self.board_service.get_board(board_id, owner)
+        board = self.board_service.get_board(board_id, owner)
+        from datetime import datetime
+        board.updated_at = datetime.utcnow()
+        self.board_service.board_repo.update(board)
+
         node = Node(**payload.model_dump(), board_id=board_id)
         return self.node_repo.create(node)
 
     def update_node(self, board_id: UUID, node_id: UUID, payload: NodeUpdate, owner: User) -> Node:
         """Update a node's position, shape, or content."""
-        self.board_service.get_board(board_id, owner)
+        board = self.board_service.get_board(board_id, owner)
+        from datetime import datetime
+        board.updated_at = datetime.utcnow()
+        self.board_service.board_repo.update(board)
+
         node = self.node_repo.get(node_id)
         if not node or node.board_id != board_id:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Node not found")
@@ -41,7 +49,11 @@ class NodeService:
 
     def delete_node(self, board_id: UUID, node_id: UUID, owner: User) -> None:
         """Delete a tile from the board."""
-        self.board_service.get_board(board_id, owner)
+        board = self.board_service.get_board(board_id, owner)
+        from datetime import datetime
+        board.updated_at = datetime.utcnow()
+        self.board_service.board_repo.update(board)
+
         node = self.node_repo.get(node_id)
         if not node or node.board_id != board_id:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Node not found")

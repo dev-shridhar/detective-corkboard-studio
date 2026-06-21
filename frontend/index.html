@@ -1270,15 +1270,18 @@
     window.handleCreateCaseFromOverlay = async function(e) {
         e.preventDefault();
         const nameInput = document.getElementById('overlay-case-name');
+        const descInput = document.getElementById('overlay-case-desc');
         const name = nameInput.value.trim();
+        const description = descInput ? descInput.value.trim() : "";
         if (!name) return;
         
         try {
             const board = await window.api.createBoard({
                 name: name,
-                description: "New detective case corkboard."
+                description: description || "New detective case corkboard."
             });
             nameInput.value = '';
+            if (descInput) descInput.value = '';
             document.getElementById('case-selector-overlay').style.display = 'none';
             if (window.ui) {
                 window.ui.currentBoardId = board.id;
@@ -1286,6 +1289,12 @@
             }
         } catch (err) {
             alert("Failed to establish case dossier: " + err.message);
+        }
+    };
+
+    window.filterSelectorCases = function(query) {
+        if (window.ui && typeof window.ui.filterSelectorCases === 'function') {
+            window.ui.filterSelectorCases(query);
         }
     };
 
@@ -1495,8 +1504,9 @@
 
         <!-- Existing Dossiers List -->
         <div id="case-list-section" style="margin-bottom: 20px;">
-            <div style="font-family: 'Special Elite', monospace; font-size: 11px; text-transform: uppercase; color: var(--ink-dark); margin-bottom: 8px; font-weight: bold; border-bottom: 1px solid rgba(0,0,0,0.15);">
-                Open Existing Case:
+            <div style="font-family: 'Special Elite', monospace; font-size: 11px; text-transform: uppercase; color: var(--ink-dark); margin-bottom: 8px; font-weight: bold; border-bottom: 1px solid rgba(0,0,0,0.15); display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                <span>Open Existing Case:</span>
+                <input id="case-search" type="text" placeholder="Filter cases..." oninput="filterSelectorCases(this.value)" style="width: 140px; font-size: 10px; padding: 2px 6px; font-family: 'Courier Prime', monospace; border: 1px solid rgba(0,0,0,0.2); border-radius: 3px; background: rgba(0,0,0,0.03); color: var(--ink-dark); outline: none; margin-bottom: 4px;" />
             </div>
             <div id="existing-cases-list" style="max-height: 150px; overflow-y: auto; border: 1px solid rgba(0,0,0,0.15); padding: 8px; background: rgba(0,0,0,0.03); border-radius: 4px; display: flex; flex-direction: column; gap: 6px;">
                 <!-- Dynamically populated -->
@@ -1509,8 +1519,11 @@
                 Commence New Investigation:
             </div>
             <form id="overlay-case-form" onsubmit="handleCreateCaseFromOverlay(event)">
-                <div class="auth-field" style="margin-bottom: 12px;">
+                <div class="auth-field" style="margin-bottom: 10px;">
                     <input id="overlay-case-name" type="text" placeholder="Enter Case Name (e.g., Red Circle Murder)..." required autocomplete="off" />
+                </div>
+                <div class="auth-field" style="margin-bottom: 12px;">
+                    <input id="overlay-case-desc" type="text" placeholder="Dossier notes / brief description (optional)..." autocomplete="off" style="font-size: 11px;" />
                 </div>
                 <button type="submit" class="retro-modal-btn submit-btn" style="width: 100%; box-sizing: border-box; text-align: center; font-family: 'Special Elite', monospace; font-size: 13px; padding: 10px; cursor: pointer;">
                     ESTABLISH CASE FILE →
