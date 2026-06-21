@@ -152,3 +152,39 @@ def test_smtp(email: str):
             "traceback": traceback.format_exc()
         }
 
+
+@router.get("/measure-db-latency")
+def measure_db_latency():
+    """Benchmark SQL connection and query latency from the live server to the DB."""
+    import time
+    import psycopg2
+    from app.core.config import settings
+    
+    start_time = time.time()
+    try:
+        conn = psycopg2.connect(settings.DATABASE_URL)
+        conn_time = time.time() - start_time
+    except Exception as e:
+        return {"status": "error", "phase": "connection", "message": str(e)}
+        
+    query_times = []
+    try:
+        with conn.cursor() as cursor:
+            for _ in range(5):
+                start_query = time.time()
+                cursor.execute("SELECT 1;")
+                cursor.fetchone()
+                query_times.append(time.time() - start_query)
+        conn.close()
+        
+        avg_query_time = sum(query_times) / len(query_times)
+        return {
+            "status": "success",
+            "connection_time_ms": round(conn_time * 1000, 1),
+            "average_query_time_ms": round(avg_query_time * 1000, 1),
+            "individual_queries_ms": [round(t * 1000, 1) for t in query_times]
+        }
+    except Exception as e:
+        conn.close()
+        return {"status": "error", "phase": "query", "message": str(e)}
+
