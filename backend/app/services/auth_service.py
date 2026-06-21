@@ -55,14 +55,14 @@ class AuthService:
             username=username_clean,
             email=email_clean,
             hashed_password=SecurityUtils.hash_password(payload.password),
-            is_verified=False,
-            verification_code=hashed_code,
-            verification_code_expires_at=expires_at,
+            is_verified=True,
+            verification_code=None,
+            verification_code_expires_at=None,
         )
         created_user = self.user_repo.create(user)
 
-        # Trigger email sending in background
-        background_tasks.add_task(EmailService.send_verification_email, email_clean, code)
+        # Trigger email sending in background (disabled)
+        # background_tasks.add_task(EmailService.send_verification_email, email_clean, code)
 
         return created_user
 
@@ -86,11 +86,12 @@ class AuthService:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid username or password",
             )
-        if not user.is_verified:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Email not verified",
-            )
+        # Email verification check bypassed temporarily
+        # if not user.is_verified:
+        #     raise HTTPException(
+        #         status_code=status.HTTP_403_FORBIDDEN,
+        #         detail="Email not verified",
+        #     )
         if not user.is_active:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

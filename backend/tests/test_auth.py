@@ -298,59 +298,24 @@ def test_register_invalid_username_pattern(client):
 
 
 def test_register_and_verify_email(client):
-    """Should enforce email verification before allowing login."""
-    from unittest.mock import patch
-    
+    """Should skip email verification and allow login immediately."""
     register_payload = {
         "username": "verify_test",
         "email": "verify_test@example.com",
         "password": "password123",
     }
     
-    # Mock EmailService to capture the generated code
-    with patch("app.services.email_service.EmailService.send_verification_email") as mock_send:
-        res = client.post("/api/v1/auth/register", json=register_payload)
-        assert res.status_code == 201
+    res = client.post("/api/v1/auth/register", json=register_payload)
+    assert res.status_code == 201
+    
+    # Check that is_verified is True in returned user
+    assert res.json()["is_verified"] is True
         
-        # Check that is_verified is False in returned user
-        assert res.json()["is_verified"] is False
-        
-        # Verify email was called with code
-        assert mock_send.called
-        sent_email, sent_code = mock_send.call_args[0]
-        assert sent_email == "verify_test@example.com"
-        assert len(sent_code) == 6
-        
-    # Attempt to login before verifying -> should return 403 Forbidden with Email not verified
+    # Attempt to login immediately -> should return 200 OK
     login_payload = {
         "username": "verify_test",
         "password": "password123",
     }
     login_res = client.post("/api/v1/auth/login", data=login_payload)
-    assert login_res.status_code == 403
-    assert "Email not verified" in login_res.json()["detail"]
-    
-    # Verify with invalid code -> should fail with 400
-    verify_payload_invalid = {
-        "username_or_email": "verify_test",
-        "code": "000000",
-    }
-    verify_res1 = client.post("/api/v1/auth/verify-email", json=verify_payload_invalid)
-    assert verify_res1.status_code == 400
-    
-    # Verify with correct code -> should succeed with 200
-    verify_payload_valid = {
-        "username_or_email": "verify_test",
-        "code": sent_code,
-    }
-    verify_res2 = client.post("/api/v1/auth/verify-email", json=verify_payload_valid)
-    assert verify_res2.status_code == 200
-    
-    # Login again -> should now succeed with 200
-    login_res2 = client.post("/api/v1/auth/login", data=login_payload)
-    assert login_res2.status_code == 200
-    assert "access_token" in login_res2.json()
-
-    # Resend code to already verified user -> should return 400
-    resend_res = client.post("/api/v1/auth/resend-verification", json={"username_or_email": "verify_test"})
-    assert resend_res.status_code == 400
+    assert login_res.status_code == 200
+    assert "access_token" in login_res.json()

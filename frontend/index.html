@@ -1000,15 +1000,15 @@
         e.preventDefault();
         document.getElementById('register-error').style.display = 'none';
         try {
-            const payload = {
-                username: document.getElementById('reg-username').value,
-                email: document.getElementById('reg-email').value,
-                password: document.getElementById('reg-password').value,
-            };
+            const username = document.getElementById('reg-username').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-password').value;
+            
+            const payload = { username, email, password };
             await window.api.register(payload);
-            verificationTarget = payload.username;
-            document.getElementById('verify-code').value = '';
-            switchTab('verify');
+            
+            // Auto-login upon successful registration
+            await window.auth.login(username, password);
         } catch (err) {
             const el = document.getElementById('register-error');
             el.textContent = err.message;
