@@ -253,16 +253,20 @@
         }
         .board-msg-tile.loading .tile-type { color: #1565c0; }
         .board-msg-tile.loading .tile-text { color: #0d47a1; }
-        .loading-ellipsis::after {
-            content: '';
-            animation: ellipsis-dot 1.5s steps(4, end) infinite;
+        .loading-ellipsis {
+            display: inline-block;
+            width: 1.2em;
+            text-align: left;
+            overflow: visible;
         }
-        @keyframes ellipsis-dot {
-            0%   { content: ''; }
-            25%  { content: '.'; }
-            50%  { content: '..'; }
-            75%  { content: '...'; }
-            100% { content: ''; }
+        .loading-ellipsis::after {
+            content: '...';
+            animation: ellipsis-blink 1.2s step-end infinite;
+        }
+        @keyframes ellipsis-blink {
+            0%   { opacity: 1; }
+            50%  { opacity: 0; }
+            100% { opacity: 1; }
         }
         .board-msg-tile .tile-dismiss {
             position: absolute; top: 4px; right: 6px;
