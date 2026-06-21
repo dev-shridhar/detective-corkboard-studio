@@ -42,18 +42,49 @@
         }
         .auth-preview { display: none; }
 
-        /* Wrapper — transparent, just positions the tile */
+        /* Wrapper — transparent, just positions the tiles */
         .auth-form-side {
             position: relative; z-index: 2;
             display: flex; align-items: center; justify-content: center;
-            width: 100%; max-height: 100vh; overflow-y: auto;
+            width: 100%; min-height: 100vh;
             background: transparent; box-shadow: none; padding: 20px;
         }
 
-        /* ── THE MAIN CASE-FILE TILE ── */
+        /* Scene container — relative so deco tiles can be absolute */
+        .auth-board-scene {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Logo + app name row above the two tiles */
+        .auth-brand {
+            display: flex; align-items: center; gap: 14px;
+            margin-bottom: 28px;
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.7));
+        }
+        .auth-brand img { width: 56px; height: 56px; object-fit: contain; }
+        .auth-brand h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px; font-weight: 800;
+            color: #f5eedc;
+            text-shadow: 2px 3px 8px rgba(0,0,0,0.8);
+            margin: 0;
+        }
+
+        /* Two tiles sit side by side */
+        .auth-tiles-row {
+            display: flex;
+            gap: 28px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* ── THE CASE-FILE TILE ── */
         .auth-card {
             background: #f5eedc;
-            /* Slight paper texture via repeating gradient */
             background-image:
                 repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(138,122,95,0.07) 27px, rgba(138,122,95,0.07) 28px),
                 linear-gradient(180deg, #f8f2e0 0%, #f0e8cc 100%);
@@ -62,15 +93,16 @@
                 4px 6px 0 rgba(0,0,0,0.3),
                 8px 10px 30px rgba(0,0,0,0.5),
                 inset 0 1px 0 rgba(255,255,255,0.6);
-            padding: 36px 44px 40px;
+            padding: 32px 36px 36px;
             border-radius: 2px;
-            width: 100%; max-width: 390px;
-            transform: rotate(-1deg);
+            width: 280px;
+            transform: rotate(-1.5deg);
             position: relative;
-            margin-top: 30px; /* room for the pushpin */
+            margin-top: 30px;
         }
+        .auth-card.tile-register { transform: rotate(1.8deg); margin-top: 45px; }
 
-        /* Red pushpin at the top-center */
+        /* Red pushpin at the top-center of each tile */
         .auth-pushpin {
             position: absolute;
             top: -22px; left: 50%; transform: translateX(-50%);
@@ -91,22 +123,77 @@
             border-radius: 0 0 2px 2px;
         }
 
-        /* Masking-tape corners */
+        /* Masking tape strip at top of each tile */
         .auth-card::before {
             content: '';
             position: absolute;
-            top: -6px; left: -10px; right: -10px;
-            height: 22px;
-            background: rgba(255, 240, 180, 0.7);
-            backdrop-filter: blur(2px);
+            top: -6px; left: -10px; right: -10px; height: 20px;
+            background: rgba(255, 240, 180, 0.75);
             transform: rotate(-0.5deg);
             border-radius: 2px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             z-index: 1;
         }
+        .tile-register::before { transform: rotate(0.8deg); }
 
-        @media (max-width: 600px) {
-            .auth-card { padding: 28px 22px 32px; max-width: 95vw; }
+        /* tile heading */
+        .tile-heading {
+            font-family: 'Special Elite', monospace;
+            font-size: 11px; letter-spacing: 3px;
+            color: rgba(60,40,10,0.55);
+            text-transform: uppercase;
+            margin-bottom: 14px;
+            border-bottom: 1px dashed rgba(138,122,95,0.4);
+            padding-bottom: 8px;
+            position: relative; z-index: 2;
+        }
+
+        /* ── DECORATIVE MINI TILES ── */
+        .deco-tile {
+            background: #fff9c4;
+            background-image: linear-gradient(135deg, #fffde8 0%, #f5eda0 100%);
+            border: 1px solid rgba(180,160,60,0.4);
+            box-shadow: 2px 3px 0 rgba(0,0,0,0.2), 4px 6px 12px rgba(0,0,0,0.3);
+            padding: 10px 12px;
+            border-radius: 2px;
+            font-family: 'Courier Prime', monospace;
+            font-size: 11px; line-height: 1.5;
+            color: #3a2c00;
+            position: absolute;
+            pointer-events: none;
+        }
+        .deco-tile::before {
+            content: '📌';
+            position: absolute; top: -9px; left: 8px;
+            font-size: 15px;
+        }
+        .deco-tile.red-note {
+            background: linear-gradient(135deg, #fff0f0 0%, #ffc8c8 100%);
+            border-color: rgba(192,57,43,0.35);
+        }
+        .deco-tile.green-note {
+            background: linear-gradient(135deg, #f0fff4 0%, #b8f0cc 100%);
+            border-color: rgba(39,174,96,0.35);
+        }
+
+        /* ── VERIFY OVERLAY ── */
+        .auth-verify-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            z-index: 3;
+            align-items: center; justify-content: center;
+            background: rgba(8,6,3,0.55);
+            backdrop-filter: blur(4px);
+        }
+        .auth-verify-overlay.active { display: flex; }
+        .auth-verify-overlay .auth-card {
+            width: 320px; transform: rotate(-0.5deg); margin-top: 30px;
+        }
+
+        @media (max-width: 680px) {
+            .auth-tiles-row { flex-direction: column; align-items: center; }
+            .auth-card.tile-register { margin-top: 20px; }
+            .auth-card { width: 90vw; max-width: 320px; }
         }
 
         /* ── BOARD MESSAGE TILES ── */
@@ -773,85 +860,106 @@
 
 <!-- ═══════════════════ AUTH SCREEN ═══════════════════ -->
 <div id="auth-screen">
-    <!-- Left Column: Visual Roadmap Preview -->
-    <div class="auth-preview">
-        <div class="auth-preview-content">
-            <div class="auth-preview-stamp">Investigation Dossier</div>
-            <h2>Decode Your Path. Solve the Clues.</h2>
-            <p>Connect core concepts, link targets with red yarn, and crack the code to visualize connections, map your ideas, and solve your cases.</p>
-        </div>
-    </div>
-
-    <!-- Right Column: Login/Signup Forms -->
     <div class="auth-form-side">
+        <div class="auth-board-scene">
+
+            <!-- App brand above the tiles -->
+            <div class="auth-brand">
+                <img src="assets/logo.png" alt="Detective Board" />
+                <h1>Detective Board</h1>
+            </div>
+
+            <!-- Two tiles side by side -->
+            <div class="auth-tiles-row">
+
+                <!-- ── LOGIN TILE ── -->
+                <div class="auth-card tile-login">
+                    <div class="auth-pushpin">
+                        <div class="pin-head"></div>
+                        <div class="pin-shaft"></div>
+                    </div>
+
+                    <!-- Decorative deco tiles pinned ON the login tile -->
+                    <div class="deco-tile" style="top:-18px; right:-60px; transform:rotate(6deg); width:110px;">
+                        <strong>⚠ NOTICE</strong><br>All activity is logged &amp; monitored
+                    </div>
+                    <div class="deco-tile red-note" style="bottom:-24px; left:-50px; transform:rotate(-5deg); width:120px;">
+                        Case #2025-DET<br>Status: <strong>ACTIVE</strong>
+                    </div>
+
+                    <div class="auth-stamp" style="position:relative;z-index:2;">CLASSIFIED</div>
+                    <div class="tile-heading">🔑 Agent Login</div>
+                    <form id="form-login" onsubmit="handleLogin(event)">
+                        <div class="auth-field">
+                            <label for="login-username">USERNAME OR EMAIL</label>
+                            <input id="login-username" type="text" placeholder="detective_name" required />
+                        </div>
+                        <div class="auth-field">
+                            <label for="login-password">PASSWORD</label>
+                            <input id="login-password" type="password" placeholder="••••••••" required />
+                        </div>
+                        <button type="submit" class="auth-submit">OPEN CASE FILE →</button>
+                    </form>
+                </div>
+
+                <!-- ── REGISTER TILE ── -->
+                <div class="auth-card tile-register">
+                    <div class="auth-pushpin" style="--pin-color:#f39c12;">
+                        <div class="pin-head" style="background:radial-gradient(circle at 35% 35%, #f1c40f, #9a7d0a);"></div>
+                        <div class="pin-shaft"></div>
+                    </div>
+
+                    <!-- Decorative deco tiles on the register tile -->
+                    <div class="deco-tile green-note" style="top:-16px; right:-56px; transform:rotate(5deg); width:115px;">
+                        🆕 New recruits<br>welcome aboard!
+                    </div>
+                    <div class="deco-tile" style="bottom:-20px; left:-44px; transform:rotate(-4deg); width:108px; font-size:10px;">
+                        Access Level:<br><strong>DETECTIVE</strong>
+                    </div>
+
+                    <div class="auth-stamp" style="position:relative;z-index:2;border-color:#b7950b;color:#b7950b;">NEW DOSSIER</div>
+                    <div class="tile-heading">📋 New Agent</div>
+                    <form id="form-register" onsubmit="handleRegister(event)">
+                        <div class="auth-field">
+                            <label for="reg-username">USERNAME</label>
+                            <input id="reg-username" type="text" placeholder="detective_name" required />
+                        </div>
+                        <div class="auth-field">
+                            <label for="reg-email">EMAIL</label>
+                            <input id="reg-email" type="email" placeholder="you@example.com" required />
+                        </div>
+                        <div class="auth-field">
+                            <label for="reg-password">PASSWORD</label>
+                            <input id="reg-password" type="password" placeholder="••••••••" required />
+                        </div>
+                        <button type="submit" class="auth-submit">CREATE DOSSIER →</button>
+                    </form>
+                </div>
+
+            </div><!-- /.auth-tiles-row -->
+        </div><!-- /.auth-board-scene -->
+    </div><!-- /.auth-form-side -->
+
+    <!-- Verify overlay — shown on top when email verification needed -->
+    <div class="auth-verify-overlay" id="verify-overlay">
         <div class="auth-card">
-            <!-- Red pushpin at top of tile -->
             <div class="auth-pushpin">
-                <div class="pin-head"></div>
+                <div class="pin-head" style="background:radial-gradient(circle at 35% 35%, #3498db, #1a5276);"></div>
                 <div class="pin-shaft"></div>
             </div>
-            <div class="auth-stamp">CLASSIFIED</div>
-            <div style="display:flex; align-items:center; gap:12px; margin-bottom:4px; position:relative; z-index:2;">
-                <img src="assets/logo.png" alt="Detective Board Logo" style="width:52px; height:52px; object-fit:contain; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5));" />
-                <h1 style="margin:0;">Detective Board</h1>
-            </div>
-
-            <div class="auth-tabs">
-                <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">LOGIN</button>
-                <button class="auth-tab" id="tab-register" onclick="switchTab('register')">REGISTER</button>
-            </div>
-
-            <!-- Login Form -->
-            <form id="form-login" onsubmit="handleLogin(event)">
-                <div class="auth-field">
-                    <label for="login-username">USERNAME OR EMAIL</label>
-                    <input id="login-username" type="text" placeholder="detective_name" required />
-                </div>
-                <div class="auth-field">
-                    <label for="login-password">PASSWORD</label>
-                    <input id="login-password" type="password" placeholder="••••••••" required />
-                </div>
-                <button type="submit" class="auth-submit">OPEN CASE FILE →</button>
-            </form>
-
-            <!-- Register Form -->
-            <form id="form-register" style="display:none;" onsubmit="handleRegister(event)">
-                <div class="auth-field">
-                    <label for="reg-username">USERNAME</label>
-                    <input id="reg-username" type="text" placeholder="detective_name" required />
-                </div>
-                <div class="auth-field">
-                    <label for="reg-email">EMAIL</label>
-                    <input id="reg-email" type="email" placeholder="you@example.com" required />
-                </div>
-                <div class="auth-field">
-                    <label for="reg-password">PASSWORD</label>
-                    <input id="reg-password" type="password" placeholder="••••••••" required />
-                </div>
-                <button type="submit" class="auth-submit">CREATE DOSSIER →</button>
-            </form>
-
-            <!-- Verification Form -->
-            <form id="form-verify" style="display:none;" onsubmit="handleVerify(event)">
-                <div class="auth-field" style="margin-bottom: 20px;">
-                    <p style="font-family: 'Courier Prime', monospace; font-size: 12px; color: var(--ink-dark); line-height: 1.5; margin: 0;">
-                        Enter the 6-digit classified verification key sent to your email address to activate your dossier.
+            <div class="auth-stamp" style="position:relative;z-index:2;border-color:#1a5276;color:#1a5276;">VERIFICATION</div>
+            <div class="tile-heading">🔐 Verify Identity</div>
+            <form id="form-verify" onsubmit="handleVerify(event)">
+                <div class="auth-field" style="margin-bottom:16px;">
+                    <p style="font-family:'Courier Prime',monospace;font-size:12px;color:var(--ink-dark);line-height:1.5;margin:0;">
+                        Enter the 6-digit classified key sent to your email.
                     </p>
                 </div>
                 <div class="auth-field">
                     <label for="verify-code">VERIFICATION KEY</label>
-                    <input id="verify-code" type="text" placeholder="123456" pattern="^[0-9]{6}$" required maxlength="6" style="text-align: center; font-size: 18px; letter-spacing: 4px;" />
+                    <input id="verify-code" type="text" placeholder="123456" pattern="^[0-9]{6}$" required maxlength="6" style="text-align:center;font-size:18px;letter-spacing:4px;" />
                 </div>
                 <button type="submit" class="auth-submit">ACTIVATE DOSSIER →</button>
-                
-                <div class="auth-field" style="margin-top: 20px; text-align: center;">
-                    <a href="#" onclick="resendVerificationCode(event)" style="color: #c0392b; font-family: 'Courier Prime', monospace; font-size: 12px; font-weight: bold; text-decoration: underline; letter-spacing: 0.5px;">Resend Verification Code</a>
-                </div>
-                <div class="auth-field" style="margin-top: 10px; text-align: center;">
-                    <a href="#" onclick="cancelVerification(event)" style="color: var(--ink-faded); font-family: 'Courier Prime', monospace; font-size: 11px; text-decoration: underline;">Back to Login</a>
-                </div>
-            </form>
-        </div>
     </div>
 </div>
 
@@ -1034,17 +1142,12 @@
     let verificationTarget = '';
 
     function switchTab(tab) {
-        document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
-        document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
-        document.getElementById('form-verify').style.display = tab === 'verify' ? 'block' : 'none';
-        
-        document.getElementById('tab-login').classList.toggle('active', tab === 'login');
-        document.getElementById('tab-register').classList.toggle('active', tab === 'register');
-        
-        // Hide tabs container when in verification mode
-        const tabsContainer = document.querySelector('.auth-tabs');
-        if (tabsContainer) {
-            tabsContainer.style.display = tab === 'verify' ? 'none' : 'flex';
+        // Login + Register are always visible; only toggle verify overlay
+        const overlay = document.getElementById('verify-overlay');
+        if (tab === 'verify') {
+            overlay.classList.add('active');
+        } else {
+            overlay.classList.remove('active');
         }
     }
 
