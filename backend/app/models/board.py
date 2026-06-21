@@ -13,6 +13,9 @@ class BoardBase(SQLModel):
     name: str = Field(min_length=1, max_length=100)
     description: Optional[str] = Field(default=None, max_length=500)
     is_public: bool = Field(default=False)
+    view_x: Optional[float] = Field(default=None)
+    view_y: Optional[float] = Field(default=None)
+    view_zoom: Optional[float] = Field(default=None)
 
 
 class Board(BoardBase, table=True):
