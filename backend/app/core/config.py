@@ -45,17 +45,32 @@ class Settings(BaseSettings):
     @field_validator("ALLOWED_ORIGINS", mode="before")
     @classmethod
     def parse_allowed_origins(cls, v: Union[str, List[str]]) -> List[str]:
+        origins = []
         if isinstance(v, str):
             v_stripped = v.strip()
             if v_stripped.startswith("[") and v_stripped.endswith("]"):
                 import json
                 try:
-                    return json.loads(v_stripped)
+                    origins = json.loads(v_stripped)
                 except Exception:
                     pass
-            # Fallback: split by comma
-            return [origin.strip() for origin in v_stripped.split(",") if origin.strip()]
-        return v
+            if not origins:
+                origins = [origin.strip() for origin in v_stripped.split(",") if origin.strip()]
+        else:
+            origins = list(v)
+
+        # Guarantee that our primary live custom domains are always in the CORS whitelist
+        extra_origins = [
+            "https://board.learnwitharies.com",
+            "https://learnwitharies.com",
+            "https://detectivecorkboard.com",
+            "https://www.detectivecorkboard.com",
+            "https://detective-corkboard-studio.vercel.app",
+        ]
+        for origin in extra_origins:
+            if origin not in origins:
+                origins.append(origin)
+        return origins
 
 
 # Singleton settings instance — import this everywhere
