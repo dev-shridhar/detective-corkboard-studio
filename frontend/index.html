@@ -18,109 +18,84 @@
 
     <link rel="stylesheet" href="css/style.css" />
     <style>
-        /* ── Auth Screen overlay ── */
+        /* ── Auth Screen — full-bleed corkboard with floating card ── */
         #auth-screen {
             position: fixed;
             inset: 0;
-            background: #1a1a1a;
+            /* Full-bleed corkboard image behind everything */
+            background: url('assets/corkboard_preview.png') no-repeat center center;
+            background-size: cover;
             display: flex;
-            flex-direction: row;
+            align-items: center;
+            justify-content: center;
             z-index: 1000;
             overflow: hidden;
         }
 
-        .auth-preview {
-            flex: 1;
-            background: url('assets/corkboard_preview.png') no-repeat left center;
-            background-size: cover;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 60px;
-            position: relative;
-            box-shadow: inset -20px 0 50px rgba(0,0,0,0.9);
-        }
-
-        .auth-preview::before {
+        /* Dark cinematic vignette over the corkboard */
+        #auth-screen::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(20,20,20,0.5) 0%, rgba(20,20,20,0.85) 100%);
-            z-index: 1;
+            background: radial-gradient(
+                ellipse at center,
+                rgba(10,8,5,0.35) 0%,
+                rgba(10,8,5,0.65) 100%
+            );
+            z-index: 0;
         }
 
-        .auth-preview-content {
+        /* Hide old left preview column — image is now fullscreen */
+        .auth-preview { display: none; }
+
+        /* The right panel becomes transparent — just a flex positioner */
+        .auth-form-side {
             position: relative;
             z-index: 2;
-            color: #f5f2eb;
-            max-width: 550px;
-        }
-
-        .auth-preview-stamp {
-            border: 2px solid #c0392b;
-            color: #c0392b;
-            font-family: 'Special Elite', monospace;
-            font-size: 11px;
-            font-weight: bold;
-            padding: 4px 12px;
-            border-radius: 3px;
-            letter-spacing: 3px;
-            transform: rotate(-3deg);
-            display: inline-block;
-            margin-bottom: 24px;
-            text-transform: uppercase;
-        }
-
-        .auth-preview-content h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 38px;
-            font-weight: 800;
-            line-height: 1.25;
-            margin-bottom: 18px;
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.9);
-            color: #eedeb0;
-        }
-
-        .auth-preview-content p {
-            font-family: 'Courier Prime', monospace;
-            font-size: 15px;
-            line-height: 1.6;
-            color: #d1c8b3;
-            text-shadow: 1px 1px 4px rgba(0,0,0,0.9);
-        }
-
-        .auth-form-side {
-            flex: 1;
-            background: var(--cork-bg);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 40px;
-            box-shadow: -10px 0 35px rgba(0,0,0,0.6);
-            z-index: 5;
-            position: relative;
-            overflow-y: auto;
-        }
-
-        .auth-card {
-            background: var(--paper-light);
-            border: 3px double #8a7a5f;
-            box-shadow: 12px 12px 40px rgba(0,0,0,0.7), inset 0 0 60px rgba(138,122,95,0.1);
-            padding: 40px 48px;
-            border-radius: 4px;
+            padding: 20px;
             width: 100%;
-            max-width: 380px;
-            transform: rotate(-0.5deg);
+            max-height: 100vh;
+            overflow-y: auto;
+            background: transparent;
+            box-shadow: none;
         }
 
-        @media (max-width: 900px) {
-            .auth-preview {
-                display: none;
-            }
-            .auth-form-side {
-                width: 100%;
-                padding: 20px;
+        /* Floating paper card — frosted aged paper look */
+        .auth-card {
+            background: rgba(245, 238, 220, 0.92);
+            backdrop-filter: blur(18px) saturate(1.4);
+            -webkit-backdrop-filter: blur(18px) saturate(1.4);
+            border: 2px solid rgba(138, 122, 95, 0.6);
+            box-shadow:
+                0 8px 60px rgba(0,0,0,0.7),
+                0 2px 8px rgba(0,0,0,0.4),
+                inset 0 0 80px rgba(200,180,140,0.12);
+            padding: 40px 48px;
+            border-radius: 6px;
+            width: 100%;
+            max-width: 400px;
+            transform: rotate(-0.4deg);
+            position: relative;
+        }
+
+        /* Subtle paper grain texture overlay */
+        .auth-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 6px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @media (max-width: 600px) {
+            .auth-card {
+                padding: 28px 24px;
+                max-width: 95vw;
             }
         }
 
