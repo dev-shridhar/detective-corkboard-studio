@@ -18,9 +18,7 @@ class UIManager {
     async init() {
         console.log('[UIManager] Initializing UI dashboard...');
         try {
-            console.log('[UIManager] Calling listBoards...');
             const boards = await window.api.listBoards();
-            console.log('[UIManager] listBoards returned:', boards?.length, 'boards');
             const selector = document.getElementById('board-selector');
             selector.innerHTML = "";
             
@@ -34,14 +32,14 @@ class UIManager {
             
             if (boards.length === 0) {
                 this.currentBoardId = null;
-                await this.showCaseSelector(false, boards); // force selection/creation (no close button)
+                await this.showCaseSelector(false); // force selection/creation (no close button)
                 return;
             }
             
             // Pick first board as active if none selected yet
             if (!this.currentBoardId) {
                 // Check if we can show selector or default
-                await this.showCaseSelector(false, boards);
+                this.showCaseSelector(false);
                 return;
             }
             
@@ -65,11 +63,9 @@ class UIManager {
         this.showCaseSelector(true);
     }
 
-    async showCaseSelector(allowClose = true, boards = null) {
+    async showCaseSelector(allowClose = true) {
         try {
-            if (!boards) {
-                boards = await window.api.listBoards();
-            }
+            const boards = await window.api.listBoards();
             this.selectorBoards = boards; // cache for filtering
             
             const overlay = document.getElementById('case-selector-overlay');

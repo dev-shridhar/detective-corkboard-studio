@@ -67,6 +67,10 @@ class AuthManager {
         if (success) {
             console.log('[AuthManager] Active session restored.');
             this._showBoardScreen();
+            // Trigger board listing / loading once UI is fully ready
+            if (window.ui && typeof window.ui.init === 'function') {
+                window.ui.init();
+            }
         } else {
             this._showAuthScreen();
         }
@@ -81,7 +85,7 @@ class AuthManager {
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('board-screen').style.display = 'block';
         if (window.ui && typeof window.ui.init === 'function') {
-            window.ui.init().catch(err => console.error('[AuthManager] ui.init() failed:', err));
+            window.ui.init();
         }
     }
 
@@ -92,4 +96,9 @@ class AuthManager {
 }
 
 window.auth = new AuthManager();
+
+// Automatically check session on page load
+window.addEventListener('DOMContentLoaded', () => {
+    window.auth.checkSession();
+});
 

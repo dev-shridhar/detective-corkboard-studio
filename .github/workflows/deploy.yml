@@ -1,0 +1,28 @@
+name: CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to Production VPS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USERNAME }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: |
+            cd /app/detective-corkboard-studio
+            git checkout main
+            git pull origin main
+            docker compose -f docker-compose.prod.yml down
+            docker compose -f docker-compose.prod.yml up -d --build
+            echo "Deployment completed successfully!"
