@@ -18,7 +18,9 @@ class UIManager {
     async init() {
         console.log('[UIManager] Initializing UI dashboard...');
         try {
+            console.log('[UIManager] Calling listBoards...');
             const boards = await window.api.listBoards();
+            console.log('[UIManager] listBoards returned:', boards?.length, 'boards');
             const selector = document.getElementById('board-selector');
             selector.innerHTML = "";
             
