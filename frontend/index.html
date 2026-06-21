@@ -910,7 +910,7 @@
 
                     <div class="auth-stamp" style="position:relative;z-index:2;">CLASSIFIED</div>
                     <div class="tile-heading">🔑 Agent Login</div>
-                    <form id="form-login" onsubmit="handleLogin(event)" autocomplete="off">
+                    <form id="form-login" onsubmit="handleLogin(event)" onkeydown="if(event.key==='Enter') handleLogin(event)" autocomplete="off">
                         <div class="auth-field">
                             <label for="login-username">USERNAME OR EMAIL</label>
                             <input id="login-username" type="text" placeholder="detective_name" required autocomplete="off" />
@@ -940,7 +940,7 @@
 
                     <div class="auth-stamp" style="position:relative;z-index:2;border-color:#b7950b;color:#b7950b;">NEW DOSSIER</div>
                     <div class="tile-heading">📋 New Agent</div>
-                    <form id="form-register" onsubmit="handleRegister(event)" autocomplete="off">
+                    <form id="form-register" onsubmit="handleRegister(event)" onkeydown="if(event.key==='Enter') handleRegister(event)" autocomplete="off">
                         <div class="auth-field">
                             <label for="reg-username">USERNAME</label>
                             <input id="reg-username" type="text" placeholder="detective_name" required autocomplete="off" />
@@ -970,7 +970,7 @@
             </div>
             <div class="auth-stamp" style="position:relative;z-index:2;border-color:#1a5276;color:#1a5276;">VERIFICATION</div>
             <div class="tile-heading">🔐 Verify Identity</div>
-            <form id="form-verify" onsubmit="handleVerify(event)">
+            <form id="form-verify" onsubmit="handleVerify(event)" onkeydown="if(event.key==='Enter') handleVerify(event)">
                 <div class="auth-field" style="margin-bottom:16px;">
                     <p style="font-family:'Courier Prime',monospace;font-size:12px;color:var(--ink-dark);line-height:1.5;margin:0;">
                         Enter the 6-digit classified key sent to your email.
