@@ -160,10 +160,12 @@ class UIManager {
             }
 
             window.hideBoardLoading();
+            window.showBoardMessage(`Board loaded — ${nodes?.length || 0} tiles, ${edges?.length || 0} connections`, 'success', 3000);
             
         } catch (err) {
             window.hideBoardLoading();
             console.error('[UIManager] Failed to load board elements:', err);
+            window.showBoardMessage(err.message, 'error');
         }
     }
 
