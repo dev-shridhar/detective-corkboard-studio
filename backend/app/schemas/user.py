@@ -19,10 +19,20 @@ class UserRead(BaseModel):
     username: str
     email: str
     is_active: bool
+    is_verified: bool
     created_at: datetime
 
 
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+
+class EmailVerifyRequest(BaseModel):
+    username_or_email: str
+    code: str = Field(min_length=6, max_length=6, pattern=r"^\d{6}$")
+
+
+class ResendVerificationRequest(BaseModel):
+    username_or_email: str
 

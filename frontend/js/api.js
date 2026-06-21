@@ -84,6 +84,8 @@ class ApiClient {
     refresh() { return this._request('POST', '/auth/refresh'); }
     logout() { return this._request('POST', '/auth/logout'); }
     getMe() { return this._request('GET', '/auth/me'); }
+    verifyEmail(payload) { return this._request('POST', '/auth/verify-email', payload); }
+    resendVerification(payload) { return this._request('POST', '/auth/resend-verification', payload); }
 
 
     // --- Boards ---

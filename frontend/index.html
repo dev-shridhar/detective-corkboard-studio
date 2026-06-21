@@ -17,11 +17,86 @@
         #auth-screen {
             position: fixed;
             inset: 0;
+            background: #1a1a1a;
+            display: flex;
+            flex-direction: row;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .auth-preview {
+            flex: 1;
+            background: url('assets/corkboard_preview.png') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 60px;
+            position: relative;
+            box-shadow: inset -20px 0 50px rgba(0,0,0,0.9);
+        }
+
+        .auth-preview::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(20,20,20,0.5) 0%, rgba(20,20,20,0.85) 100%);
+            z-index: 1;
+        }
+
+        .auth-preview-content {
+            position: relative;
+            z-index: 2;
+            color: #f5f2eb;
+            max-width: 550px;
+        }
+
+        .auth-preview-stamp {
+            border: 2px solid #c0392b;
+            color: #c0392b;
+            font-family: 'Special Elite', monospace;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 4px 12px;
+            border-radius: 3px;
+            letter-spacing: 3px;
+            transform: rotate(-3deg);
+            display: inline-block;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+        }
+
+        .auth-preview-content h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 38px;
+            font-weight: 800;
+            line-height: 1.25;
+            margin-bottom: 18px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.9);
+            color: #eedeb0;
+        }
+
+        .auth-preview-content p {
+            font-family: 'Courier Prime', monospace;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #d1c8b3;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.9);
+        }
+
+        .auth-form-side {
+            width: 520px;
             background: var(--cork-bg);
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            padding: 40px;
+            flex-shrink: 0;
+            box-shadow: -10px 0 35px rgba(0,0,0,0.6);
+            z-index: 5;
+            position: relative;
+            overflow-y: auto;
         }
 
         .auth-card {
@@ -30,8 +105,19 @@
             box-shadow: 12px 12px 40px rgba(0,0,0,0.7), inset 0 0 60px rgba(138,122,95,0.1);
             padding: 40px 48px;
             border-radius: 4px;
-            width: 380px;
+            width: 100%;
+            max-width: 380px;
             transform: rotate(-0.5deg);
+        }
+
+        @media (max-width: 900px) {
+            .auth-preview {
+                display: none;
+            }
+            .auth-form-side {
+                width: 100%;
+                padding: 20px;
+            }
         }
 
         .auth-stamp {
@@ -623,46 +709,80 @@
 
 <!-- ═══════════════════ AUTH SCREEN ═══════════════════ -->
 <div id="auth-screen">
-    <div class="auth-card">
-        <div class="auth-stamp">CLASSIFIED</div>
-        <h1>Detective Corkboard Studio</h1>
-
-        <div class="auth-tabs">
-            <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">LOGIN</button>
-            <button class="auth-tab" id="tab-register" onclick="switchTab('register')">REGISTER</button>
+    <!-- Left Column: Visual AI Roadmap Preview -->
+    <div class="auth-preview">
+        <div class="auth-preview-content">
+            <div class="auth-preview-stamp">AI Learning Dossier</div>
+            <h2>Decode Your Path. Solve the Clues.</h2>
+            <p>Connect core concepts, link learning targets with red yarn, and crack the code to master AI, Machine Learning, and Deep Learning.</p>
         </div>
+    </div>
 
-        <!-- Login Form -->
-        <form id="form-login" onsubmit="handleLogin(event)">
-            <div class="auth-field">
-                <label for="login-username">USERNAME</label>
-                <input id="login-username" type="text" placeholder="detective_name" required />
-            </div>
-            <div class="auth-field">
-                <label for="login-password">PASSWORD</label>
-                <input id="login-password" type="password" placeholder="••••••••" required />
-            </div>
-            <button type="submit" class="auth-submit">OPEN CASE FILE →</button>
-            <p class="auth-error" id="login-error"></p>
-        </form>
+    <!-- Right Column: Login/Signup Forms -->
+    <div class="auth-form-side">
+        <div class="auth-card">
+            <div class="auth-stamp">CLASSIFIED</div>
+            <h1>Detective Corkboard Studio</h1>
 
-        <!-- Register Form -->
-        <form id="form-register" style="display:none;" onsubmit="handleRegister(event)">
-            <div class="auth-field">
-                <label for="reg-username">USERNAME</label>
-                <input id="reg-username" type="text" placeholder="detective_name" required />
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">LOGIN</button>
+                <button class="auth-tab" id="tab-register" onclick="switchTab('register')">REGISTER</button>
             </div>
-            <div class="auth-field">
-                <label for="reg-email">EMAIL</label>
-                <input id="reg-email" type="email" placeholder="you@example.com" required />
-            </div>
-            <div class="auth-field">
-                <label for="reg-password">PASSWORD</label>
-                <input id="reg-password" type="password" placeholder="••••••••" required />
-            </div>
-            <button type="submit" class="auth-submit">CREATE DOSSIER →</button>
-            <p class="auth-error" id="register-error"></p>
-        </form>
+
+            <!-- Login Form -->
+            <form id="form-login" onsubmit="handleLogin(event)">
+                <div class="auth-field">
+                    <label for="login-username">USERNAME OR EMAIL</label>
+                    <input id="login-username" type="text" placeholder="detective_name" required />
+                </div>
+                <div class="auth-field">
+                    <label for="login-password">PASSWORD</label>
+                    <input id="login-password" type="password" placeholder="••••••••" required />
+                </div>
+                <button type="submit" class="auth-submit">OPEN CASE FILE →</button>
+                <p class="auth-error" id="login-error"></p>
+            </form>
+
+            <!-- Register Form -->
+            <form id="form-register" style="display:none;" onsubmit="handleRegister(event)">
+                <div class="auth-field">
+                    <label for="reg-username">USERNAME</label>
+                    <input id="reg-username" type="text" placeholder="detective_name" required />
+                </div>
+                <div class="auth-field">
+                    <label for="reg-email">EMAIL</label>
+                    <input id="reg-email" type="email" placeholder="you@example.com" required />
+                </div>
+                <div class="auth-field">
+                    <label for="reg-password">PASSWORD</label>
+                    <input id="reg-password" type="password" placeholder="••••••••" required />
+                </div>
+                <button type="submit" class="auth-submit">CREATE DOSSIER →</button>
+                <p class="auth-error" id="register-error"></p>
+            </form>
+
+            <!-- Verification Form -->
+            <form id="form-verify" style="display:none;" onsubmit="handleVerify(event)">
+                <div class="auth-field" style="margin-bottom: 20px;">
+                    <p style="font-family: 'Courier Prime', monospace; font-size: 12px; color: var(--ink-dark); line-height: 1.5; margin: 0;">
+                        Enter the 6-digit classified verification key sent to your email address to activate your dossier.
+                    </p>
+                </div>
+                <div class="auth-field">
+                    <label for="verify-code">VERIFICATION KEY</label>
+                    <input id="verify-code" type="text" placeholder="123456" pattern="^[0-9]{6}$" required maxlength="6" style="text-align: center; font-size: 18px; letter-spacing: 4px;" />
+                </div>
+                <button type="submit" class="auth-submit">ACTIVATE DOSSIER →</button>
+                <p class="auth-error" id="verify-error"></p>
+                
+                <div class="auth-field" style="margin-top: 20px; text-align: center;">
+                    <a href="#" onclick="resendVerificationCode(event)" style="color: #c0392b; font-family: 'Courier Prime', monospace; font-size: 12px; font-weight: bold; text-decoration: underline; letter-spacing: 0.5px;">Resend Verification Code</a>
+                </div>
+                <div class="auth-field" style="margin-top: 10px; text-align: center;">
+                    <a href="#" onclick="cancelVerification(event)" style="color: var(--ink-faded); font-family: 'Courier Prime', monospace; font-size: 11px; text-decoration: underline;">Back to Login</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -838,12 +958,22 @@
 <script src="js/edges.js"></script>
 <script src="js/ui.js"></script>
 <script>
-    /* ── Tab switching ── */
+    /* ── Tab switching & Verification State ── */
+    let verificationTarget = '';
+
     function switchTab(tab) {
         document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
         document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
+        document.getElementById('form-verify').style.display = tab === 'verify' ? 'block' : 'none';
+        
         document.getElementById('tab-login').classList.toggle('active', tab === 'login');
         document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+        
+        // Hide tabs container when in verification mode
+        const tabsContainer = document.querySelector('.auth-tabs');
+        if (tabsContainer) {
+            tabsContainer.style.display = tab === 'verify' ? 'none' : 'flex';
+        }
     }
 
     /* ── Auth handlers ── */
@@ -858,6 +988,12 @@
             const el = document.getElementById('login-error');
             el.textContent = err.message;
             el.style.display = 'block';
+            
+            // Redirect to verification screen if account is registered but unverified
+            if (err.message.includes('not verified') || err.message.includes('Email not verified')) {
+                verificationTarget = document.getElementById('login-username').value;
+                switchTab('verify');
+            }
         }
     }
 
@@ -871,12 +1007,47 @@
                 password: document.getElementById('reg-password').value,
             };
             await window.api.register(payload);
-            switchTab('login');
+            verificationTarget = payload.username;
+            document.getElementById('verify-code').value = '';
+            switchTab('verify');
         } catch (err) {
             const el = document.getElementById('register-error');
             el.textContent = err.message;
             el.style.display = 'block';
         }
+    }
+
+    async function handleVerify(e) {
+        e.preventDefault();
+        document.getElementById('verify-error').style.display = 'none';
+        try {
+            const code = document.getElementById('verify-code').value;
+            await window.api.verifyEmail({ username_or_email: verificationTarget, code: code });
+            alert("Activation successful! You can now access your case files.");
+            switchTab('login');
+        } catch (err) {
+            const el = document.getElementById('verify-error');
+            el.textContent = err.message;
+            el.style.display = 'block';
+        }
+    }
+
+    async function resendVerificationCode(e) {
+        e.preventDefault();
+        document.getElementById('verify-error').style.display = 'none';
+        try {
+            await window.api.resendVerification({ username_or_email: verificationTarget });
+            alert("A new secure verification key has been dispatched to your email address.");
+        } catch (err) {
+            const el = document.getElementById('verify-error');
+            el.textContent = err.message;
+            el.style.display = 'block';
+        }
+    }
+
+    function cancelVerification(e) {
+        e.preventDefault();
+        switchTab('login');
     }
 
     function showBoardScreen() {

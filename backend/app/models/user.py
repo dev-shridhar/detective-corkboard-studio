@@ -23,6 +23,9 @@ class User(UserBase, table=True):
     hashed_password: str
     hashed_refresh_token: Optional[str] = Field(default=None, nullable=True)
     is_active: bool = Field(default=True)
+    is_verified: bool = Field(default=False)
+    verification_code: Optional[str] = Field(default=None, nullable=True)
+    verification_code_expires_at: Optional[datetime] = Field(default=None, nullable=True)
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
     # One user → many boards

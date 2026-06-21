@@ -1,5 +1,17 @@
 
 
+from sqlmodel import select
+from app.models.user import User
+
+def _activate_user(session, username: str) -> None:
+    statement = select(User).where(User.username == username.lower())
+    user = session.exec(statement).one()
+    user.is_verified = True
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+
+
 def test_register_user_success(client):
     """Should successfully register a new user."""
     payload = {
@@ -56,7 +68,7 @@ def test_register_duplicate_email(client):
     assert "Email already registered" in res2.json()["detail"]
 
 
-def test_login_success(client):
+def test_login_success(client, session):
     """Should successfully authenticate and set HttpOnly refresh token cookie."""
     # Register first
     register_payload = {
@@ -65,6 +77,7 @@ def test_login_success(client):
         "password": "final_problem",
     }
     client.post("/api/v1/auth/register", json=register_payload)
+    _activate_user(session, "moriarty")
 
     # Login
     login_payload = {
@@ -94,7 +107,7 @@ def test_login_success(client):
 
 
 
-def test_login_invalid_password(client):
+def test_login_invalid_password(client, session):
     """Should return 401 Unauthorized for incorrect password."""
     register_payload = {
         "username": "mycroft",
@@ -102,6 +115,7 @@ def test_login_invalid_password(client):
         "password": "british_government",
     }
     client.post("/api/v1/auth/register", json=register_payload)
+    _activate_user(session, "mycroft")
 
     login_payload = {
         "username": "mycroft",
@@ -112,7 +126,7 @@ def test_login_invalid_password(client):
     assert "Invalid username or password" in response.json()["detail"]
 
 
-def test_get_me_success(client):
+def test_get_me_success(client, session):
     """Should return current user profile when given valid access token."""
     register_payload = {
         "username": "hudson",
@@ -120,6 +134,7 @@ def test_get_me_success(client):
         "password": "landlady_secrets",
     }
     client.post("/api/v1/auth/register", json=register_payload)
+    _activate_user(session, "hudson")
 
     # Login to get token
     login_res = client.post(
@@ -144,7 +159,7 @@ def test_get_me_invalid_token(client):
     assert response.status_code == 401
 
 
-def test_refresh_token_rotation_success(client):
+def test_refresh_token_rotation_success(client, session):
     """Should rotate refresh token and issue a new access token successfully."""
     # Register & Login
     register_payload = {
@@ -153,6 +168,7 @@ def test_refresh_token_rotation_success(client):
         "password": "the_woman_secrets",
     }
     client.post("/api/v1/auth/register", json=register_payload)
+    _activate_user(session, "adler")
     login_res = client.post(
         "/api/v1/auth/login",
         data={"username": "adler", "password": "the_woman_secrets"},
@@ -182,6 +198,7 @@ def test_refresh_token_reuse_fails(client, session):
         "password": "young_detective",
     }
     client.post("/api/v1/auth/register", json=register_payload)
+    _activate_user(session, "hopkins")
     client.post(
         "/api/v1/auth/login",
         data={"username": "hopkins", "password": "young_detective"},
@@ -200,7 +217,7 @@ def test_refresh_token_reuse_fails(client, session):
     assert "Invalid or expired refresh token" in reuse_res.json()["detail"]
 
 
-def test_logout_success(client):
+def test_logout_success(client, session):
     """Should invalidate database refresh token hash and clear client cookie."""
     register_payload = {
         "username": "gregson",
@@ -208,6 +225,7 @@ def test_logout_success(client):
         "password": "rival_detective",
     }
     client.post("/api/v1/auth/register", json=register_payload)
+    _activate_user(session, "gregson")
     login_res = client.post(
         "/api/v1/auth/login",
         data={"username": "gregson", "password": "rival_detective"},
@@ -229,7 +247,7 @@ def test_logout_success(client):
     assert refresh_res.status_code == 401
 
 
-def test_login_case_insensitive_and_email(client):
+def test_login_case_insensitive_and_email(client, session):
     """Should successfully authenticate regardless of case, and support email login."""
     # Register with mixed case
     register_payload = {
@@ -239,6 +257,7 @@ def test_login_case_insensitive_and_email(client):
     }
     res = client.post("/api/v1/auth/register", json=register_payload)
     assert res.status_code == 201
+    _activate_user(session, "Sherlock_Holmes")
 
     # Login with lowercase username
     login_payload_username_lower = {
@@ -276,3 +295,62 @@ def test_register_invalid_username_pattern(client):
     }
     res2 = client.post("/api/v1/auth/register", json=payload_space)
     assert res2.status_code == 422
+
+
+def test_register_and_verify_email(client):
+    """Should enforce email verification before allowing login."""
+    from unittest.mock import patch
+    
+    register_payload = {
+        "username": "verify_test",
+        "email": "verify_test@example.com",
+        "password": "password123",
+    }
+    
+    # Mock EmailService to capture the generated code
+    with patch("app.services.email_service.EmailService.send_verification_email") as mock_send:
+        res = client.post("/api/v1/auth/register", json=register_payload)
+        assert res.status_code == 201
+        
+        # Check that is_verified is False in returned user
+        assert res.json()["is_verified"] is False
+        
+        # Verify email was called with code
+        assert mock_send.called
+        sent_email, sent_code = mock_send.call_args[0]
+        assert sent_email == "verify_test@example.com"
+        assert len(sent_code) == 6
+        
+    # Attempt to login before verifying -> should return 403 Forbidden with Email not verified
+    login_payload = {
+        "username": "verify_test",
+        "password": "password123",
+    }
+    login_res = client.post("/api/v1/auth/login", data=login_payload)
+    assert login_res.status_code == 403
+    assert "Email not verified" in login_res.json()["detail"]
+    
+    # Verify with invalid code -> should fail with 400
+    verify_payload_invalid = {
+        "username_or_email": "verify_test",
+        "code": "000000",
+    }
+    verify_res1 = client.post("/api/v1/auth/verify-email", json=verify_payload_invalid)
+    assert verify_res1.status_code == 400
+    
+    # Verify with correct code -> should succeed with 200
+    verify_payload_valid = {
+        "username_or_email": "verify_test",
+        "code": sent_code,
+    }
+    verify_res2 = client.post("/api/v1/auth/verify-email", json=verify_payload_valid)
+    assert verify_res2.status_code == 200
+    
+    # Login again -> should now succeed with 200
+    login_res2 = client.post("/api/v1/auth/login", data=login_payload)
+    assert login_res2.status_code == 200
+    assert "access_token" in login_res2.json()
+
+    # Resend code to already verified user -> should return 400
+    resend_res = client.post("/api/v1/auth/resend-verification", json={"username_or_email": "verify_test"})
+    assert resend_res.status_code == 400

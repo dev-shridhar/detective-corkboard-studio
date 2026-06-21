@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, Response, Cookie, HTTPException
+from fastapi import APIRouter, Depends, status, Response, Cookie, HTTPException, BackgroundTasks
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session
 from typing import Optional
@@ -7,16 +7,40 @@ from app.core.config import settings
 from app.core.database import get_session
 from app.core.security import SecurityUtils, oauth2_scheme
 from app.services.auth_service import AuthService
-from app.schemas.user import UserCreate, UserRead, TokenResponse
+from app.schemas.user import UserCreate, UserRead, TokenResponse, EmailVerifyRequest, ResendVerificationRequest
 
 router = APIRouter()
 
 
 @router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED)
-def register(payload: UserCreate, session: Session = Depends(get_session)):
+def register(
+    payload: UserCreate,
+    background_tasks: BackgroundTasks,
+    session: Session = Depends(get_session),
+):
     """Register a new user account."""
     service = AuthService(session)
-    return service.register(payload)
+    return service.register(payload, background_tasks)
+
+
+@router.post("/verify-email")
+def verify_email(payload: EmailVerifyRequest, session: Session = Depends(get_session)):
+    """Verify email activation code."""
+    service = AuthService(session)
+    service.verify_email(payload.username_or_email, payload.code)
+    return {"status": "success", "message": "Email verified successfully"}
+
+
+@router.post("/resend-verification")
+def resend_verification(
+    payload: ResendVerificationRequest,
+    background_tasks: BackgroundTasks,
+    session: Session = Depends(get_session),
+):
+    """Resend email activation code."""
+    service = AuthService(session)
+    service.resend_verification(payload.username_or_email, background_tasks)
+    return {"status": "success", "message": "Verification code resent successfully"}
 
 
 @router.post("/login", response_model=TokenResponse)
