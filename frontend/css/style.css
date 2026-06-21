@@ -14,6 +14,30 @@
     --color-dsa: #2980b9;          /* Deep Prussian blue */
     --color-devops: #8e44ad;       /* Dark Royal purple */
     --string-color: #e74c3c;       /* Red yarn string */
+
+    /* Tray colors */
+    --tray-bg: rgba(20, 12, 8, 0.45);
+    --tray-border: rgba(205, 184, 152, 0.25);
+    --tray-btn-bg: #4a3b30;
+    --tray-btn-border: #755f4c;
+    --tray-btn-color: #f7e9d7;
+    --tray-label-color: #cdb898;
+}
+
+/* ── Dark Theme ── */
+[data-theme="dark"] {
+    --cork-bg: #0c0907;
+    --paper-light: #2a231d;
+    --paper-dark: #1f1a15;
+    --ink-dark: #e4d8c4;
+    --ink-faded: #9a8a78;
+    --border-paper: rgba(255, 235, 200, 0.12);
+    --tray-bg: rgba(40, 30, 24, 0.8);
+    --tray-border: rgba(160, 140, 115, 0.35);
+    --tray-btn-bg: #3a2e24;
+    --tray-btn-border: #5a4b3e;
+    --tray-btn-color: #e4d8c4;
+    --tray-label-color: #b8a690;
 }
 
 /* Reset and Layout */

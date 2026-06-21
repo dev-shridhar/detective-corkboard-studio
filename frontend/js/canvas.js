@@ -139,15 +139,27 @@ class CanvasEngine {
         
         // Set camera matrices
         this.ctx.save();
-        
-        // Draw cards (nodes) first
-        if (window.nodeManager) {
-            window.nodeManager.draw(this.ctx, this);
-        }
-        
-        // Draw links (edges) next (on top of tiles)
-        if (window.edgeManager) {
-            window.edgeManager.draw(this.ctx, this);
+
+        const yarnInside = window._yarnInsideTiles === true;
+
+        if (yarnInside) {
+            // Draw edges first (behind tiles)
+            if (window.edgeManager) {
+                window.edgeManager.draw(this.ctx, this);
+            }
+            // Draw nodes on top
+            if (window.nodeManager) {
+                window.nodeManager.draw(this.ctx, this);
+            }
+        } else {
+            // Draw cards (nodes) first
+            if (window.nodeManager) {
+                window.nodeManager.draw(this.ctx, this);
+            }
+            // Draw links (edges) next (on top of tiles)
+            if (window.edgeManager) {
+                window.edgeManager.draw(this.ctx, this);
+            }
         }
 
         this.ctx.restore();
