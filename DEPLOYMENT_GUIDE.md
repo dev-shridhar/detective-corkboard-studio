@@ -1,147 +1,92 @@
-# 🌐 Production Deployment Guide — Detective Corkboard Studio
+# 🌐 Free Production Deployment Guide — Detective Corkboard Studio
 
-This guide outlines the steps required to deploy the **Detective Corkboard Studio** application to your production server under the domain **`detectivecorkboard.com`**.
-
----
-
-## 1. ⚙️ DNS Configuration
-
-Go to your domain registrar (e.g., Namecheap, GoDaddy, Cloudflare) and configure the following **A Records**:
-
-| Type | Host | Value | TTL | Description |
-|------|------|-------|-----|-------------|
-| **A** | `@` | `YOUR_SERVER_PUBLIC_IP` | Automatic / 1 hour | Maps domain to server IP |
-| **A** | `www` | `YOUR_SERVER_PUBLIC_IP` | Automatic / 1 hour | Maps sub-domain to server IP |
-| **A** | `api` | `YOUR_SERVER_PUBLIC_IP` | Automatic / 1 hour | Backend API sub-domain |
+This guide outlines the steps required to deploy the **Detective Corkboard Studio** application for **100% free** using **Neon.tech** (PostgreSQL database), **Render** (FastAPI backend), and **Vercel** (static frontend), linked to your **GoDaddy** domain.
 
 ---
 
-## 2. 🖥️ VPS Server Setup (Ubuntu 22.04 LTS Recommended)
+## 1. 🐘 Setup a Free Database on Neon.tech
 
-Connect to your server via SSH:
-```bash
-ssh root@YOUR_SERVER_PUBLIC_IP
-```
+[Neon](https://neon.tech/) offers a serverless PostgreSQL database with a generous, persistent free tier.
 
-Update system packages:
-```bash
-sudo apt update && sudo apt upgrade -y
-```
-
-### Install Docker & Docker Compose
-```bash
-# Install Docker
-sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/whitelist.d/docker.list > /dev/whitelist
-sudo apt update
-sudo apt install docker-ce -y
-
-# Verify Docker status
-sudo systemctl status docker
-
-# Install Docker Compose v2
-sudo apt install docker-compose-plugin -y
-```
-
-### Install Git & Certbot
-```bash
-sudo apt install git certbot -y
-```
+1. **Sign up** at [Neon.tech](https://neon.tech/).
+2. Create a new project called `detective-corkboard-db`.
+3. In your Neon dashboard under **Connection Details**, copy your PostgreSQL connection string. It will look like this:
+   ```text
+   postgresql://corkboard_owner:abcdefg12345@ep-cool-darkness-a5xyz123.us-east-2.aws.neon.tech/neondb?sslmode=require
+   ```
+4. Save this string; you will need to paste it as the `DATABASE_URL` in Render.
 
 ---
 
-## 3. 🔒 Provision Let's Encrypt SSL Certificates
+## 2. 🚀 Deploy Backend API to Render (Free Tier)
 
-Run Certbot to request certificates for the domain.
-*(Note: Port 80 must be open and temporarily free of any active web service so Certbot can run its verification server).*
+[Render](https://render.com/) allows you to host Docker services directly from your GitHub repository for free.
 
-```bash
-sudo certbot certonly --standalone -d detectivecorkboard.com -d www.detectivecorkboard.com -d api.detectivecorkboard.com
-```
-
-Upon successful completion, the certificate files will be generated in:
-- Certificate: `/etc/letsencrypt/live/detectivecorkboard.com/fullchain.pem`
-- Private Key: `/etc/letsencrypt/live/detectivecorkboard.com/privkey.pem`
-
-Configure automatic renewal (Certbot sets up a systemd cron timer automatically, check with):
-```bash
-sudo certbot renew --dry-run
-```
-
----
-
-## 4. 📁 Project Setup on Server
-
-Clone the repository to the `/app` folder (or your chosen directory) on the server:
-```bash
-git clone https://github.com/YOUR_GITHUB_ORGANIZATION/detective-corkboard-studio.git /app/detective-corkboard-studio
-cd /app/detective-corkboard-studio
-```
+1. **Sign up** at [Render.com](https://render.com/) and connect your GitHub account.
+2. Click **New +** ➔ **Web Service**.
+3. Select your repository `detective-corkboard-studio`.
+4. Configure the Web Service settings:
+   - **Name**: `detective-corkboard-api`
+   - **Environment**: `Docker`
+   - **Docker Path**: `backend/Dockerfile` *(Points to the Dockerfile in the backend subfolder)*
+   - **Build Context**: `backend` *(Ensure the build context is set to the backend subfolder)*
+   - **Instance Type**: `Free`
+5. Click **Advanced** and add the following **Environment Variables**:
+   - `DATABASE_URL` = *(Paste your Neon.tech connection string from Step 1)*
+   - `ENVIRONMENT` = `production`
+   - `SECRET_KEY` = *(Type a long, secure random key for JWT token signatures)*
+   - `ALLOWED_ORIGINS` = `https://detectivecorkboard.com,https://www.detectivecorkboard.com`
+6. Click **Create Web Service**.
+7. Once deployed, Render will provide a free URL, such as `https://detective-corkboard-api.onrender.com`.
 
 ---
 
-## 5. 🛠️ Configure Environment Variables
+## 3. 📦 Deploy Static Frontend to Vercel (Free Tier)
 
-Create the production environment file for the backend:
-```bash
-nano backend/.env.production
-```
+[Vercel](https://vercel.com/) is a high-performance cloud hosting provider for static frontend apps, with instant Git-integrated deployments.
 
-Add the following production configuration:
-```env
-# Application Settings
-APP_NAME="Detective Corkboard Studio"
-APP_VERSION="0.1.0"
-ENVIRONMENT="production"
-
-# Relational Database URL (Points to the 'db' postgres container name)
-DATABASE_URL="postgresql://corkboard:CHOOSE_A_SECURE_PASSWORD@db:5432/corkboard_db"
-
-# JWT Authentication Secrets
-SECRET_KEY="CHOOSE_A_VERY_LONG_SECURE_RANDOM_SECRET_KEY_HERE"
-ALGORITHM="HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-REFRESH_TOKEN_EXPIRE_DAYS=7
-
-# CORS allowed frontend origins
-ALLOWED_ORIGINS="https://detectivecorkboard.com,https://www.detectivecorkboard.com"
-```
-
-Configure `docker-compose.prod.yml`'s postgres secret to match `DATABASE_URL`:
-- Edit `docker-compose.prod.yml`
-- Locate `POSTGRES_PASSWORD` under the `db` service and set it to: `CHOOSE_A_SECURE_PASSWORD`.
+1. **Sign up** at [Vercel.com](https://vercel.com/) using your GitHub account.
+2. Click **Add New** ➔ **Project**.
+3. Import your `detective-corkboard-studio` repository.
+4. Configure the project settings:
+   - **Framework Preset**: `Other` or `None`
+   - **Root Directory**: `frontend` *(Click Edit and select the frontend subfolder so Vercel only hosts the static files)*
+5. Click **Deploy**.
+6. Once completed, Vercel will deploy your site and provide a free URL, such as `https://detective-corkboard-studio.vercel.app`.
 
 ---
 
-## 6. 🚀 Launch the Application Stack
+## 4. ⚙️ GoDaddy DNS Configuration
 
-Start the Docker services using the production Compose configuration:
-```bash
-docker compose -f docker-compose.prod.yml up -d --build
-```
+To point your custom domain `detectivecorkboard.com` to your deployed services:
 
-This starts:
-1. `corkboard_db_prod` (PostgreSQL Database)
-2. `corkboard_api_prod` (FastAPI REST Backend)
-3. `corkboard_frontend_prod` (Nginx serving frontend static files + routing `/api/v1` API traffic with SSL enabled)
+1. **Log in** to your [GoDaddy Domain Portfolio](https://dcc.godaddy.com/domains).
+2. Click **Manage DNS** next to `detectivecorkboard.com`.
+3. Configure the following records:
 
-Check the container logs:
-```bash
-docker compose -f docker-compose.prod.yml logs -f
-```
+### A. Point `detectivecorkboard.com` to Vercel (Frontend)
+Go to your **Vercel Project Dashboard** ➔ **Settings** ➔ **Domains**.
+- Add `detectivecorkboard.com` and `www.detectivecorkboard.com`.
+- Vercel will display the required DNS records:
+  - Add an **`A`** record in GoDaddy:
+    - **Host**: `@`
+    - **Points to**: `76.76.21.21` *(Vercel IP)*
+  - Add a **`CNAME`** record in GoDaddy (if not already present):
+    - **Host**: `www`
+    - **Points to**: `cname.vercel-dns.com`
 
-### Run Database Migrations
-FastAPI initializes database schemas automatically on startup via SQLModel code inside the app lifecycle, but if you need to run them manually:
-```bash
-docker compose -f docker-compose.prod.yml exec api alembic upgrade head
-```
+### B. Point `api.detectivecorkboard.com` to Render (Backend)
+Go to your **Render Web Service Dashboard** ➔ **Settings** ➔ **Custom Domains**.
+- Add `api.detectivecorkboard.com`.
+- Render will display the required DNS record:
+  - Add a **`CNAME`** record in GoDaddy:
+    - **Host**: `api`
+    - **Points to**: `detective-corkboard-api.onrender.com` *(Your Render URL)*
 
 ---
 
-## 7. 🧪 Post-Deployment Verification
+## 5. 🧪 Verification
 
-1. Load your website: `https://detectivecorkboard.com`.
-2. Check that the secure lock icon (SSL) appears in the browser URL bar.
-3. Test authentication: register a user account, log in, create a board, and spawn visual evidence cards.
-4. Open the browser's developer console to verify that requests route smoothly to `https://api.detectivecorkboard.com/api/v1`.
+1. Once the DNS records propagate, navigate to `https://detectivecorkboard.com`.
+2. Register an account, log in, create a board, and add tiles.
+3. Everything is now hosted completely for free with automatic SSL certificates and automated CD deployments on push/merge to your GitHub `main` branch!
