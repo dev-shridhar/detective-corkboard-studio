@@ -18,11 +18,12 @@
 
     <link rel="stylesheet" href="css/style.css" />
     <style>
-        /* ── Auth Screen — full-bleed corkboard with floating card ── */
+        /* ══════════════════════════════════════════
+           AUTH SCREEN — corkboard is the stage
+        ══════════════════════════════════════════ */
         #auth-screen {
             position: fixed;
             inset: 0;
-            /* Full-bleed corkboard image behind everything */
             background: url('assets/corkboard_preview.png') no-repeat center center;
             background-size: cover;
             display: flex;
@@ -31,72 +32,152 @@
             z-index: 1000;
             overflow: hidden;
         }
-
-        /* Dark cinematic vignette over the corkboard */
         #auth-screen::before {
             content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(
-                ellipse at center,
-                rgba(10,8,5,0.35) 0%,
-                rgba(10,8,5,0.65) 100%
-            );
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse at center,
+                rgba(8,6,3,0.25) 0%,
+                rgba(8,6,3,0.55) 100%);
             z-index: 0;
         }
-
-        /* Hide old left preview column — image is now fullscreen */
         .auth-preview { display: none; }
 
-        /* The right panel becomes transparent — just a flex positioner */
+        /* Wrapper — transparent, just positions the tile */
         .auth-form-side {
-            position: relative;
-            z-index: 2;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            width: 100%;
-            max-height: 100vh;
-            overflow-y: auto;
-            background: transparent;
-            box-shadow: none;
+            position: relative; z-index: 2;
+            display: flex; align-items: center; justify-content: center;
+            width: 100%; max-height: 100vh; overflow-y: auto;
+            background: transparent; box-shadow: none; padding: 20px;
         }
 
-        /* Floating paper card — frosted aged paper look */
+        /* ── THE MAIN CASE-FILE TILE ── */
         .auth-card {
-            background: rgba(245, 238, 220, 0.92);
-            backdrop-filter: blur(18px) saturate(1.4);
-            -webkit-backdrop-filter: blur(18px) saturate(1.4);
-            border: 2px solid rgba(138, 122, 95, 0.6);
+            background: #f5eedc;
+            /* Slight paper texture via repeating gradient */
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(138,122,95,0.07) 27px, rgba(138,122,95,0.07) 28px),
+                linear-gradient(180deg, #f8f2e0 0%, #f0e8cc 100%);
+            border: 1px solid rgba(138,122,95,0.5);
             box-shadow:
-                0 8px 60px rgba(0,0,0,0.7),
-                0 2px 8px rgba(0,0,0,0.4),
-                inset 0 0 80px rgba(200,180,140,0.12);
-            padding: 40px 48px;
-            border-radius: 6px;
-            width: 100%;
-            max-width: 400px;
-            transform: rotate(-0.4deg);
+                4px 6px 0 rgba(0,0,0,0.3),
+                8px 10px 30px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255,255,255,0.6);
+            padding: 36px 44px 40px;
+            border-radius: 2px;
+            width: 100%; max-width: 390px;
+            transform: rotate(-1deg);
             position: relative;
+            margin-top: 30px; /* room for the pushpin */
         }
 
-        /* Subtle paper grain texture overlay */
-        .auth-card::after {
+        /* Red pushpin at the top-center */
+        .auth-pushpin {
+            position: absolute;
+            top: -22px; left: 50%; transform: translateX(-50%);
+            width: 28px; height: 44px;
+            z-index: 10;
+            filter: drop-shadow(1px 3px 4px rgba(0,0,0,0.5));
+        }
+        .auth-pushpin .pin-head {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #e74c3c, #8e1c1c);
+            border: 1px solid #6b1414;
+            box-shadow: inset 0 -2px 4px rgba(0,0,0,0.3), 0 2px 6px rgba(0,0,0,0.4);
+        }
+        .auth-pushpin .pin-shaft {
+            width: 4px; height: 18px;
+            background: linear-gradient(180deg, #bbb 0%, #777 100%);
+            margin: 0 auto;
+            border-radius: 0 0 2px 2px;
+        }
+
+        /* Masking-tape corners */
+        .auth-card::before {
             content: '';
             position: absolute;
-            inset: 0;
-            border-radius: 6px;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-            pointer-events: none;
-            z-index: 0;
+            top: -6px; left: -10px; right: -10px;
+            height: 22px;
+            background: rgba(255, 240, 180, 0.7);
+            backdrop-filter: blur(2px);
+            transform: rotate(-0.5deg);
+            border-radius: 2px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 1;
         }
 
         @media (max-width: 600px) {
-            .auth-card {
-                padding: 28px 24px;
-                max-width: 95vw;
-            }
+            .auth-card { padding: 28px 22px 32px; max-width: 95vw; }
+        }
+
+        /* ── BOARD MESSAGE TILES ── */
+        #board-messages {
+            position: fixed;
+            bottom: 32px; right: 32px;
+            z-index: 2000;
+            display: flex; flex-direction: column;
+            align-items: flex-end; gap: 12px;
+            pointer-events: none;
+        }
+        .board-msg-tile {
+            background: #fff9c4;
+            background-image: linear-gradient(135deg, #fff9c4 0%, #f9ef9a 100%);
+            border: 1px solid rgba(180,160,60,0.5);
+            box-shadow: 3px 4px 0 rgba(0,0,0,0.25), 6px 8px 20px rgba(0,0,0,0.35);
+            padding: 14px 18px 14px 14px;
+            border-radius: 2px;
+            max-width: 280px;
+            position: relative;
+            pointer-events: auto;
+            animation: msgFlyIn 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards;
+        }
+        .board-msg-tile.error {
+            background: linear-gradient(135deg, #fff0f0 0%, #ffd5d5 100%);
+            border-color: rgba(192,57,43,0.4);
+        }
+        .board-msg-tile.success {
+            background: linear-gradient(135deg, #f0fff4 0%, #c8f7d8 100%);
+            border-color: rgba(39,174,96,0.4);
+        }
+        /* mini pushpin on each message tile */
+        .board-msg-tile::before {
+            content: '📌';
+            position: absolute;
+            top: -10px; left: 10px;
+            font-size: 18px;
+            filter: drop-shadow(1px 2px 2px rgba(0,0,0,0.4));
+        }
+        .board-msg-tile .tile-type {
+            font-family: 'Special Elite', monospace;
+            font-size: 9px; letter-spacing: 2px;
+            color: rgba(80,60,20,0.6);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .board-msg-tile .tile-text {
+            font-family: 'Courier Prime', monospace;
+            font-size: 13px; line-height: 1.45;
+            color: #2c1f00;
+        }
+        .board-msg-tile.error .tile-type { color: #8e1c1c; }
+        .board-msg-tile.success .tile-type { color: #1a6634; }
+        .board-msg-tile .tile-dismiss {
+            position: absolute; top: 4px; right: 6px;
+            font-size: 11px; color: rgba(80,60,20,0.4);
+            cursor: pointer; font-family: monospace;
+            background: none; border: none; padding: 0;
+        }
+        .board-msg-tile .tile-dismiss:hover { color: #8e1c1c; }
+        /* fade-out animation */
+        .board-msg-tile.removing {
+            animation: msgFlyOut 0.3s ease-in forwards;
+        }
+        @keyframes msgFlyIn {
+            from { transform: translateX(120px) rotate(4deg); opacity: 0; }
+            to   { transform: translateX(0)      rotate(-1.5deg); opacity: 1; }
+        }
+        @keyframes msgFlyOut {
+            from { transform: translateX(0) rotate(-1.5deg); opacity: 1; }
+            to   { transform: translateX(120px) rotate(4deg); opacity: 0; }
         }
 
         .auth-stamp {
@@ -111,6 +192,7 @@
             transform: rotate(-4deg);
             display: inline-block;
             margin-bottom: 16px;
+            position: relative; z-index: 2;
         }
 
         .auth-card h1 {
@@ -686,6 +768,9 @@
 </head>
 <body>
 
+<!-- Board message tiles container — sits above everything, always visible -->
+<div id="board-messages"></div>
+
 <!-- ═══════════════════ AUTH SCREEN ═══════════════════ -->
 <div id="auth-screen">
     <!-- Left Column: Visual Roadmap Preview -->
@@ -700,9 +785,14 @@
     <!-- Right Column: Login/Signup Forms -->
     <div class="auth-form-side">
         <div class="auth-card">
+            <!-- Red pushpin at top of tile -->
+            <div class="auth-pushpin">
+                <div class="pin-head"></div>
+                <div class="pin-shaft"></div>
+            </div>
             <div class="auth-stamp">CLASSIFIED</div>
-            <div style="display:flex; align-items:center; gap:12px; margin-bottom:4px;">
-                <img src="assets/logo.png" alt="Detective Board Logo" style="width:56px; height:56px; object-fit:contain; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5));" />
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:4px; position:relative; z-index:2;">
+                <img src="assets/logo.png" alt="Detective Board Logo" style="width:52px; height:52px; object-fit:contain; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5));" />
                 <h1 style="margin:0;">Detective Board</h1>
             </div>
 
@@ -722,7 +812,6 @@
                     <input id="login-password" type="password" placeholder="••••••••" required />
                 </div>
                 <button type="submit" class="auth-submit">OPEN CASE FILE →</button>
-                <p class="auth-error" id="login-error"></p>
             </form>
 
             <!-- Register Form -->
@@ -740,7 +829,6 @@
                     <input id="reg-password" type="password" placeholder="••••••••" required />
                 </div>
                 <button type="submit" class="auth-submit">CREATE DOSSIER →</button>
-                <p class="auth-error" id="register-error"></p>
             </form>
 
             <!-- Verification Form -->
@@ -755,7 +843,6 @@
                     <input id="verify-code" type="text" placeholder="123456" pattern="^[0-9]{6}$" required maxlength="6" style="text-align: center; font-size: 18px; letter-spacing: 4px;" />
                 </div>
                 <button type="submit" class="auth-submit">ACTIVATE DOSSIER →</button>
-                <p class="auth-error" id="verify-error"></p>
                 
                 <div class="auth-field" style="margin-top: 20px; text-align: center;">
                     <a href="#" onclick="resendVerificationCode(event)" style="color: #c0392b; font-family: 'Courier Prime', monospace; font-size: 12px; font-weight: bold; text-decoration: underline; letter-spacing: 0.5px;">Resend Verification Code</a>
@@ -961,20 +1048,40 @@
         }
     }
 
+    /* ── showBoardMessage: pins a sticky-note tile to the board for errors/success ── */
+    function showBoardMessage(text, type = 'error', autoDismissMs = 5000) {
+        const container = document.getElementById('board-messages');
+        const tile = document.createElement('div');
+        tile.className = `board-msg-tile ${type}`;
+
+        const labels = { error: '⚠ Incident Report', success: '✔ Case Update', info: '📋 Field Note' };
+        tile.innerHTML = `
+            <button class="tile-dismiss" onclick="dismissTile(this.parentElement)">✕</button>
+            <div class="tile-type">${labels[type] || 'Notice'}</div>
+            <div class="tile-text">${text}</div>
+        `;
+        container.appendChild(tile);
+
+        if (autoDismissMs > 0) {
+            setTimeout(() => dismissTile(tile), autoDismissMs);
+        }
+    }
+
+    function dismissTile(tile) {
+        if (!tile || tile.classList.contains('removing')) return;
+        tile.classList.add('removing');
+        tile.addEventListener('animationend', () => tile.remove(), { once: true });
+    }
+
     /* ── Auth handlers ── */
     async function handleLogin(e) {
         e.preventDefault();
-        document.getElementById('login-error').style.display = 'none';
         try {
             const username = document.getElementById('login-username').value;
             const password = document.getElementById('login-password').value;
             await window.auth.login(username, password);
         } catch (err) {
-            const el = document.getElementById('login-error');
-            el.textContent = err.message;
-            el.style.display = 'block';
-            
-            // Redirect to verification screen if account is registered but unverified
+            showBoardMessage(err.message, 'error');
             if (err.message.includes('not verified') || err.message.includes('Email not verified')) {
                 verificationTarget = document.getElementById('login-username').value;
                 switchTab('verify');
@@ -984,27 +1091,21 @@
 
     async function handleRegister(e) {
         e.preventDefault();
-        document.getElementById('register-error').style.display = 'none';
         try {
             const username = document.getElementById('reg-username').value.trim();
             const email = document.getElementById('reg-email').value.trim();
             const password = document.getElementById('reg-password').value;
-            
             const payload = { username, email, password };
             await window.api.register(payload);
-            
-            // Auto-login upon successful registration
+            showBoardMessage(`Welcome, ${username}! Dossier created. Opening case board...`, 'success');
             await window.auth.login(username, password);
         } catch (err) {
-            const el = document.getElementById('register-error');
-            el.textContent = err.message;
-            el.style.display = 'block';
+            showBoardMessage(err.message, 'error');
         }
     }
 
     async function handleVerify(e) {
         e.preventDefault();
-        document.getElementById('verify-error').style.display = 'none';
         try {
             const code = document.getElementById('verify-code').value;
             await window.api.verifyEmail({ username_or_email: verificationTarget, code: code });
