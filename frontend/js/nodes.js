@@ -116,7 +116,9 @@ class NodeManager {
         
         this._dragNode = null;
         
-        // Verify displacement threshold before executing history transaction
+        // Skip sync for unsaved nodes (temp IDs or missing board_id)
+        if (!node.board_id || String(node.id).startsWith('temp-')) return;
+
         if (Math.hypot(endPos.x - startPos.x, endPos.y - startPos.y) > 2) {
             if (window.history_manager) {
                 const cmd = new MoveNodeCommand(node.board_id, node.id, startPos, endPos);

@@ -59,7 +59,7 @@ class CreateNodeCommand extends Command {
 
     async execute() {
         const tempId = this.nodeId || 'temp-' + Date.now();
-        const nodePayload = { id: tempId, ...this.payload };
+        const nodePayload = { id: tempId, board_id: this.boardId, ...this.payload };
         
         // Optimistically add to UI
         if (window.nodeManager) {
