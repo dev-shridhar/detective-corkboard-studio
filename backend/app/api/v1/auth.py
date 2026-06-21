@@ -65,7 +65,7 @@ def login(
         value=refresh_token,
         httponly=True,
         secure=(settings.ENVIRONMENT == "production"),
-        samesite="lax",
+        samesite="none" if settings.ENVIRONMENT == "production" else "lax",
         path="/api/v1/auth",  # Only transmit to auth endpoints (refresh/logout)
         max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
     )
@@ -95,7 +95,7 @@ def refresh(
         value=new_refresh,
         httponly=True,
         secure=(settings.ENVIRONMENT == "production"),
-        samesite="lax",
+        samesite="none" if settings.ENVIRONMENT == "production" else "lax",
         path="/api/v1/auth",
         max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
     )
@@ -115,7 +115,13 @@ def logout(
     service.revoke_refresh_token(user)
 
     # Clear client-side cookie
-    response.delete_cookie(key="refresh_token", path="/api/v1/auth")
+    response.delete_cookie(
+        key="refresh_token",
+        path="/api/v1/auth",
+        httponly=True,
+        secure=(settings.ENVIRONMENT == "production"),
+        samesite="none" if settings.ENVIRONMENT == "production" else "lax",
+    )
 
     return {"status": "success", "message": "Successfully logged out"}
 

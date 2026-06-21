@@ -2,9 +2,10 @@ import bcrypt
 from datetime import datetime, timedelta
 import hashlib
 from typing import Optional
+from uuid import UUID
 
 from jose import JWTError, jwt
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 
 from app.core.config import settings
@@ -12,6 +13,34 @@ from app.core.config import settings
 
 # OAuth2 token scheme — points to the login endpoint
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+
+
+class TokenUser:
+    def __init__(self, user_id: UUID):
+        self.id = user_id
+
+
+def get_current_user(token: str = Depends(oauth2_scheme)):
+    """Validate an access token and return the authenticated user's ID."""
+    payload = SecurityUtils.decode_token(token)
+    if payload.get("type") != "access":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token type",
+        )
+    user_id = payload.get("sub")
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token subject",
+        )
+    try:
+        return TokenUser(UUID(user_id))
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token subject UUID",
+        )
 
 
 class SecurityUtils:

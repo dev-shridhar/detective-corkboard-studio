@@ -1,30 +1,14 @@
 from typing import List
 from uuid import UUID
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status
 from sqlmodel import Session
 
 from app.core.database import get_session
-from app.core.security import oauth2_scheme, SecurityUtils
+from app.core.security import get_current_user
 from app.services.board_service import BoardService
 from app.schemas.board import BoardCreate, BoardUpdate, BoardRead
 
 router = APIRouter()
-
-
-class TokenUser:
-    def __init__(self, user_id: UUID):
-        self.id = user_id
-
-
-def get_current_user(token: str = Depends(oauth2_scheme)):
-    payload = SecurityUtils.decode_token(token)
-    user_id = payload.get("sub")
-    if not user_id:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token subject")
-    try:
-        return TokenUser(UUID(user_id))
-    except ValueError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token subject UUID")
 
 
 @router.get("", response_model=List[BoardRead])

@@ -1,5 +1,6 @@
 import os
 os.environ["TESTING"] = "true"
+os.environ["SECRET_KEY"] = "test-secret-key"
 
 import pytest
 from typing import Generator
