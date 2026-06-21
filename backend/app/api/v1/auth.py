@@ -131,6 +131,13 @@ def get_me(token: str = Depends(oauth2_scheme), session: Session = Depends(get_s
 def test_smtp(email: str):
     """Diagnostic endpoint to test live SMTP credentials synchronously."""
     from app.services.email_service import EmailService
+    from app.core.config import settings
+    if not settings.SMTP_USERNAME or not settings.SMTP_PASSWORD:
+        return {
+            "status": "error",
+            "error_class": "SMTPConfigError",
+            "message": "SMTP_USERNAME or SMTP_PASSWORD is not configured in Render environment variables! Please add SMTP credentials in your Render service Settings dashboard."
+        }
     try:
         # Send a simple test email
         EmailService.send_verification_email(email, "123456")
