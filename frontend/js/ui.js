@@ -294,6 +294,12 @@ class UIManager {
         if (descEl) {
             descEl.textContent = node.description || '';
             descEl.onblur = () => this.saveActiveNodeIntel();
+            descEl.onkeydown = (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    descEl.blur();
+                }
+            };
         }
 
         const conceptsEl = document.getElementById('insp-concepts');
