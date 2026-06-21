@@ -144,9 +144,6 @@ class UIManager {
                 timeout
             ]);
             console.log('[UIManager] Nodes:', nodes?.length, 'Edges:', edges?.length);
-            if (nodes?.length > 0) {
-                console.log('[UIManager] First node:', JSON.stringify(nodes[0], null, 2));
-            }
             
             if (window.nodeManager) {
                 window.nodeManager.setNodes(nodes || []);
@@ -159,7 +156,6 @@ class UIManager {
             }
             
             if (window.canvasEngine) {
-                console.log('[UIManager] Requesting canvas redraw');
                 window.canvasEngine.requestDraw();
             } else {
                 console.error('[UIManager] canvasEngine not available — canvas not initialized');
@@ -167,9 +163,6 @@ class UIManager {
 
             window.hideBoardLoading();
             console.log('[UIManager] Board loaded —', nodes?.length || 0, 'tiles,', edges?.length || 0, 'connections');
-            if (typeof window.showBoardMessage === 'function') {
-                window.showBoardMessage(`Board loaded — ${nodes?.length || 0} tiles, ${edges?.length || 0} connections`, 'success', 3000);
-            }
             
         } catch (err) {
             window.hideBoardLoading();
