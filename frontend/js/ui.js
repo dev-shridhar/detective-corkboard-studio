@@ -182,142 +182,81 @@ class UIManager {
     /* ── Details Panel ── */
 
     openDetailPanel(node) {
+        this.openInspector(node);
+    }
+
+    closeDetailPanel() {
+        this.closeInspector();
+    }
+
+    /* ── Right Inspector Panel (Newspaper Vintage Inline Editor) ── */
+
+    openInspector(node) {
         this.activeNode = node;
-        this.disableEditMode();
-        
-        // Set the active tile color swatch in the tray to match the selected node's color
+
+        // Update active swatch highlight in bottom tray
         document.querySelectorAll('.swatch-btn:not(.yarn-swatch)').forEach(btn => {
             btn.classList.remove('active');
             if (btn.title.toLowerCase() === this.getColorName(node.color)) {
                 btn.classList.add('active');
             }
         });
-        
-        // Setup View elements
-        const badge = document.getElementById('detail-badge');
-        badge.innerText = node.shape.replace('_', ' ').toUpperCase();
-        
-        document.getElementById('detail-title').innerText = node.title;
-        document.getElementById('detail-description').innerText = node.description || '— no notes written —';
-        
-        // Render concepts tags
-        const conceptsContainer = document.getElementById('detail-concepts');
-        conceptsContainer.innerHTML = "";
-        if (node.concepts && node.concepts.length > 0) {
-            node.concepts.forEach(c => {
-                const li = document.createElement('li');
-                li.innerText = c;
-                conceptsContainer.appendChild(li);
-            });
-        } else {
-            const li = document.createElement('li');
-            li.innerText = "No tags";
-            li.style.fontStyle = "italic";
-            conceptsContainer.appendChild(li);
-        }
-        
-        // Render resource links
-        const linksContainer = document.getElementById('detail-links');
-        linksContainer.innerHTML = "";
-        if (node.links && node.links.length > 0) {
-            node.links.forEach(l => {
-                const a = document.createElement('a');
-                a.className = "paper-item";
-                a.href = l.url.startsWith('http') ? l.url : `https://${l.url}`;
-                a.target = "_blank";
-                a.rel = "noopener noreferrer";
-                
-                const tDiv = document.createElement('div');
-                tDiv.className = "paper-title";
-                tDiv.innerText = l.title;
-                
-                const uDiv = document.createElement('div');
-                uDiv.className = "paper-author";
-                uDiv.innerText = l.url;
-                
-                a.appendChild(tDiv);
-                a.appendChild(uDiv);
-                linksContainer.appendChild(a);
-            });
-        } else {
-            const p = document.createElement('p');
-            p.className = "no-papers";
-            p.innerText = "No resources linked to this dossier.";
-            linksContainer.appendChild(p);
-        }
-        
-        const overlay = document.getElementById('detail-panel-overlay');
-        if (overlay) overlay.style.display = 'flex';
-        
-        if (window.canvasEngine) {
-            window.canvasEngine.centerOn(node.x, node.y);
-        }
-    }
 
-    closeDetailPanel() {
-        this.activeNode = null;
-        const overlay = document.getElementById('detail-panel-overlay');
-        if (overlay) overlay.style.display = 'none';
-        
-        if (window.canvasEngine) {
-            window.canvasEngine.selectedNode = null;
-            window.canvasEngine.requestDraw();
-        }
-    }
+        // Set inputs/fields in the newspaper inspector panel
+        const badgeEl = document.getElementById('insp-badge');
+        if (badgeEl) badgeEl.textContent = node.shape.replace(/_/g, ' ').toUpperCase();
 
-    /* ── Right Inspector Panel (single-click quick-view) ── */
-
-    openInspector(node) {
-        this.activeNode = node;
-
-        // Update tray swatch highlight to match tile color
-        document.querySelectorAll('.swatch-btn:not(.yarn-swatch)').forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.title.toLowerCase() === this.getColorName(node.color)) btn.classList.add('active');
-        });
-
-        // Populate header
-        const shapeBadge = document.getElementById('inspector-shape-badge');
-        if (shapeBadge) shapeBadge.textContent = node.shape.replace(/_/g, ' ').toUpperCase();
-
-        // Color accent stripe
-        const stripe = document.getElementById('inspector-color-stripe');
-        if (stripe) stripe.style.background = node.color || '#eedeb0';
-
-        // Title
-        const titleEl = document.getElementById('inspector-title');
-        if (titleEl) titleEl.textContent = node.title || '— untitled —';
-
-        // Description
-        const descEl = document.getElementById('inspector-desc');
-        if (descEl) descEl.textContent = node.description || '— no notes written —';
-
-        // Concept tags
-        const tagsEl = document.getElementById('inspector-tags');
-        if (tagsEl) {
-            tagsEl.innerHTML = '';
-            const concepts = node.concepts || [];
-            if (concepts.length === 0) {
-                tagsEl.innerHTML = '<span style="font-family:Courier Prime,monospace;font-size:10px;color:#8a7a5f;font-style:italic;">No concepts tagged</span>';
-            } else {
-                concepts.forEach(c => {
-                    const tag = document.createElement('span');
-                    tag.className = 'inspector-tag';
-                    tag.textContent = c;
-                    tagsEl.appendChild(tag);
-                });
-            }
+        const titleEl = document.getElementById('insp-title');
+        if (titleEl) {
+            titleEl.textContent = node.title || '';
+            // Blur / Enter key handler
+            titleEl.onblur = () => this.saveActiveNodeIntel();
+            titleEl.onkeydown = (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    titleEl.blur();
+                }
+            };
         }
 
-        // Yarn connections
-        const yarnsEl = document.getElementById('inspector-yarns');
+        const descEl = document.getElementById('insp-desc');
+        if (descEl) {
+            descEl.textContent = node.description || '';
+            descEl.onblur = () => this.saveActiveNodeIntel();
+        }
+
+        const conceptsEl = document.getElementById('insp-concepts');
+        if (conceptsEl) {
+            conceptsEl.value = (node.concepts || []).join(', ');
+            conceptsEl.onblur = () => this.saveActiveNodeIntel();
+            conceptsEl.onkeydown = (e) => {
+                if (e.key === 'Enter') {
+                    conceptsEl.blur();
+                }
+            };
+        }
+
+        const shapeEl = document.getElementById('insp-shape');
+        if (shapeEl) {
+            shapeEl.value = node.shape;
+            shapeEl.onchange = () => this.saveActiveNodeIntel();
+        }
+
+        const colorEl = document.getElementById('insp-color');
+        if (colorEl) {
+            colorEl.value = node.color;
+            colorEl.onchange = () => this.saveActiveNodeIntel();
+        }
+
+        // Render connected yarns
+        const yarnsEl = document.getElementById('insp-yarns');
         if (yarnsEl) {
             yarnsEl.innerHTML = '';
             const edges = (window.edgeManager && window.edgeManager._edges) || [];
             const nodes = (window.nodeManager && window.nodeManager.getNodes()) || [];
             const connected = edges.filter(e => e.source_node_id === node.id || e.target_node_id === node.id);
             if (connected.length === 0) {
-                yarnsEl.innerHTML = '<span style="font-family:Courier Prime,monospace;font-size:10px;color:#8a7a5f;font-style:italic;">No yarn connections</span>';
+                yarnsEl.innerHTML = '<span style="font-family:Courier Prime,monospace;font-size:10px;color:#8a7a5f;font-style:italic;">No connections</span>';
             } else {
                 connected.forEach(edge => {
                     const otherId = edge.source_node_id === node.id ? edge.target_node_id : edge.source_node_id;
@@ -326,45 +265,148 @@ class UIManager {
                     item.className = 'inspector-yarn-item';
                     item.innerHTML = `
                         <span class="inspector-yarn-dot" style="background:${edge.color || '#c0392b'};"></span>
-                        <span>${other ? other.title : 'Unknown tile'}</span>
+                        <span>${other ? other.title : 'Unknown clue'}</span>
                     `;
                     yarnsEl.appendChild(item);
                 });
             }
         }
 
-        // Resource links
-        const linksEl = document.getElementById('inspector-links');
-        if (linksEl) {
-            linksEl.innerHTML = '';
-            const links = node.links || [];
-            if (links.length === 0) {
-                linksEl.innerHTML = '<span style="font-family:Courier Prime,monospace;font-size:10px;color:#8a7a5f;font-style:italic;">No resources linked</span>';
-            } else {
-                links.forEach(l => {
-                    const a = document.createElement('a');
-                    a.className = 'paper-item';
-                    a.href = l.url.startsWith('http') ? l.url : `https://${l.url}`;
-                    a.target = '_blank';
-                    a.rel = 'noopener noreferrer';
-                    a.innerHTML = `<div class="paper-title">${l.title}</div><div class="paper-author">${l.url}</div>`;
-                    linksEl.appendChild(a);
-                });
-            }
-        }
+        // Render source links
+        this.inspectorLinks = JSON.parse(JSON.stringify(node.links || []));
+        this.renderInspectorLinks();
 
-        // Slide open the panel
+        // Slide the newspaper card open by adding 'active' class
         const panel = document.getElementById('right-inspector');
-        if (panel) panel.classList.add('open');
+        if (panel) panel.classList.add('active');
+
+        // Optional: center camera on node when opened
+        if (window.canvasEngine) {
+            window.canvasEngine.centerOn(node.x, node.y);
+        }
     }
 
     closeInspector() {
         const panel = document.getElementById('right-inspector');
-        if (panel) panel.classList.remove('open');
+        if (panel) panel.classList.remove('active');
         this.activeNode = null;
         if (window.canvasEngine) {
             window.canvasEngine.selectedNode = null;
             window.canvasEngine.requestDraw();
+        }
+    }
+
+    renderInspectorLinks() {
+        const container = document.getElementById('insp-links');
+        if (!container) return;
+        container.innerHTML = '';
+        
+        if (!this.inspectorLinks || this.inspectorLinks.length === 0) {
+            container.innerHTML = '<div class="no-papers">No links attached.</div>';
+            return;
+        }
+        
+        this.inspectorLinks.forEach((link, idx) => {
+            const div = document.createElement('div');
+            div.className = 'inspector-link-row';
+            div.style.cssText = 'display:flex; flex-direction:column; gap:2px; border-bottom:1.5px dashed var(--ink-dark); padding-bottom:6px; margin-bottom:6px;';
+            div.innerHTML = `
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                <input type="text" class="link-title-input" value="${link.title || ''}" placeholder="Link Title" style="font-family:'Playfair Display',serif; font-size:12px; font-weight:bold; background:transparent; border:none; outline:none; flex:1; color:var(--ink-dark);" />
+                <button class="link-delete-btn" style="background:none; border:none; cursor:pointer; font-size:11px; color:#c0392b; font-family:'Courier Prime',monospace; padding:0 4px;" title="Remove link">[✕]</button>
+              </div>
+              <input type="text" class="link-url-input" value="${link.url || ''}" placeholder="URL" style="font-family:'Courier Prime',monospace; font-size:10px; color:var(--ink-faded); background:transparent; border:none; outline:none; width:100%;" />
+            `;
+            
+            const titleInput = div.querySelector('.link-title-input');
+            const urlInput = div.querySelector('.link-url-input');
+            const deleteBtn = div.querySelector('.link-delete-btn');
+            
+            titleInput.addEventListener('blur', () => {
+                link.title = titleInput.value.trim();
+                this.saveActiveNodeIntel();
+            });
+            urlInput.addEventListener('blur', () => {
+                link.url = urlInput.value.trim();
+                this.saveActiveNodeIntel();
+            });
+            deleteBtn.addEventListener('click', () => {
+                this.inspectorLinks.splice(idx, 1);
+                this.renderInspectorLinks();
+                this.saveActiveNodeIntel();
+            });
+            
+            container.appendChild(div);
+        });
+    }
+
+    addInspectorLink() {
+        if (!this.inspectorLinks) this.inspectorLinks = [];
+        this.inspectorLinks.push({ title: 'New Resource', url: '' });
+        this.renderInspectorLinks();
+        setTimeout(() => {
+            const rows = document.querySelectorAll('#insp-links .inspector-link-row');
+            if (rows.length > 0) {
+                const lastRow = rows[rows.length - 1];
+                const input = lastRow.querySelector('.link-title-input');
+                if (input) input.focus();
+            }
+        }, 50);
+    }
+
+    async saveActiveNodeIntel() {
+        if (!this.activeNode) return;
+        const node = this.activeNode;
+
+        const titleEl = document.getElementById('insp-title');
+        const descEl = document.getElementById('insp-desc');
+        const conceptsEl = document.getElementById('insp-concepts');
+        const shapeEl = document.getElementById('insp-shape');
+        const colorEl = document.getElementById('insp-color');
+
+        let concepts = [];
+        if (conceptsEl) {
+            concepts = conceptsEl.value.split(',').map(s => s.trim()).filter(s => s.length > 0);
+        }
+
+        const links = this.inspectorLinks || [];
+
+        const updatedData = {
+            title: titleEl ? titleEl.textContent.trim() : node.title,
+            description: descEl ? descEl.textContent.trim() : node.description,
+            shape: shapeEl ? shapeEl.value : node.shape,
+            color: colorEl ? colorEl.value : node.color,
+            concepts: concepts,
+            links: links
+        };
+
+        if (!updatedData.title) updatedData.title = "Untitled Clue";
+
+        try {
+            const updatedNode = await window.api.updateNode(this.currentBoardId, node.id, updatedData);
+            
+            Object.assign(node, updatedNode);
+            
+            const badgeEl = document.getElementById('insp-badge');
+            if (badgeEl) badgeEl.textContent = node.shape.replace(/_/g, ' ').toUpperCase();
+
+            if (window.nodeManager) {
+                const nodesList = window.nodeManager.getNodes();
+                const matched = nodesList.find(n => n.id === node.id);
+                if (matched) {
+                    Object.assign(matched, updatedNode);
+                }
+            }
+
+            if (window.edgeManager) {
+                window.edgeManager.loadEdges(window.edgeManager._edges || [], window.nodeManager.getNodes());
+            }
+
+            if (window.canvasEngine) {
+                window.canvasEngine.requestDraw();
+            }
+        } catch (err) {
+            console.error("Failed to auto-save node intel:", err);
         }
     }
 
@@ -419,119 +461,6 @@ class UIManager {
             '#f1c40f': 'yellow'
         };
         return mapping[color] || '';
-    }
-
-    enableEditMode() {
-        if (!this.activeNode) return;
-        const node = this.activeNode;
-        
-        // Toggle view containers
-        document.getElementById('detail-view-mode').style.display = 'none';
-        document.getElementById('detail-edit-mode').style.display = 'block';
-        
-        // Populate edit inputs
-        document.getElementById('edit-title').value = node.title;
-        document.getElementById('edit-desc').value = node.description || '';
-        document.getElementById('edit-shape').value = node.shape;
-        document.getElementById('edit-color').value = node.color;
-        document.getElementById('edit-concepts').value = (node.concepts || []).join(', ');
-        
-        // Render dynamic link fields
-        this.editLinks = JSON.parse(JSON.stringify(node.links || []));
-        this._renderEditLinkFields();
-    }
-
-    disableEditMode() {
-        document.getElementById('detail-view-mode').style.display = 'block';
-        document.getElementById('detail-edit-mode').style.display = 'none';
-    }
-
-    _renderEditLinkFields() {
-        const container = document.getElementById('edit-links-container');
-        container.innerHTML = "";
-        
-        this.editLinks.forEach((link, idx) => {
-            const row = document.createElement('div');
-            row.style.display = "flex";
-            row.style.gap = "6px";
-            
-            const tInput = document.createElement('input');
-            tInput.type = "text";
-            tInput.placeholder = "Link Label";
-            tInput.value = link.title;
-            tInput.style.flex = "1";
-            tInput.style.fontFamily = "'Courier Prime', monospace";
-            tInput.style.fontSize = "11px";
-            tInput.oninput = (e) => { this.editLinks[idx].title = e.target.value; };
-            
-            const uInput = document.createElement('input');
-            uInput.type = "text";
-            uInput.placeholder = "URL";
-            uInput.value = link.url;
-            uInput.style.flex = "2";
-            uInput.style.fontFamily = "'Courier Prime', monospace";
-            uInput.style.fontSize = "11px";
-            uInput.oninput = (e) => { this.editLinks[idx].url = e.target.value; };
-            
-            const delBtn = document.createElement('button');
-            delBtn.className = "retro-inline-btn";
-            delBtn.style.background = "#c0392b";
-            delBtn.innerText = "✕";
-            delBtn.onclick = () => {
-                this.editLinks.splice(idx, 1);
-                this._renderEditLinkFields();
-            };
-            
-            row.appendChild(tInput);
-            row.appendChild(uInput);
-            row.appendChild(delBtn);
-            container.appendChild(row);
-        });
-    }
-
-    addEditLinkField() {
-        this.editLinks.push({ title: '', url: '' });
-        this._renderEditLinkFields();
-    }
-
-    async saveEdits() {
-        if (!this.activeNode) return;
-        const node = this.activeNode;
-        
-        const title = document.getElementById('edit-title').value.trim();
-        const desc = document.getElementById('edit-desc').value.trim();
-        const shape = document.getElementById('edit-shape').value;
-        const color = document.getElementById('edit-color').value;
-        
-        const concepts = document.getElementById('edit-concepts').value
-            .split(',')
-            .map(c => c.trim())
-            .filter(c => c.length > 0);
-            
-        // Filter empty links
-        const links = this.editLinks.filter(l => l.title.trim() && l.url.trim());
-        
-        const payload = {
-            title: title || "Clue",
-            description: desc,
-            shape,
-            color,
-            concepts,
-            links
-        };
-
-        try {
-            const updated = await window.api.updateNode(this.currentBoardId, node.id, payload);
-            
-            // Update local object states directly
-            Object.assign(node, updated);
-            
-            // Reload and refresh
-            await this.loadBoard(this.currentBoardId);
-            this.openDetailPanel(node);
-        } catch (err) {
-            alert("Failed to save changes: " + err.message);
-        }
     }
 }
 

@@ -140,14 +140,14 @@ class CanvasEngine {
         // Set camera matrices
         this.ctx.save();
         
-        // Draw links (edges) first (behind tiles)
-        if (window.edgeManager) {
-            window.edgeManager.draw(this.ctx, this);
-        }
-        
-        // Draw cards (nodes) next (on top of strings)
+        // Draw cards (nodes) first
         if (window.nodeManager) {
             window.nodeManager.draw(this.ctx, this);
+        }
+        
+        // Draw links (edges) next (on top of tiles)
+        if (window.edgeManager) {
+            window.edgeManager.draw(this.ctx, this);
         }
         
         this.ctx.restore();
@@ -235,14 +235,12 @@ class CanvasEngine {
                         window.edgeManager.startPreview(pinScreen.x, pinScreen.y, activeYarnColor);
                     }
                 } else {
-                    // Single click tile body → open right inspector + start drag
+                    // Single click: just select + start drag (inspector opens on dblclick)
                     if (window.nodeManager) {
                         window.nodeManager.startDrag(node, mouseX, mouseY, this);
                     }
                     this.selectedNode = node;
-                    if (window.ui) {
-                        window.ui.openInspector(node);
-                    }
+                    if (window.ui) window.ui.activeNode = node;
                 }
             } else {
                 // Empty space clicked → Pan camera + close inspector
@@ -335,15 +333,15 @@ class CanvasEngine {
             this.zoom(factor, e.clientX, e.clientY);
         });
 
-        // Single-click selects tile (opens inspector); Double-click opens full dossier modal editor
+        // Double-click on tile → open right inspector panel with editable fields
         this.canvas.addEventListener('dblclick', (e) => {
             const mouseX = e.clientX;
             const mouseY = e.clientY;
             if (window.nodeManager) {
                 const hit = window.nodeManager.hitTest(mouseX, mouseY, this);
-                if (hit && window.ui) {
-                    // Double-click: open the centered dossier modal for full editing
-                    window.ui.openDetailPanel(hit.node);
+                if (hit && !hit.isPin && !hit.isDelete && window.ui) {
+                    this.selectedNode = hit.node;
+                    window.ui.openInspector(hit.node);
                 }
             }
         });
