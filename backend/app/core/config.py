@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql://user:password@localhost:5432/corkboard_db"
 
     # JWT Authentication
-    SECRET_KEY: str
+    SECRET_KEY: str = "change-this-to-a-long-random-secret-in-production"
 
     @field_validator("SECRET_KEY", mode="after")
     @classmethod
@@ -30,9 +30,11 @@ class Settings(BaseSettings):
             import logging
             environment = info.data.get("ENVIRONMENT", "development")
             logging.getLogger(__name__).warning(
-                "SECRET_KEY is set to the insecure default! "
+                "SECRET_KEY is set to the insecure default '%s'. "
                 "Generate a strong random key for production. "
-                f"Current ENVIRONMENT: {environment}"
+                "Current ENVIRONMENT: %s",
+                v,
+                environment,
             )
         return v
     ALGORITHM: str = "HS256"
