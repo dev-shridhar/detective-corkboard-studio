@@ -1016,6 +1016,7 @@
         box-shadow: 0 1px 6px rgba(0,0,0,0.4);
     }
     [data-theme="dark"] .settings-section { border-bottom-color: rgba(255,255,255,0.08); }
+    .settings-close-cross:hover { color: #c0392b !important; }
     </style>
 </head>
 <body>
@@ -1300,7 +1301,8 @@
 
 <!-- ═══════════════════ SETTINGS MODAL ═══════════════════ -->
 <div id="settings-overlay" class="retro-modal-overlay" style="display: none;">
-    <div class="retro-modal-card settings-modal">
+    <div class="retro-modal-card settings-modal" style="position: relative;">
+        <button class="settings-close-cross" onclick="closeSettings()" style="position: absolute; top: 10px; right: 14px; background: none; border: none; font-size: 22px; cursor: pointer; color: var(--ink-faded); font-family: monospace; line-height: 1; z-index: 10; padding: 4px;">✕</button>
         <div class="retro-modal-stamp">CLASSIFIED</div>
         <h2>⚙️ SETTINGS</h2>
 
@@ -1329,7 +1331,7 @@
         </div>
 
         <div class="retro-modal-buttons" style="margin-top: 20px;">
-            <button class="retro-modal-btn submit-btn" onclick="closeSettings()" style="width:100%; font-family:'Special Elite',monospace; letter-spacing:1px;">CLOSE DOSSIER →</button>
+            <button class="retro-modal-btn submit-btn" onclick="closeSettings()" style="width:100%; font-family:'Special Elite',monospace; letter-spacing:1px;">SAVE & CLOSE DOSSIER →</button>
         </div>
     </div>
 </div>
