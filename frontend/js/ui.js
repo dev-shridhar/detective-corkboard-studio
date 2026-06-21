@@ -146,10 +146,10 @@ class UIManager {
             console.log('[UIManager] Nodes:', nodes?.length, 'Edges:', edges?.length);
             
             if (window.nodeManager) {
-                window.nodeManager.setNodes(nodes);
+                window.nodeManager.setNodes(nodes || []);
             }
             if (window.edgeManager) {
-                window.edgeManager.loadEdges(edges, nodes);
+                window.edgeManager.loadEdges(edges || [], nodes || []);
             }
             if (window.history_manager) {
                 window.history_manager.clear();
@@ -160,12 +160,17 @@ class UIManager {
             }
 
             window.hideBoardLoading();
-            window.showBoardMessage(`Board loaded — ${nodes?.length || 0} tiles, ${edges?.length || 0} connections`, 'success', 3000);
+            console.log('[UIManager] Board loaded —', nodes?.length || 0, 'tiles,', edges?.length || 0, 'connections');
+            if (typeof window.showBoardMessage === 'function') {
+                window.showBoardMessage(`Board loaded — ${nodes?.length || 0} tiles, ${edges?.length || 0} connections`, 'success', 3000);
+            }
             
         } catch (err) {
             window.hideBoardLoading();
             console.error('[UIManager] Failed to load board elements:', err);
-            window.showBoardMessage(err.message, 'error');
+            if (typeof window.showBoardMessage === 'function') {
+                window.showBoardMessage(err.message, 'error');
+            }
         }
     }
 
