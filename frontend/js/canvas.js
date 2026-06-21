@@ -150,6 +150,19 @@ class CanvasEngine {
             window.edgeManager.draw(this.ctx, this);
         }
         
+        // DEBUG: draw a big red X at world origin to confirm canvas is rendering
+        this.ctx.save();
+        this.ctx.translate(this.canvas.width / 2 + this.offsetX, this.canvas.height / 2 + this.offsetY);
+        this.ctx.strokeStyle = 'red';
+        this.ctx.lineWidth = 4;
+        this.ctx.beginPath();
+        this.ctx.moveTo(-20, -20);
+        this.ctx.lineTo(20, 20);
+        this.ctx.moveTo(20, -20);
+        this.ctx.lineTo(-20, 20);
+        this.ctx.stroke();
+        this.ctx.restore();
+
         this.ctx.restore();
     }
 
