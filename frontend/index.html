@@ -989,10 +989,33 @@
         border-color: var(--ink-dark);
         box-shadow: 0 1px 4px rgba(0,0,0,0.3);
     }
-    [data-theme="dark"] .settings-opt { border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.04); }
-    [data-theme="dark"] .settings-opt:hover { border-color: #8a7a5f; background: rgba(255,255,255,0.08); }
-    [data-theme="dark"] .settings-opt.active { background: #4a3b30; color: #e4d8c4; border-color: #8a7a5f; }
-    [data-theme="dark"] .settings-section { border-bottom-color: rgba(255,255,255,0.1); }
+    #cork-dark-overlay {
+        position: absolute; inset: 0;
+        pointer-events: none;
+        z-index: 1;
+        background: transparent;
+        transition: background 0.3s ease;
+    }
+    [data-theme="dark"] #cork-dark-overlay {
+        background: rgba(0, 0, 0, 0.30);
+    }
+    [data-theme="dark"] .settings-opt {
+        background: rgba(255,255,255,0.05);
+        border-color: rgba(255,255,255,0.12);
+        color: #c4b8a4;
+    }
+    [data-theme="dark"] .settings-opt:hover {
+        background: rgba(255,255,255,0.12);
+        border-color: #a0907a;
+        color: #f0e4d0;
+    }
+    [data-theme="dark"] .settings-opt.active {
+        background: #6a5a48;
+        color: #f5eedc;
+        border-color: #b8a690;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.4);
+    }
+    [data-theme="dark"] .settings-section { border-bottom-color: rgba(255,255,255,0.08); }
     </style>
 </head>
 <body>
@@ -1112,6 +1135,7 @@
 
     <!-- Infinite canvas -->
     <canvas id="graphCanvas"></canvas>
+    <div id="cork-dark-overlay"></div>
 
     <!-- Top-left header — same vintage style as architect-of-intelligence -->
     <div class="retro-header">
