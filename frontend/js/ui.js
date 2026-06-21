@@ -144,6 +144,9 @@ class UIManager {
                 timeout
             ]);
             console.log('[UIManager] Nodes:', nodes?.length, 'Edges:', edges?.length);
+            if (nodes?.length > 0) {
+                console.log('[UIManager] First node:', JSON.stringify(nodes[0], null, 2));
+            }
             
             if (window.nodeManager) {
                 window.nodeManager.setNodes(nodes || []);
@@ -156,7 +159,10 @@ class UIManager {
             }
             
             if (window.canvasEngine) {
+                console.log('[UIManager] Requesting canvas redraw');
                 window.canvasEngine.requestDraw();
+            } else {
+                console.error('[UIManager] canvasEngine not available — canvas not initialized');
             }
 
             window.hideBoardLoading();
