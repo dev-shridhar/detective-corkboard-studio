@@ -1,12 +1,17 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 import uuid
 from datetime import datetime
 
 
 class UserCreate(BaseModel):
-    username: str
+    username: str = Field(
+        min_length=3,
+        max_length=50,
+        pattern=r"^[a-zA-Z0-9_-]+$",
+        description="Username must be 3-50 characters long and contain only letters, numbers, underscores, or hyphens."
+    )
     email: EmailStr
-    password: str
+    password: str = Field(min_length=6, max_length=100)
 
 
 class UserRead(BaseModel):

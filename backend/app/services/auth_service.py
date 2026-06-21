@@ -22,29 +22,41 @@ class AuthService:
         Register a new user.
         Raises 409 if username or email already exists.
         """
-        if self.user_repo.get_by_username(payload.username):
+        username_clean = payload.username.strip().lower()
+        email_clean = payload.email.strip().lower()
+
+        if self.user_repo.get_by_username(username_clean):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Username already taken",
             )
-        if self.user_repo.get_by_email(payload.email):
+        if self.user_repo.get_by_email(email_clean):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Email already registered",
             )
         user = User(
-            username=payload.username,
-            email=payload.email,
+            username=username_clean,
+            email=email_clean,
             hashed_password=SecurityUtils.hash_password(payload.password),
         )
         return self.user_repo.create(user)
 
     def authenticate(self, username: str, password: str) -> User:
         """
-        Verify username and password.
+        Verify username and password (supports both username and email login).
         Raises 401 on invalid credentials.
         """
-        user = self.user_repo.get_by_username(username)
+        username_clean = username.strip().lower()
+
+        # Check if login is by email or username
+        user = None
+        if "@" in username_clean:
+            user = self.user_repo.get_by_email(username_clean)
+        
+        if not user:
+            user = self.user_repo.get_by_username(username_clean)
+
         if not user or not SecurityUtils.verify_password(password, user.hashed_password):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

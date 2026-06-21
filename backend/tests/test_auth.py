@@ -227,3 +227,52 @@ def test_logout_success(client):
     # Trying to refresh after logout should fail
     refresh_res = client.post("/api/v1/auth/refresh")
     assert refresh_res.status_code == 401
+
+
+def test_login_case_insensitive_and_email(client):
+    """Should successfully authenticate regardless of case, and support email login."""
+    # Register with mixed case
+    register_payload = {
+        "username": "Sherlock_Holmes",
+        "email": "Sherlock.Holmes@BakerStreet.com",
+        "password": "elementary_dear_watson",
+    }
+    res = client.post("/api/v1/auth/register", json=register_payload)
+    assert res.status_code == 201
+
+    # Login with lowercase username
+    login_payload_username_lower = {
+        "username": "sherlock_holmes",
+        "password": "elementary_dear_watson",
+    }
+    login_res1 = client.post("/api/v1/auth/login", data=login_payload_username_lower)
+    assert login_res1.status_code == 200
+
+    # Login with email
+    login_payload_email = {
+        "username": "sherlock.holmes@bakerstreet.com",
+        "password": "elementary_dear_watson",
+    }
+    login_res2 = client.post("/api/v1/auth/login", data=login_payload_email)
+    assert login_res2.status_code == 200
+
+
+def test_register_invalid_username_pattern(client):
+    """Should return 422 Unprocessable Entity when username has invalid chars or is too short."""
+    # Too short
+    payload_too_short = {
+        "username": "sh",
+        "email": "sh@bakerstreet.com",
+        "password": "password123",
+    }
+    res1 = client.post("/api/v1/auth/register", json=payload_too_short)
+    assert res1.status_code == 422
+
+    # Invalid characters (space)
+    payload_space = {
+        "username": "sherlock holmes",
+        "email": "sh2@bakerstreet.com",
+        "password": "password123",
+    }
+    res2 = client.post("/api/v1/auth/register", json=payload_space)
+    assert res2.status_code == 422

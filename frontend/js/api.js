@@ -39,7 +39,18 @@ class ApiClient {
         const res = await fetch(`${API_BASE}${path}`, options);
         if (!res.ok) {
             const err = await res.json().catch(() => ({ detail: res.statusText }));
-            throw new Error(err.detail || 'Request failed');
+            let message = 'Request failed';
+            if (typeof err.detail === 'string') {
+                message = err.detail;
+            } else if (Array.isArray(err.detail)) {
+                message = err.detail.map(d => {
+                    const field = d.loc ? d.loc[d.loc.length - 1] : '';
+                    return field ? `${field}: ${d.msg}` : d.msg;
+                }).join(', ');
+            } else if (err.message) {
+                message = err.message;
+            }
+            throw new Error(message);
         }
         return res.status === 204 ? null : res.json();
     }
@@ -55,7 +66,18 @@ class ApiClient {
         });
         if (!res.ok) {
             const err = await res.json().catch(() => ({ detail: res.statusText }));
-            throw new Error(err.detail || 'Login failed');
+            let message = 'Login failed';
+            if (typeof err.detail === 'string') {
+                message = err.detail;
+            } else if (Array.isArray(err.detail)) {
+                message = err.detail.map(d => {
+                    const field = d.loc ? d.loc[d.loc.length - 1] : '';
+                    return field ? `${field}: ${d.msg}` : d.msg;
+                }).join(', ');
+            } else if (err.message) {
+                message = err.message;
+            }
+            throw new Error(message);
         }
         return res.json();
     }
