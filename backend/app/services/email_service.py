@@ -20,7 +20,7 @@ class EmailService:
         Send a verification code email in a retro theme (both plain text and HTML).
         Can be run in a FastAPI BackgroundTask to prevent blocking responses.
         """
-        subject = f"[CLASSIFIED] Detective Corkboard Studio - Verification Code"
+        subject = "[CLASSIFIED] Detective Corkboard Studio - Verification Code"
         
         # Plain text retro theme fallback
         body_text = f"""============================================================
