@@ -906,14 +906,14 @@
 
                     <div class="auth-stamp" style="position:relative;z-index:2;">CLASSIFIED</div>
                     <div class="tile-heading">🔑 Agent Login</div>
-                    <form id="form-login" onsubmit="handleLogin(event)">
+                    <form id="form-login" onsubmit="handleLogin(event)" autocomplete="off">
                         <div class="auth-field">
                             <label for="login-username">USERNAME OR EMAIL</label>
-                            <input id="login-username" type="text" placeholder="detective_name" required />
+                            <input id="login-username" type="text" placeholder="detective_name" required autocomplete="off" />
                         </div>
                         <div class="auth-field">
                             <label for="login-password">PASSWORD</label>
-                            <input id="login-password" type="password" placeholder="••••••••" required />
+                            <input id="login-password" type="password" placeholder="••••••••" required autocomplete="new-password" />
                         </div>
                         <button type="submit" class="auth-submit">OPEN CASE FILE →</button>
                     </form>
@@ -936,18 +936,18 @@
 
                     <div class="auth-stamp" style="position:relative;z-index:2;border-color:#b7950b;color:#b7950b;">NEW DOSSIER</div>
                     <div class="tile-heading">📋 New Agent</div>
-                    <form id="form-register" onsubmit="handleRegister(event)">
+                    <form id="form-register" onsubmit="handleRegister(event)" autocomplete="off">
                         <div class="auth-field">
                             <label for="reg-username">USERNAME</label>
-                            <input id="reg-username" type="text" placeholder="detective_name" required />
+                            <input id="reg-username" type="text" placeholder="detective_name" required autocomplete="off" />
                         </div>
                         <div class="auth-field">
                             <label for="reg-email">EMAIL</label>
-                            <input id="reg-email" type="email" placeholder="you@example.com" required />
+                            <input id="reg-email" type="email" placeholder="you@example.com" required autocomplete="off" />
                         </div>
                         <div class="auth-field">
                             <label for="reg-password">PASSWORD</label>
-                            <input id="reg-password" type="password" placeholder="••••••••" required />
+                            <input id="reg-password" type="password" placeholder="••••••••" required autocomplete="new-password" />
                         </div>
                         <button type="submit" class="auth-submit">CREATE DOSSIER →</button>
                     </form>
