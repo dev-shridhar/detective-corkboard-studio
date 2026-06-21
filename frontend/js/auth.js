@@ -81,7 +81,7 @@ class AuthManager {
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('board-screen').style.display = 'block';
         if (window.ui && typeof window.ui.init === 'function') {
-            window.ui.init();
+            window.ui.init().catch(err => console.error('[AuthManager] ui.init() failed:', err));
         }
     }
 
@@ -92,9 +92,4 @@ class AuthManager {
 }
 
 window.auth = new AuthManager();
-
-// Automatically check session on page load
-window.addEventListener('DOMContentLoaded', () => {
-    window.auth.checkSession();
-});
 

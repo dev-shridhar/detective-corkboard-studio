@@ -533,3 +533,6 @@ class UIManager {
 }
 
 window.ui = new UIManager();
+
+// Boot: check session after all scripts are loaded
+window.auth.checkSession();
