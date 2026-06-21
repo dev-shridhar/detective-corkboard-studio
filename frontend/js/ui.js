@@ -133,7 +133,6 @@ class UIManager {
 
     async loadBoard(boardId) {
         console.log('[UIManager] Loading board data for:', boardId);
-        window.showBoardLoading();
         try {
             const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Request timeout')), 15000));
             const [nodes, edges] = await Promise.race([
@@ -161,11 +160,9 @@ class UIManager {
                 console.error('[UIManager] canvasEngine not available — canvas not initialized');
             }
 
-            window.hideBoardLoading();
             console.log('[UIManager] Board loaded —', nodes?.length || 0, 'tiles,', edges?.length || 0, 'connections');
             
         } catch (err) {
-            window.hideBoardLoading();
             console.error('[UIManager] Failed to load board elements:', err);
             if (typeof window.showBoardMessage === 'function') {
                 window.showBoardMessage(err.message, 'error');
