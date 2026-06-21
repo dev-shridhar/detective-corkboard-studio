@@ -247,6 +247,23 @@
         }
         .board-msg-tile.error .tile-type { color: #8e1c1c; }
         .board-msg-tile.success .tile-type { color: #1a6634; }
+        .board-msg-tile.loading {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-color: rgba(100,150,200,0.5);
+        }
+        .board-msg-tile.loading .tile-type { color: #1565c0; }
+        .board-msg-tile.loading .tile-text { color: #0d47a1; }
+        .loading-ellipsis::after {
+            content: '';
+            animation: ellipsis-dot 1.5s steps(4, end) infinite;
+        }
+        @keyframes ellipsis-dot {
+            0%   { content: ''; }
+            25%  { content: '.'; }
+            50%  { content: '..'; }
+            75%  { content: '...'; }
+            100% { content: ''; }
+        }
         .board-msg-tile .tile-dismiss {
             position: absolute; top: 4px; right: 6px;
             font-size: 11px; color: rgba(80,60,20,0.4);
@@ -1174,6 +1191,24 @@
         if (!tile || tile.classList.contains('removing')) return;
         tile.classList.add('removing');
         tile.addEventListener('animationend', () => tile.remove(), { once: true });
+    }
+
+    /* ── showBoardLoading / hideBoardLoading ── */
+    function showBoardLoading(text = 'Loading case board') {
+        hideBoardLoading();
+        const container = document.getElementById('board-messages');
+        const tile = document.createElement('div');
+        tile.id = 'board-loading-tile';
+        tile.className = 'board-msg-tile loading';
+        tile.innerHTML = `
+            <div class="tile-type">📂 Case File</div>
+            <div class="tile-text">${text}<span class="loading-ellipsis"></span></div>
+        `;
+        container.appendChild(tile);
+    }
+    function hideBoardLoading() {
+        const tile = document.getElementById('board-loading-tile');
+        if (tile) dismissTile(tile);
     }
 
     /* ── Auth handlers ── */

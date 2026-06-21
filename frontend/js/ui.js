@@ -133,6 +133,7 @@ class UIManager {
 
     async loadBoard(boardId) {
         console.log('[UIManager] Loading board data for:', boardId);
+        window.showBoardLoading();
         try {
             const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Request timeout')), 15000));
             const [nodes, edges] = await Promise.race([
@@ -157,8 +158,11 @@ class UIManager {
             if (window.canvasEngine) {
                 window.canvasEngine.requestDraw();
             }
+
+            window.hideBoardLoading();
             
         } catch (err) {
+            window.hideBoardLoading();
             console.error('[UIManager] Failed to load board elements:', err);
         }
     }
