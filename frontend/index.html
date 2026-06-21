@@ -1204,6 +1204,47 @@
             };
         });
     };
+
+    /* ── Custom Alert Dialog Promise/Callback Helper ── */
+    window.showRetroAlert = function(title, message) {
+        return new Promise((resolve) => {
+            const overlay = document.getElementById('retro-alert');
+            const titleEl = document.getElementById('retro-alert-title');
+            const msgEl = document.getElementById('retro-alert-message');
+            const submitBtn = document.getElementById('retro-alert-submit');
+
+            titleEl.innerText = title.toUpperCase();
+            msgEl.innerText = message;
+            overlay.style.display = 'flex';
+            submitBtn.focus();
+
+            const cleanup = () => {
+                overlay.style.display = 'none';
+                submitBtn.onclick = null;
+                document.removeEventListener('keydown', handleKey);
+            };
+
+            const submit = () => {
+                cleanup();
+                resolve();
+            };
+
+            submitBtn.onclick = submit;
+
+            const handleKey = (e) => {
+                if (e.key === 'Enter' || e.key === 'Escape' || e.key === ' ') {
+                    e.preventDefault();
+                    submit();
+                }
+            };
+            document.addEventListener('keydown', handleKey);
+        });
+    };
+
+    // Override global alert
+    window.alert = function(msg) {
+        window.showRetroAlert("Intelligence Report", msg);
+    };
 </script>
 
 <!-- Custom Retro Modal for prompts -->
@@ -1217,6 +1258,18 @@
         <div class="retro-modal-buttons">
             <button id="retro-modal-cancel" class="retro-modal-btn cancel-btn">CANCEL</button>
             <button id="retro-modal-submit" class="retro-modal-btn submit-btn">CREATE</button>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Retro Modal for alerts/messages -->
+<div id="retro-alert" class="retro-modal-overlay" style="display: none;">
+    <div class="retro-modal-card" style="text-align: center; transform: rotate(1deg);">
+        <div class="retro-modal-stamp">CLASSIFIED</div>
+        <h2 id="retro-alert-title">Intelligence Report</h2>
+        <p id="retro-alert-message" style="font-family: 'Courier Prime', monospace; font-size: 13px; line-height: 1.5; color: var(--ink-dark); margin: 15px 0 24px 0; text-align: left; white-space: pre-wrap;"></p>
+        <div class="retro-modal-buttons" style="justify-content: center; margin-top: 0;">
+            <button id="retro-alert-submit" class="retro-modal-btn submit-btn" style="background: var(--ink-dark); color: var(--paper-light); border-color: var(--ink-dark); width: 100%; text-align: center; font-family: 'Special Elite', monospace; letter-spacing: 1px; padding: 10px;">ACKNOWLEDGE →</button>
         </div>
     </div>
 </div>
