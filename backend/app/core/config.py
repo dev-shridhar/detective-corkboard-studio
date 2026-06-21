@@ -38,6 +38,8 @@ class Settings(BaseSettings):
         "http://localhost:8080",
         "https://detectivecorkboard.com",
         "https://www.detectivecorkboard.com",
+        "https://board.learnwitharies.com",
+        "https://learnwitharies.com",
     ]
 
     @field_validator("ALLOWED_ORIGINS", mode="before")
