@@ -1,5 +1,5 @@
 from sqlmodel import SQLModel, create_engine, Session
-from sqlalchemy.pool import NullPool, QueuePool
+from sqlalchemy.pool import QueuePool
 from typing import Generator
 
 from app.core.config import settings

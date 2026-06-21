@@ -45,12 +45,6 @@ class AuthService:
                 detail="Email already registered",
             )
 
-        code = self._generate_code()
-        hashed_code = self._hash_code(code)
-
-        from datetime import datetime, timedelta
-        expires_at = datetime.utcnow() + timedelta(minutes=15)
-
         user = User(
             username=username_clean,
             email=email_clean,
