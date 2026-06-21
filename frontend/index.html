@@ -1260,6 +1260,35 @@
         }
     }
 
+    window.handleSelectCaseFromOverlay = async function(boardId) {
+        document.getElementById('case-selector-overlay').style.display = 'none';
+        if (window.ui) {
+            await window.ui.switchBoard(boardId);
+        }
+    };
+    
+    window.handleCreateCaseFromOverlay = async function(e) {
+        e.preventDefault();
+        const nameInput = document.getElementById('overlay-case-name');
+        const name = nameInput.value.trim();
+        if (!name) return;
+        
+        try {
+            const board = await window.api.createBoard({
+                name: name,
+                description: "New detective case corkboard."
+            });
+            nameInput.value = '';
+            document.getElementById('case-selector-overlay').style.display = 'none';
+            if (window.ui) {
+                window.ui.currentBoardId = board.id;
+                await window.ui.init();
+            }
+        } catch (err) {
+            alert("Failed to establish case dossier: " + err.message);
+        }
+    };
+
     /* ── Horizontal Bar Action Triggers ── */
     function spawnTile(shape) {
         if (window.ui) {
@@ -1448,6 +1477,45 @@
         <div class="retro-modal-buttons">
             <button id="retro-modal-cancel" class="retro-modal-btn cancel-btn">CANCEL</button>
             <button id="retro-modal-submit" class="retro-modal-btn submit-btn">CREATE</button>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Retro Modal for Case Selection/Creation -->
+<div id="case-selector-overlay" class="retro-modal-overlay" style="display: none;">
+    <div class="retro-modal-card" style="width: 420px; transform: rotate(-0.5deg); position: relative;">
+        <button id="case-selector-close" class="close-btn" onclick="document.getElementById('case-selector-overlay').style.display = 'none'" style="position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--ink-dark); font-family: Courier, monospace; z-index: 10;">✕</button>
+        <div class="retro-modal-stamp">CLASSIFIED</div>
+        <h2 style="font-family: 'Special Elite', monospace; font-size: 18px; color: var(--ink-dark); margin-bottom: 8px; text-align: center; border-bottom: 2px double var(--ink-dark); padding-bottom: 8px; text-transform: uppercase;">
+            🕵️ ACTIVE DOSSIERS
+        </h2>
+        <p style="font-family: 'Courier Prime', monospace; font-size: 12px; line-height: 1.5; color: var(--ink-dark); margin-bottom: 16px;">
+            Welcome, Detective. Choose an active investigation to load its corkboard, or establish a new case file dossier to begin mapping your evidence.
+        </p>
+
+        <!-- Existing Dossiers List -->
+        <div id="case-list-section" style="margin-bottom: 20px;">
+            <div style="font-family: 'Special Elite', monospace; font-size: 11px; text-transform: uppercase; color: var(--ink-dark); margin-bottom: 8px; font-weight: bold; border-bottom: 1px solid rgba(0,0,0,0.15);">
+                Open Existing Case:
+            </div>
+            <div id="existing-cases-list" style="max-height: 150px; overflow-y: auto; border: 1px solid rgba(0,0,0,0.15); padding: 8px; background: rgba(0,0,0,0.03); border-radius: 4px; display: flex; flex-direction: column; gap: 6px;">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+
+        <!-- Create New Case Form -->
+        <div style="border-top: 2px double var(--ink-dark); padding-top: 15px;">
+            <div style="font-family: 'Special Elite', monospace; font-size: 11px; text-transform: uppercase; color: var(--ink-dark); margin-bottom: 8px; font-weight: bold;">
+                Commence New Investigation:
+            </div>
+            <form id="overlay-case-form" onsubmit="handleCreateCaseFromOverlay(event)">
+                <div class="auth-field" style="margin-bottom: 12px;">
+                    <input id="overlay-case-name" type="text" placeholder="Enter Case Name (e.g., Red Circle Murder)..." required autocomplete="off" />
+                </div>
+                <button type="submit" class="retro-modal-btn submit-btn" style="width: 100%; box-sizing: border-box; text-align: center; font-family: 'Special Elite', monospace; font-size: 13px; padding: 10px; cursor: pointer;">
+                    ESTABLISH CASE FILE →
+                </button>
+            </form>
         </div>
     </div>
 </div>

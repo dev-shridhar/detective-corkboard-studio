@@ -21,13 +21,15 @@ class MoveNodeCommand extends Command {
     }
 
     async execute() {
-        await window.api.updateNode(this.boardId, this.nodeId, { x: this.toPos.x, y: this.toPos.y });
         this._updateLocalPosition(this.toPos);
+        window.api.updateNode(this.boardId, this.nodeId, { x: this.toPos.x, y: this.toPos.y })
+            .catch(err => console.error('[MoveNodeCommand] Sync error:', err));
     }
 
     async undo() {
-        await window.api.updateNode(this.boardId, this.nodeId, { x: this.fromPos.x, y: this.fromPos.y });
         this._updateLocalPosition(this.fromPos);
+        window.api.updateNode(this.boardId, this.nodeId, { x: this.fromPos.x, y: this.fromPos.y })
+            .catch(err => console.error('[MoveNodeCommand] Undo sync error:', err));
     }
 
     _updateLocalPosition(pos) {
@@ -56,27 +58,64 @@ class CreateNodeCommand extends Command {
     }
 
     async execute() {
+        const tempId = this.nodeId || 'temp-' + Date.now();
+        const nodePayload = { id: tempId, ...this.payload };
+        
+        // Optimistically add to UI
+        if (window.nodeManager) {
+            const nodes = window.nodeManager.getNodes();
+            if (!nodes.some(n => n.id === tempId)) {
+                nodes.push(nodePayload);
+                window.nodeManager.setNodes(nodes);
+            }
+        }
+
+        if (window.canvasEngine) {
+            window.canvasEngine.selectedNode = nodePayload;
+        }
+
         if (this.nodeId) {
             // Restore deleted node with exact properties and ID
             const payloadWithId = { ...this.payload, id: this.nodeId };
-            await window.api.createNode(this.boardId, payloadWithId);
+            window.api.createNode(this.boardId, payloadWithId)
+                .catch(err => console.error('[CreateNodeCommand] Restore error:', err));
         } else {
-            const node = await window.api.createNode(this.boardId, this.payload);
-            this.nodeId = node.id;
-        }
-        await window.ui.loadBoard(this.boardId);
-        
-        // Select restored node
-        if (window.canvasEngine && window.nodeManager) {
-            const node = window.nodeManager.getNodes().find(n => n.id === this.nodeId);
-            if (node) window.canvasEngine.selectedNode = node;
+            window.api.createNode(this.boardId, this.payload)
+                .then(node => {
+                    this.nodeId = node.id;
+                    // Replace temp node in local state
+                    if (window.nodeManager) {
+                        const nodes = window.nodeManager.getNodes();
+                        const idx = nodes.findIndex(n => n.id === tempId);
+                        if (idx !== -1) {
+                            nodes[idx] = node;
+                            window.nodeManager.setNodes(nodes);
+                            if (window.canvasEngine && window.canvasEngine.selectedNode && window.canvasEngine.selectedNode.id === tempId) {
+                                window.canvasEngine.selectedNode = node;
+                            }
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.error('[CreateNodeCommand] Create error:', err);
+                    // Rollback
+                    if (window.nodeManager) {
+                        const nodes = window.nodeManager.getNodes().filter(n => n.id !== tempId);
+                        window.nodeManager.setNodes(nodes);
+                    }
+                });
         }
     }
 
     async undo() {
         if (this.nodeId) {
-            await window.api.deleteNode(this.boardId, this.nodeId);
-            await window.ui.loadBoard(this.boardId);
+            // Optimistically remove from UI
+            if (window.nodeManager) {
+                const nodes = window.nodeManager.getNodes().filter(n => n.id !== this.nodeId);
+                window.nodeManager.setNodes(nodes);
+            }
+            window.api.deleteNode(this.boardId, this.nodeId)
+                .catch(err => console.error('[CreateNodeCommand] Delete error:', err));
         }
     }
 }
@@ -93,12 +132,41 @@ class DeleteNodeCommand extends Command {
     }
 
     async execute() {
-        await window.api.deleteNode(this.boardId, this.node.id);
-        await window.ui.loadBoard(this.boardId);
+        // Optimistically remove node and connected edges from UI
+        if (window.nodeManager) {
+            const nodes = window.nodeManager.getNodes().filter(n => n.id !== this.node.id);
+            window.nodeManager.setNodes(nodes);
+        }
+        if (window.edgeManager) {
+            window.edgeManager._edges = window.edgeManager._edges.filter(
+                e => e.source_node_id !== this.node.id && e.target_node_id !== this.node.id
+            );
+            if (window.canvasEngine) window.canvasEngine.requestDraw();
+        }
+
+        window.api.deleteNode(this.boardId, this.node.id)
+            .catch(err => console.error('[DeleteNodeCommand] Delete error:', err));
     }
 
     async undo() {
-        // Restore the node payload
+        // Optimistically restore node and edges to UI
+        if (window.nodeManager) {
+            const nodes = window.nodeManager.getNodes();
+            if (!nodes.some(n => n.id === this.node.id)) {
+                nodes.push(this.node);
+                window.nodeManager.setNodes(nodes);
+            }
+        }
+        if (window.edgeManager) {
+            for (const edge of this.connectedEdges) {
+                if (!window.edgeManager._edges.some(e => e.id === edge.id)) {
+                    window.edgeManager._edges.push(edge);
+                }
+            }
+            if (window.canvasEngine) window.canvasEngine.requestDraw();
+        }
+
+        // Re-create in background
         const payload = {
             id: this.node.id,
             title: this.node.title,
@@ -110,21 +178,21 @@ class DeleteNodeCommand extends Command {
             concepts: this.node.concepts,
             links: this.node.links
         };
-        await window.api.createNode(this.boardId, payload);
-        
-        // Restore connected edges
-        for (const edge of this.connectedEdges) {
-            const edgePayload = {
-                id: edge.id,
-                source_node_id: edge.source_node_id,
-                target_node_id: edge.target_node_id,
-                color: edge.color,
-                label: edge.label
-            };
-            await window.api.createEdge(this.boardId, edgePayload);
-        }
-        
-        await window.ui.loadBoard(this.boardId);
+        window.api.createNode(this.boardId, payload)
+            .then(() => {
+                for (const edge of this.connectedEdges) {
+                    const edgePayload = {
+                        id: edge.id,
+                        source_node_id: edge.source_node_id,
+                        target_node_id: edge.target_node_id,
+                        color: edge.color,
+                        label: edge.label
+                    };
+                    window.api.createEdge(this.boardId, edgePayload)
+                        .catch(err => console.error('[DeleteNodeCommand] Edge restore error:', err));
+                }
+            })
+            .catch(err => console.error('[DeleteNodeCommand] Node restore error:', err));
     }
 }
 
@@ -140,20 +208,54 @@ class CreateEdgeCommand extends Command {
     }
 
     async execute() {
+        const tempId = this.edgeId || 'temp-' + Date.now();
+        const edgePayload = { id: tempId, ...this.payload };
+
+        // Optimistically add edge to UI
+        if (window.edgeManager) {
+            if (!window.edgeManager._edges.some(e => e.id === tempId)) {
+                window.edgeManager._edges.push(edgePayload);
+                if (window.canvasEngine) window.canvasEngine.requestDraw();
+            }
+        }
+
         if (this.edgeId) {
             const payloadWithId = { ...this.payload, id: this.edgeId };
-            await window.api.createEdge(this.boardId, payloadWithId);
+            window.api.createEdge(this.boardId, payloadWithId)
+                .catch(err => console.error('[CreateEdgeCommand] Restore error:', err));
         } else {
-            const edge = await window.api.createEdge(this.boardId, this.payload);
-            this.edgeId = edge.id;
+            window.api.createEdge(this.boardId, this.payload)
+                .then(edge => {
+                    this.edgeId = edge.id;
+                    // Replace temp edge
+                    if (window.edgeManager) {
+                        const idx = window.edgeManager._edges.findIndex(e => e.id === tempId);
+                        if (idx !== -1) {
+                            window.edgeManager._edges[idx] = edge;
+                            if (window.canvasEngine) window.canvasEngine.requestDraw();
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.error('[CreateEdgeCommand] Create error:', err);
+                    // Rollback
+                    if (window.edgeManager) {
+                        window.edgeManager._edges = window.edgeManager._edges.filter(e => e.id !== tempId);
+                        if (window.canvasEngine) window.canvasEngine.requestDraw();
+                    }
+                });
         }
-        await window.ui.loadBoard(this.boardId);
     }
 
     async undo() {
         if (this.edgeId) {
-            await window.api.deleteEdge(this.boardId, this.edgeId);
-            await window.ui.loadBoard(this.boardId);
+            // Optimistically remove from UI
+            if (window.edgeManager) {
+                window.edgeManager._edges = window.edgeManager._edges.filter(e => e.id !== this.edgeId);
+                if (window.canvasEngine) window.canvasEngine.requestDraw();
+            }
+            window.api.deleteEdge(this.boardId, this.edgeId)
+                .catch(err => console.error('[CreateEdgeCommand] Delete error:', err));
         }
     }
 }

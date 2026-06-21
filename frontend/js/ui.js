@@ -22,18 +22,6 @@ class UIManager {
             const selector = document.getElementById('board-selector');
             selector.innerHTML = "";
             
-            if (boards.length === 0) {
-                // Seed a default case board if none exist
-                console.log('[UIManager] No boards found. Creating default case...');
-                const defaultBoard = await window.api.createBoard({
-                    name: "CLASSIFIED CASE A",
-                    description: "First master case file."
-                });
-                this.currentBoardId = defaultBoard.id;
-                await this.init();
-                return;
-            }
-            
             // Populate select dropdown
             boards.forEach(b => {
                 const opt = document.createElement('option');
@@ -42,9 +30,17 @@ class UIManager {
                 selector.appendChild(opt);
             });
             
-            // Pick first board as active
+            if (boards.length === 0) {
+                this.currentBoardId = null;
+                await this.showCaseSelector(false); // force selection/creation (no close button)
+                return;
+            }
+            
+            // Pick first board as active if none selected yet
             if (!this.currentBoardId) {
-                this.currentBoardId = boards[0].id;
+                // Check if we can show selector or default
+                this.showCaseSelector(false);
+                return;
             }
             
             selector.value = this.currentBoardId;
@@ -59,29 +55,59 @@ class UIManager {
         this.currentBoardId = boardId;
         this.closeDetailPanel();
         await this.loadBoard(boardId);
+        const selector = document.getElementById('board-selector');
+        if (selector) selector.value = boardId;
     }
 
     async createNewBoard() {
-        const name = await window.customPrompt("Enter New Case File Name:", "Type case name...");
-        if (!name || !name.trim()) return;
-        
+        this.showCaseSelector(true);
+    }
+
+    async showCaseSelector(allowClose = true) {
         try {
-            const board = await window.api.createBoard({
-                name: name.trim(),
-                description: "New detective case corkboard."
-            });
-            this.currentBoardId = board.id;
-            await this.init();
+            const boards = await window.api.listBoards();
+            const overlay = document.getElementById('case-selector-overlay');
+            const listContainer = document.getElementById('existing-cases-list');
+            const closeBtn = document.getElementById('case-selector-close');
+            
+            if (closeBtn) {
+                closeBtn.style.display = (allowClose && this.currentBoardId) ? 'block' : 'none';
+            }
+            
+            listContainer.innerHTML = '';
+            
+            if (boards.length === 0) {
+                document.getElementById('case-list-section').style.display = 'none';
+            } else {
+                document.getElementById('case-list-section').style.display = 'block';
+                boards.forEach(b => {
+                    const row = document.createElement('div');
+                    row.style.cssText = 'display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed rgba(0,0,0,0.15); padding:6px 0;';
+                    row.innerHTML = `
+                        <div style="text-align:left; flex: 1; padding-right: 10px;">
+                            <span style="font-family:\'Special Elite\',monospace; font-weight:bold; font-size:13px; color:var(--ink-dark);">${b.name.toUpperCase()}</span>
+                            <div style="font-size:10px; color:var(--ink-faded); margin-top:2px; font-family:\'Courier Prime\',monospace;">${b.description || 'No description'}</div>
+                        </div>
+                        <button class="retro-inline-btn" style="padding:4px 8px; font-size:11px;" onclick="handleSelectCaseFromOverlay(\'${b.id}\')">OPEN DOSSIER</button>
+                    `;
+                    listContainer.appendChild(row);
+                });
+            }
+            
+            overlay.style.display = 'flex';
         } catch (err) {
-            alert("Failed to create board: " + err.message);
+            console.error('[UIManager] Failed to load cases in selector:', err);
         }
     }
 
     async loadBoard(boardId) {
         console.log('[UIManager] Loading board data for:', boardId);
         try {
-            const nodes = await window.api.listNodes(boardId);
-            const edges = await window.api.listEdges(boardId);
+            // Load nodes and edges in parallel to reduce sequential network roundtrips
+            const [nodes, edges] = await Promise.all([
+                window.api.listNodes(boardId),
+                window.api.listEdges(boardId)
+            ]);
             
             if (window.nodeManager) {
                 window.nodeManager.setNodes(nodes);
@@ -423,8 +449,13 @@ class UIManager {
         if (this.activeNode) {
             const node = this.activeNode;
             node.color = color;
+            
+            // Draw updated color immediately on canvas
+            if (window.canvasEngine) {
+                window.canvasEngine.requestDraw();
+            }
+            
             window.api.updateNode(this.currentBoardId, node.id, { color })
-                .then(() => this.loadBoard(this.currentBoardId))
                 .catch(err => console.error("Failed to update tile color:", err));
         }
     }

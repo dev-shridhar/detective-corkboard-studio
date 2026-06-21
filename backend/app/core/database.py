@@ -17,11 +17,9 @@ pool_kwargs: dict = {}
 
 if settings.DATABASE_URL.startswith("sqlite"):
     connect_args = {"check_same_thread": False}
-elif _is_pooler_url:
-    # PgBouncer pooler – disable SQLAlchemy pooling (pooler handles it)
-    pool_kwargs = {"poolclass": NullPool}
 else:
-    # Direct Postgres connection – keep a small warm pool
+    # Use pooling for all PostgreSQL connections (including PgBouncer pooler)
+    # to avoid the TLS handshake overhead on every request in persistent containers like Render.
     pool_kwargs = {
         "poolclass": QueuePool,
         "pool_size": 5,
