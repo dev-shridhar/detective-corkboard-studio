@@ -14,6 +14,9 @@ class BoardUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     is_public: Optional[bool] = None
+    view_x: Optional[float] = None
+    view_y: Optional[float] = None
+    view_zoom: Optional[float] = None
 
 
 class BoardRead(BaseModel):
@@ -24,3 +27,6 @@ class BoardRead(BaseModel):
     owner_id: uuid.UUID
     created_at: datetime
     updated_at: datetime
+    view_x: Optional[float]
+    view_y: Optional[float]
+    view_zoom: Optional[float]

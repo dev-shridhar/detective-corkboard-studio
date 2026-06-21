@@ -1,4 +1,5 @@
 from sqlmodel import SQLModel, create_engine, Session
+from sqlalchemy import text
 from sqlalchemy.pool import QueuePool
 from typing import Generator
 
@@ -39,6 +40,25 @@ engine = create_engine(
 def create_db_and_tables() -> None:
     """Create all database tables from SQLModel metadata. Called at startup."""
     SQLModel.metadata.create_all(engine)
+    # Add viewport columns if missing (migration for existing tables)
+    try:
+        with Session(engine) as session:
+            session.exec(text("ALTER TABLE boards ADD COLUMN view_x FLOAT"))
+            session.commit()
+    except Exception:
+        pass
+    try:
+        with Session(engine) as session:
+            session.exec(text("ALTER TABLE boards ADD COLUMN view_y FLOAT"))
+            session.commit()
+    except Exception:
+        pass
+    try:
+        with Session(engine) as session:
+            session.exec(text("ALTER TABLE boards ADD COLUMN view_zoom FLOAT"))
+            session.commit()
+    except Exception:
+        pass
 
 
 def get_session() -> Generator[Session, None, None]:

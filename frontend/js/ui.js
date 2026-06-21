@@ -157,6 +157,16 @@ class UIManager {
             
             if (window.canvasEngine) {
                 window.canvasEngine.requestDraw();
+                // Restore saved viewport if available
+                const board = await window.api.getBoard(boardId).catch(() => null);
+                if (board && board.view_x != null && board.view_y != null) {
+                    window.canvasEngine.offsetX = board.view_x;
+                    window.canvasEngine.offsetY = board.view_y;
+                    if (board.view_zoom != null) {
+                        window.canvasEngine.scale = board.view_zoom;
+                    }
+                    window.canvasEngine.requestDraw();
+                }
             } else {
                 console.error('[UIManager] canvasEngine not available — canvas not initialized');
             }

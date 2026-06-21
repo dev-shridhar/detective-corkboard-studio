@@ -464,6 +464,24 @@
             border-color: #cdb898;
             transform: rotate(45deg) scale(1.1);
         }
+        .save-top-btn {
+            background: linear-gradient(180deg, #3d2f24 0%, #221813 100%);
+            border: 2px solid #27ae60;
+            color: #f7e9d7;
+            border-radius: 3px;
+            padding: 6px 8px;
+            font-size: 13px;
+            cursor: pointer;
+            box-shadow: 3px 3px 8px rgba(0,0,0,0.5);
+            transition: all 0.15s ease;
+            line-height: 1;
+        }
+        .save-top-btn:hover {
+            background: #27ae60;
+            color: #fff;
+            border-color: #2ecc71;
+            transform: scale(1.1);
+        }
 
         /* ── Detail Panel Modal ── */
         .detail-panel-overlay {
@@ -1139,6 +1157,7 @@
             <span class="agent-icon">🕵️</span>
             <span id="agent-username">AGENT</span>
         </div>
+        <button class="save-top-btn" onclick="saveBoardViewport()" title="Save Board State">💾</button>
         <button class="settings-top-btn" onclick="toggleSettings()" title="Settings">⚙️</button>
         <button class="logout-top-btn" onclick="window.auth.logout()" title="Close Case File & Logout">CLOSE CASE ✕</button>
     </div>
@@ -1519,6 +1538,21 @@
     function handleSearch(query) {
         if (window.ui) {
             window.ui.handleSearch(query);
+        }
+    }
+
+    async function saveBoardViewport() {
+        if (!window.ui || !window.ui.currentBoardId || !window.canvasEngine) return;
+        try {
+            const { scale, offsetX, offsetY } = window.canvasEngine;
+            await window.api.updateBoard(window.ui.currentBoardId, {
+                view_x: offsetX,
+                view_y: offsetY,
+                view_zoom: scale,
+            });
+            showBoardMessage('Board state saved.', 'success', 2000);
+        } catch (err) {
+            showBoardMessage('Failed to save: ' + err.message, 'error');
         }
     }
 
