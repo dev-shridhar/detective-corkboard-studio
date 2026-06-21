@@ -32,14 +32,14 @@ class UIManager {
             
             if (boards.length === 0) {
                 this.currentBoardId = null;
-                await this.showCaseSelector(false); // force selection/creation (no close button)
+                await this.showCaseSelector(false, boards); // force selection/creation (no close button)
                 return;
             }
             
             // Pick first board as active if none selected yet
             if (!this.currentBoardId) {
                 // Check if we can show selector or default
-                this.showCaseSelector(false);
+                await this.showCaseSelector(false, boards);
                 return;
             }
             
@@ -63,9 +63,11 @@ class UIManager {
         this.showCaseSelector(true);
     }
 
-    async showCaseSelector(allowClose = true) {
+    async showCaseSelector(allowClose = true, boards = null) {
         try {
-            const boards = await window.api.listBoards();
+            if (!boards) {
+                boards = await window.api.listBoards();
+            }
             this.selectorBoards = boards; // cache for filtering
             
             const overlay = document.getElementById('case-selector-overlay');

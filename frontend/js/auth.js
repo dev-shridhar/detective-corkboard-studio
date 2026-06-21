@@ -67,10 +67,6 @@ class AuthManager {
         if (success) {
             console.log('[AuthManager] Active session restored.');
             this._showBoardScreen();
-            // Trigger board listing / loading once UI is fully ready
-            if (window.ui && typeof window.ui.init === 'function') {
-                window.ui.init();
-            }
         } else {
             this._showAuthScreen();
         }

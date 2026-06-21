@@ -39,10 +39,10 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: Union[List[str], str] = [
         "http://localhost:3000",
         "http://localhost:8080",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:8080",
         "https://detectivecorkboard.com",
         "https://www.detectivecorkboard.com",
-        "https://board.learnwitharies.com",
-        "https://learnwitharies.com",
     ]
 
     @field_validator("ALLOWED_ORIGINS", mode="before")
@@ -64,8 +64,6 @@ class Settings(BaseSettings):
 
         # Guarantee that our primary live custom domains are always in the CORS whitelist
         extra_origins = [
-            "https://board.learnwitharies.com",
-            "https://learnwitharies.com",
             "https://detectivecorkboard.com",
             "https://www.detectivecorkboard.com",
             "https://detectiveboard.com",
