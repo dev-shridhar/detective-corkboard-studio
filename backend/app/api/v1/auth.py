@@ -154,37 +154,46 @@ def test_smtp(email: str):
 
 
 @router.get("/measure-db-latency")
-def measure_db_latency():
+def measure_db_latency(session: Session = Depends(get_session)):
     """Benchmark SQL connection and query latency from the live server to the DB."""
     import time
-    import psycopg2
+    import re
+    from sqlmodel import text
     from app.core.config import settings
-    
+
+    # Extract host from DATABASE_URL for diagnostics
+    db_url = settings.DATABASE_URL
+    host_match = re.search(r"@([^/:]+)", db_url)
+    db_host = host_match.group(1) if host_match else "unknown"
+    is_pooler = "-pooler." in db_url
+
+    # --- Raw psycopg2 connection benchmark (cold connect cost) ---
     start_time = time.time()
     try:
-        conn = psycopg2.connect(settings.DATABASE_URL)
+        import psycopg2
+        conn = psycopg2.connect(db_url)
         conn_time = time.time() - start_time
+        conn.close()
     except Exception as e:
         return {"status": "error", "phase": "connection", "message": str(e)}
-        
-    query_times = []
+
+    # --- SQLAlchemy pool benchmark (what real requests actually use) ---
+    pool_query_times = []
     try:
-        with conn.cursor() as cursor:
-            for _ in range(5):
-                start_query = time.time()
-                cursor.execute("SELECT 1;")
-                cursor.fetchone()
-                query_times.append(time.time() - start_query)
-        conn.close()
-        
-        avg_query_time = sum(query_times) / len(query_times)
+        for _ in range(5):
+            start_query = time.time()
+            session.exec(text("SELECT 1"))
+            pool_query_times.append(time.time() - start_query)
+
+        avg_pool = sum(pool_query_times) / len(pool_query_times)
         return {
             "status": "success",
-            "connection_time_ms": round(conn_time * 1000, 1),
-            "average_query_time_ms": round(avg_query_time * 1000, 1),
-            "individual_queries_ms": [round(t * 1000, 1) for t in query_times]
+            "db_host": db_host,
+            "using_pooler": is_pooler,
+            "cold_connect_ms": round(conn_time * 1000, 1),
+            "pool_avg_query_ms": round(avg_pool * 1000, 1),
+            "pool_individual_ms": [round(t * 1000, 1) for t in pool_query_times],
         }
     except Exception as e:
-        conn.close()
-        return {"status": "error", "phase": "query", "message": str(e)}
+        return {"status": "error", "phase": "pool_query", "message": str(e)}
 
