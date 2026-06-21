@@ -28,8 +28,8 @@ This guide outlines the steps required to deploy the **Detective Corkboard Studi
 4. Configure the Web Service settings:
    - **Name**: `detective-corkboard-api`
    - **Environment**: `Docker`
-   - **Docker Path**: `backend/Dockerfile` *(Points to the Dockerfile in the backend subfolder)*
-   - **Build Context**: `backend` *(Ensure the build context is set to the backend subfolder)*
+   - **Docker Path**: `backend/Dockerfile` *(Relative to repository root)*
+   - **Build Context**: `.` *(Keep it as the repository root, or leave it empty/default)*
    - **Instance Type**: `Free`
 5. Click **Advanced** and add the following **Environment Variables**:
    - `DATABASE_URL` = *(Paste your Neon.tech connection string from Step 1)*
