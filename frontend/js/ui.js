@@ -22,7 +22,6 @@ class UIManager {
             const selector = document.getElementById('board-selector');
             selector.innerHTML = "";
             
-            // Populate select dropdown
             boards.forEach(b => {
                 const opt = document.createElement('option');
                 opt.value = b.id;
@@ -32,15 +31,12 @@ class UIManager {
             
             if (boards.length === 0) {
                 this.currentBoardId = null;
-                await this.showCaseSelector(false); // force selection/creation (no close button)
+                await this.showCaseSelector(false);
                 return;
             }
             
-            // Pick first board as active if none selected yet
             if (!this.currentBoardId) {
-                // Check if we can show selector or default
-                this.showCaseSelector(false);
-                return;
+                this.currentBoardId = boards[0].id;
             }
             
             selector.value = this.currentBoardId;
@@ -60,13 +56,13 @@ class UIManager {
     }
 
     async createNewBoard() {
-        this.showCaseSelector(true);
+        await this.showCaseSelector(true);
     }
 
     async showCaseSelector(allowClose = true) {
         try {
             const boards = await window.api.listBoards();
-            this.selectorBoards = boards; // cache for filtering
+            this.selectorBoards = boards;
             
             const overlay = document.getElementById('case-selector-overlay');
             const listContainer = document.getElementById('existing-cases-list');
