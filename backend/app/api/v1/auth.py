@@ -126,3 +126,21 @@ def get_me(token: str = Depends(oauth2_scheme), session: Session = Depends(get_s
     service = AuthService(session)
     return service.get_current_user(token)
 
+
+@router.get("/test-smtp")
+def test_smtp(email: str):
+    """Diagnostic endpoint to test live SMTP credentials synchronously."""
+    from app.services.email_service import EmailService
+    try:
+        # Send a simple test email
+        EmailService.send_verification_email(email, "123456")
+        return {"status": "success", "message": f"Verification email successfully sent to {email}"}
+    except Exception as e:
+        import traceback
+        return {
+            "status": "error",
+            "error_class": e.__class__.__name__,
+            "message": str(e),
+            "traceback": traceback.format_exc()
+        }
+

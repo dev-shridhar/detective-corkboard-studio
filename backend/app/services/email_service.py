@@ -183,16 +183,19 @@ DECODE YOUR PATH. SOLVE THE CLUES.
             msg.attach(MIMEText(body_text, "plain"))
             msg.attach(MIMEText(body_html, "html"))
 
-            # Connect to SMTP server
-            with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
-                server.starttls()
+            # Connect to SMTP server (supports SSL on 465, TLS/starttls otherwise)
+            if settings.SMTP_PORT == 465:
+                server_ctx = smtplib.SMTP_SSL(settings.SMTP_HOST, settings.SMTP_PORT)
+            else:
+                server_ctx = smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT)
+
+            with server_ctx as server:
+                if settings.SMTP_PORT != 465:
+                    server.starttls()
                 server.login(settings.SMTP_USERNAME, settings.SMTP_PASSWORD)
                 server.send_message(msg)
             logger.info(f"Verification email successfully sent to {email}")
         except Exception as e:
             logger.error(f"Failed to send verification email to {email}: {e}", exc_info=True)
-            # Fallback output so the system is still testable if credentials are bad
-            print("\n" + "!"*60)
-            print(f"SMTP TRANSMISSION ERROR: {e}")
-            print(f"FALLBACK VERIFICATION CODE FOR {email} IS: {code}")
-            print("!"*60 + "\n")
+            # Re-raise to ensure diagnostic scripts or tasks can see the error
+            raise e
