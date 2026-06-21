@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
     # Application
-    APP_NAME: str = "Detective Corkboard Studio"
+    APP_NAME: str = "Detective Corkboard"
     APP_VERSION: str = "0.1.0"
     ENVIRONMENT: str = "development"  # development | production
 

@@ -20,7 +20,7 @@ def create_application() -> FastAPI:
     """Application factory — creates and configures the FastAPI instance."""
     application = FastAPI(
         title=settings.APP_NAME,
-        description="Backend API for Detective Corkboard Studio",
+        description="Backend API for Detective Corkboard",
         version=settings.APP_VERSION,
         docs_url="/api/docs",
         redoc_url="/api/redoc",

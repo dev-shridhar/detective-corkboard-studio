@@ -20,11 +20,11 @@ class EmailService:
         Send a verification code email in a retro theme (both plain text and HTML).
         Can be run in a FastAPI BackgroundTask to prevent blocking responses.
         """
-        subject = "[CLASSIFIED] Detective Corkboard Studio - Verification Code"
+        subject = "[CLASSIFIED] Detective Corkboard - Verification Code"
         
         # Plain text retro theme fallback
         body_text = f"""============================================================
-              DETECTIVE CORKBOARD STUDIO
+              DETECTIVE CORKBOARD
                      [CLASSIFIED]
 ============================================================
 
@@ -129,7 +129,7 @@ DECODE YOUR PATH. SOLVE THE CLUES.
   <div class="container">
     <div class="header">
       <div class="stamp">CLASSIFIED</div>
-      <h1 class="title">DETECTIVE CORKBOARD STUDIO</h1>
+      <h1 class="title">DETECTIVE CORKBOARD</h1>
     </div>
     <div class="content">
       <p><strong>ATTN: AGENT IN TRAINING</strong></p>
@@ -151,7 +151,7 @@ DECODE YOUR PATH. SOLVE THE CLUES.
     </div>
     <div class="footer">
       DECODE YOUR PATH. SOLVE THE CLUES.<br>
-      &copy; 1984 Detective Corkboard Studio. All rights reserved.
+      &copy; 1984 Detective Corkboard. All rights reserved.
     </div>
   </div>
 </body>
@@ -166,7 +166,7 @@ DECODE YOUR PATH. SOLVE THE CLUES.
                 # Default sandbox sender from Resend is onboarding@resend.dev
                 sender = settings.SMTP_FROM or "onboarding@resend.dev"
                 payload = {
-                    "from": f"Detective Corkboard Studio <{sender}>",
+                    "from": f"Detective Corkboard <{sender}>",
                     "to": [email],
                     "subject": subject,
                     "html": body_html,
