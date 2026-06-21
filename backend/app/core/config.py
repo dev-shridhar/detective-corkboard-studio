@@ -1,4 +1,5 @@
-from typing import List
+from typing import List, Union
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -32,6 +33,21 @@ class Settings(BaseSettings):
         "https://detectivecorkboard.com",
         "https://www.detectivecorkboard.com",
     ]
+
+    @field_validator("ALLOWED_ORIGINS", mode="before")
+    @classmethod
+    def parse_allowed_origins(cls, v: Union[str, List[str]]) -> List[str]:
+        if isinstance(v, str):
+            v_stripped = v.strip()
+            if v_stripped.startswith("[") and v_stripped.endswith("]"):
+                import json
+                try:
+                    return json.loads(v_stripped)
+                except Exception:
+                    pass
+            # Fallback: split by comma
+            return [origin.strip() for origin in v_stripped.split(",") if origin.strip()]
+        return v
 
 
 # Singleton settings instance — import this everywhere
