@@ -275,22 +275,81 @@
             background: #e5d4a7;
         }
 
-        /* ── Themed Horizontal Tool Tray ── */
+        /* ── Themed Floating Tool Tray (transparent + draggable) ── */
         .retro-tool-tray {
-            position: absolute;
+            position: fixed;
             bottom: 24px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             align-items: center;
-            gap: 18px;
-            background: linear-gradient(180deg, #3d2f24 0%, #221813 100%);
-            border: 3px double #cdb898;
-            box-shadow: 0 12px 35px rgba(0,0,0,0.75), inset 0 0 20px rgba(0,0,0,0.4);
-            border-radius: 6px;
-            padding: 12px 24px;
-            z-index: 10;
+            gap: 14px;
+            /* Glassmorphism transparent panel */
+            background: rgba(20, 12, 8, 0.45);
+            backdrop-filter: blur(14px) saturate(160%);
+            -webkit-backdrop-filter: blur(14px) saturate(160%);
+            border: 1px solid rgba(205, 184, 152, 0.25);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 10px 18px;
+            z-index: 100;
             font-family: 'Courier Prime', monospace;
+            cursor: default;
+            user-select: none;
+            transition: background 0.2s ease, border-color 0.2s ease;
+        }
+        .retro-tool-tray:hover {
+            background: rgba(20, 12, 8, 0.60);
+            border-color: rgba(205, 184, 152, 0.45);
+        }
+        /* Drag handle — grip dots in the left edge */
+        .tray-drag-handle {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            cursor: grab;
+            padding: 4px 2px;
+            opacity: 0.4;
+            transition: opacity 0.15s;
+            flex-shrink: 0;
+        }
+        .tray-drag-handle:hover { opacity: 0.9; }
+        .tray-drag-handle:active { cursor: grabbing; }
+        .drag-dot-row {
+            display: flex;
+            gap: 3px;
+        }
+        .drag-dot {
+            width: 3px;
+            height: 3px;
+            background: #cdb898;
+            border-radius: 50%;
+        }
+        /* Vertical layout when tray is docked on sides */
+        .retro-tool-tray.vertical {
+            flex-direction: column;
+            padding: 18px 10px;
+            gap: 12px;
+        }
+        .retro-tool-tray.vertical .tray-drag-handle {
+            flex-direction: row;
+        }
+        .retro-tool-tray.vertical .tray-divider {
+            width: auto;
+            height: 1px;
+            align-self: stretch;
+        }
+        .retro-tool-tray.vertical .tray-section {
+            flex-direction: row;
+            gap: 8px;
+        }
+        .retro-tool-tray.vertical .tray-group {
+            flex-direction: column;
+            align-items: center;
+        }
+        .retro-tool-tray.vertical .tray-label {
+            writing-mode: horizontal-tb;
+            transform: none;
         }
         .tray-section {
             display: flex;
@@ -639,8 +698,15 @@
         <button class="logout-top-btn" onclick="window.auth.logout()" title="Close Case File & Logout">CLOSE CASE ✕</button>
     </div>
 
-    <!-- Horizontal Tool Tray -->
-    <div class="retro-tool-tray">
+    <!-- Floating Glassmorphism Tool Tray (draggable) -->
+    <div class="retro-tool-tray" id="tool-tray">
+        <!-- Drag Handle -->
+        <div class="tray-drag-handle" id="tray-drag-handle" title="Drag to reposition">
+            <div class="drag-dot-row"><div class="drag-dot"></div><div class="drag-dot"></div></div>
+            <div class="drag-dot-row"><div class="drag-dot"></div><div class="drag-dot"></div></div>
+            <div class="drag-dot-row"><div class="drag-dot"></div><div class="drag-dot"></div></div>
+        </div>
+
         <!-- Tile Types -->
         <div class="tray-section">
             <span class="tray-label">ADD DOSSIER</span>
@@ -693,125 +759,71 @@
         </div>
     </div>
 
-    <!-- Centered dossier overlay modal -->
-    <div id="detail-panel-overlay" class="detail-panel-overlay" onclick="if(event.target === this) window.ui.closeDetailPanel()">
-        <div id="detail-panel">
-            <button id="detail-close" onclick="window.ui.closeDetailPanel()" title="Close">✕</button>
+    <!-- Right Sliding Vintage Newspaper Inspector Panel -->
+    <div id="right-inspector" class="newspaper-card">
+        <!-- Close Button -->
+        <button class="close-btn" onclick="window.ui.closeInspector()">×</button>
+        
+        <div class="newspaper-inner">
+            <!-- Vintage Header -->
+            <div class="newspaper-header">
+                <div class="issue-info">
+                    <span id="insp-badge">NOTE CARD</span>
+                    <span id="insp-date">CASE FILE</span>
+                </div>
+                <h2 id="insp-title" contenteditable="true" placeholder="CASE TITLE">CASE TITLE</h2>
+                <div class="newspaper-divider"></div>
+            </div>
             
-            <!-- View Mode -->
-            <div id="detail-view-mode">
-                <div id="detail-badge" class="detail-badge">NOTE CARD</div>
-                <h2 id="detail-title" class="detail-title">Select a tile</h2>
-                <p id="detail-description" class="detail-desc"></p>
-                
-                <div class="detail-section">
-                    <h3>CONCEPTS</h3>
-                    <ul id="detail-concepts" class="detail-concepts-list"></ul>
-                </div>
-                
-                <div class="detail-section">
-                    <h3>RESOURCE LINKS</h3>
-                    <div id="detail-links" class="detail-links-list"></div>
-                </div>
-                
-                <div style="display:flex; gap: 8px; margin-top: 24px;">
-                    <button onclick="window.ui.enableEditMode()" class="auth-submit" style="width:auto;flex:1;">EDIT DOSSIER</button>
-                    <button onclick="deleteActiveNode()" class="auth-submit" style="width:auto; background:#c0392b; color:#fff;">DELETE</button>
-                </div>
-            </div>
-
-            <!-- Edit Mode -->
-            <div id="detail-edit-mode" style="display:none;">
-                <h2 class="detail-title" style="border-bottom: 2px solid #8a7a5f; padding-bottom:4px; margin-bottom:16px;">EDIT CASE FILE</h2>
-                
-                <div class="auth-field">
-                    <label>TITLE</label>
-                    <input id="edit-title" type="text" />
-                </div>
-                
-                <div class="auth-field">
-                    <label>DESCRIPTION / NOTES</label>
-                    <textarea id="edit-desc" rows="4" style="width:100%; font-family:'Courier Prime', monospace; font-size:12px; background:rgba(0,0,0,0.04); border:1px solid rgba(0,0,0,0.2); border-radius:3px; padding:8px; outline:none; resize:vertical;"></textarea>
-                </div>
-
-                <div class="auth-field" style="display:flex; gap:8px;">
-                    <div style="flex:1;">
-                        <label>SHAPE</label>
-                        <select id="edit-shape" class="retro-select" style="width:100%; padding:6px; font-size:11px;">
-                            <option value="note_card">Note Card</option>
-                            <option value="tape_label">Tape Label</option>
-                            <option value="polaroid">Polaroid</option>
-                            <option value="newspaper_clipping">Clipping</option>
-                        </select>
-                    </div>
-                    <div style="flex:1;">
-                        <label>COLOR</label>
-                        <select id="edit-color" class="retro-select" style="width:100%; padding:6px; font-size:11px;">
-                            <option value="#eedeb0">Cream</option>
-                            <option value="#ffffff">White</option>
-                            <option value="#f1c40f">Yellow</option>
-                            <option value="#c0392b">Red</option>
-                            <option value="#2980b9">Blue</option>
-                            <option value="#27ae60">Green</option>
-                        </select>
+            <!-- Newspaper Columns Layout -->
+            <div class="newspaper-body">
+                <!-- Main/Left Column (Dossier Details) -->
+                <div class="newspaper-column main-col">
+                    <div class="newspaper-subheading">📋 Intel Dossier</div>
+                    <div id="insp-desc" class="lead-paragraph" contenteditable="true" placeholder="Enter investigation notes here..." style="outline: none; min-height: 180px; white-space: pre-wrap;"></div>
+                    
+                    <div class="newspaper-subheading">🏷️ Clue Concepts</div>
+                    <input id="insp-concepts" type="text" placeholder="e.g. suspect, alibi, evidence" style="width: 100%; border: none; border-bottom: 1.5px dashed var(--ink-dark); background: transparent; font-family: 'Courier Prime', monospace; font-size: 12px; outline: none; margin-bottom: 16px; padding: 4px 0;" />
+                    
+                    <div class="newspaper-subheading">⚙️ Properties</div>
+                    <div style="display: flex; gap: 8px; margin-top: 4px;">
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-family:'Courier Prime',monospace; font-size: 9px; font-weight: bold; color:var(--ink-faded);">SHAPE</label>
+                            <select id="insp-shape" class="retro-select" style="width: 100%; padding: 4px; font-size: 11px;">
+                                <option value="note_card">Note Card</option>
+                                <option value="tape_label">Tape Label</option>
+                                <option value="polaroid">Polaroid</option>
+                                <option value="newspaper_clipping">Clipping</option>
+                            </select>
+                        </div>
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-family:'Courier Prime',monospace; font-size: 9px; font-weight: bold; color:var(--ink-faded);">COLOR</label>
+                            <select id="insp-color" class="retro-select" style="width: 100%; padding: 4px; font-size: 11px;">
+                                <option value="#eedeb0">Cream</option>
+                                <option value="#ffffff">White</option>
+                                <option value="#f1c40f">Yellow</option>
+                                <option value="#c0392b">Red</option>
+                                <option value="#2980b9">Blue</option>
+                                <option value="#27ae60">Green</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-
-                <div class="auth-field">
-                    <label>CONCEPTS (comma separated)</label>
-                    <input id="edit-concepts" type="text" placeholder="e.g. suspect, alibi, evidence" />
-                </div>
-
-                <div class="auth-field">
-                    <label>RESOURCE LINKS (Title, URL)</label>
-                    <div id="edit-links-container" style="display:flex; flex-direction:column; gap:6px;"></div>
-                    <button onclick="window.ui.addEditLinkField()" class="retro-inline-btn" style="margin-top:6px; font-size:9px;">+ ADD LINK</button>
-                </div>
                 
-                <div style="display:flex; gap: 8px; margin-top: 24px;">
-                    <button onclick="window.ui.saveEdits()" class="auth-submit" style="width:auto;flex:1;">📁 FILE REPORT</button>
-                    <button onclick="window.ui.disableEditMode()" class="auth-submit" style="width:auto;background:none; border:1px solid rgba(0,0,0,0.3); color:var(--ink-dark);">CANCEL</button>
+                <!-- Side/Right Column (Connections & Resources) -->
+                <div class="newspaper-column side-col">
+                    <div class="newspaper-subheading">🧵 Connections</div>
+                    <div id="insp-yarns" style="display:flex; flex-direction:column; gap:4px; max-height: 140px; overflow-y: auto; margin-bottom: 12px;"></div>
+                    
+                    <div class="newspaper-subheading">🔗 Source Links</div>
+                    <div id="insp-links" style="display:flex; flex-direction:column; gap:6px; max-height: 180px; overflow-y: auto; margin-bottom: 8px;"></div>
+                    <button class="btn btn-secondary" onclick="window.ui.addInspectorLink()" style="padding: 6px; font-size: 10px;">+ ADD RESOURCE</button>
+                    
+                    <div class="card-actions" style="margin-top: auto;">
+                        <button class="btn btn-primary" onclick="deleteActiveNode()" style="background-color:#c0392b; color:#fff; border-color:#c0392b;">✕ DELETE EVIDENCE</button>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Right Sliding Inspector Panel — opens on tile single-click -->
-    <div id="right-inspector">
-        <!-- Dark header strip -->
-        <div class="inspector-header">
-            <div class="inspector-header-left">
-                <span class="inspector-eyebrow">CASE FILE INTEL</span>
-                <span id="inspector-shape-badge" class="inspector-shape-badge">NOTE CARD</span>
-            </div>
-            <button class="inspector-close-btn" onclick="window.ui.closeInspector()" title="Close Inspector">✕</button>
-        </div>
-        <!-- Tile color accent stripe -->
-        <div id="inspector-color-stripe" style="background: #eedeb0;"></div>
-        <!-- Scrollable body -->
-        <div class="inspector-body">
-            <div class="inspector-title" id="inspector-title">Select a tile</div>
-            <div class="inspector-section">
-                <div class="inspector-section-label">📋 Investigation Notes</div>
-                <div class="inspector-desc" id="inspector-desc">— no notes written —</div>
-            </div>
-            <div class="inspector-section">
-                <div class="inspector-section-label">🏷️ Concepts</div>
-                <div class="inspector-tags" id="inspector-tags"></div>
-            </div>
-            <div class="inspector-section">
-                <div class="inspector-section-label">🧵 Connected Via Yarn</div>
-                <div id="inspector-yarns" style="display:flex;flex-direction:column;"></div>
-            </div>
-            <div class="inspector-section">
-                <div class="inspector-section-label">🔗 Resource Links</div>
-                <div id="inspector-links" style="display:flex;flex-direction:column;gap:4px;"></div>
-            </div>
-        </div>
-        <!-- Footer actions -->
-        <div class="inspector-footer">
-            <button class="inspector-btn inspector-btn-primary" onclick="window.ui.openDetailPanel(window.ui.activeNode)">📁 EDIT DOSSIER</button>
-            <button class="inspector-btn inspector-btn-danger" onclick="deleteActiveNode()">✕ DELETE EVIDENCE</button>
         </div>
     </div>
 
@@ -918,6 +930,64 @@
             window.ui.deleteActiveNode();
         }
     }
+
+    /* ── Draggable Floating Tool Tray script ── */
+    (function() {
+        const tray = document.getElementById('tool-tray');
+        const handle = document.getElementById('tray-drag-handle');
+        if (!tray || !handle) return;
+
+        let dragging = false;
+        let startX, startY;
+        let origLeft, origTop;
+
+        handle.addEventListener('mousedown', e => {
+            dragging = true;
+            const rect = tray.getBoundingClientRect();
+            startX = e.clientX;
+            startY = e.clientY;
+            origLeft = rect.left;
+            origTop = rect.top;
+
+            // Apply absolute position instead of default centering transform
+            tray.style.left = origLeft + 'px';
+            tray.style.top = origTop + 'px';
+            tray.style.bottom = 'auto';
+            tray.style.transform = 'none';
+
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', e => {
+            if (!dragging) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+
+            // Dock vertically if close to side edges
+            const isNearLeft = e.clientX < 180;
+            const isNearRight = e.clientX > window.innerWidth - 180;
+
+            if (isNearLeft || isNearRight) {
+                tray.classList.add('vertical');
+            } else {
+                tray.classList.remove('vertical');
+            }
+
+            const newLeft = origLeft + dx;
+            const newTop = origTop + dy;
+
+            // Bounded position values
+            const boundedLeft = Math.max(0, Math.min(window.innerWidth - tray.offsetWidth, newLeft));
+            const boundedTop = Math.max(0, Math.min(window.innerHeight - tray.offsetHeight, newTop));
+
+            tray.style.left = boundedLeft + 'px';
+            tray.style.top = boundedTop + 'px';
+        });
+
+        document.addEventListener('mouseup', () => {
+            dragging = false;
+        });
+    })();
 
     /* ── Custom Prompt Dialog Promise Helper ── */
     window.customPrompt = function(title, placeholder = "") {

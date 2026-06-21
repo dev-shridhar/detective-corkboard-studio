@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: corkboard_db_prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: corkboard
+      POSTGRES_PASSWORD: corkboard_prod_secret_replace_me
+      POSTGRES_DB: corkboard_db
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U corkboard -d corkboard_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI Backend
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: corkboard_api_prod
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://corkboard:corkboard_prod_secret_replace_me@db:5432/corkboard_db
+      ENVIRONMENT: production
+      SECRET_KEY: corkboard_jwt_production_secret_key_change_me
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Frontend Nginx Proxy
+  web:
+    image: nginx:alpine
+    container_name: corkboard_frontend_prod
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro  # SSL certificates mount directory
+    depends_on:
+      - api
+
+volumes:
+  postgres_prod_data:
