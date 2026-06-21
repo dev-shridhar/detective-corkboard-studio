@@ -65,6 +65,8 @@ class Settings(BaseSettings):
             "https://learnwitharies.com",
             "https://detectivecorkboard.com",
             "https://www.detectivecorkboard.com",
+            "https://detectiveboard.com",
+            "https://www.detectiveboard.com",
             "https://detective-corkboard-studio.vercel.app",
         ]
         for origin in extra_origins:
