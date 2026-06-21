@@ -129,19 +129,20 @@ def get_me(token: str = Depends(oauth2_scheme), session: Session = Depends(get_s
 
 @router.get("/test-smtp")
 def test_smtp(email: str):
-    """Diagnostic endpoint to test live SMTP credentials synchronously."""
+    """Diagnostic endpoint to test live SMTP or Resend credentials synchronously."""
     from app.services.email_service import EmailService
     from app.core.config import settings
-    if not settings.SMTP_USERNAME or not settings.SMTP_PASSWORD:
+    if not settings.RESEND_API_KEY and (not settings.SMTP_USERNAME or not settings.SMTP_PASSWORD):
         return {
             "status": "error",
-            "error_class": "SMTPConfigError",
-            "message": "SMTP_USERNAME or SMTP_PASSWORD is not configured in Render environment variables! Please add SMTP credentials in your Render service Settings dashboard."
+            "error_class": "EmailConfigError",
+            "message": "Neither RESEND_API_KEY nor SMTP credentials (SMTP_USERNAME/SMTP_PASSWORD) are configured in Render environment variables! Please configure at least one."
         }
     try:
         # Send a simple test email
         EmailService.send_verification_email(email, "123456")
-        return {"status": "success", "message": f"Verification email successfully sent to {email}"}
+        method_used = "Resend API" if settings.RESEND_API_KEY else "SMTP"
+        return {"status": "success", "message": f"Verification email successfully sent to {email} via {method_used}"}
     except Exception as e:
         import traceback
         return {

@@ -158,7 +158,39 @@ DECODE YOUR PATH. SOLVE THE CLUES.
 </html>
 """
 
-        # Check if SMTP is configured
+        # Check if Resend API is configured (preferred HTTPS method)
+        if settings.RESEND_API_KEY:
+            import urllib.request
+            import json
+            try:
+                # Default sandbox sender from Resend is onboarding@resend.dev
+                sender = settings.SMTP_FROM or "onboarding@resend.dev"
+                payload = {
+                    "from": f"Detective Corkboard Studio <{sender}>",
+                    "to": [email],
+                    "subject": subject,
+                    "html": body_html,
+                    "text": body_text
+                }
+                headers = {
+                    "Authorization": f"Bearer {settings.RESEND_API_KEY}",
+                    "Content-Type": "application/json"
+                }
+                req = urllib.request.Request(
+                    "https://api.resend.com/emails",
+                    data=json.dumps(payload).encode("utf-8"),
+                    headers=headers,
+                    method="POST"
+                )
+                with urllib.request.urlopen(req) as res:
+                    res_body = res.read().decode("utf-8")
+                    logger.info(f"Verification email successfully sent via Resend API: {res_body}")
+                return
+            except Exception as e:
+                logger.error(f"Failed to send verification email via Resend API: {e}", exc_info=True)
+                raise e
+
+        # Check if SMTP is configured (fallback method)
         if not settings.SMTP_USERNAME or not settings.SMTP_PASSWORD:
             logger.info("=== EMAIL CONSOLE FALLBACK (SMTP Credentials Missing) ===")
             logger.info(f"To: {email}")
