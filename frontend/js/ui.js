@@ -134,11 +134,15 @@ class UIManager {
     async loadBoard(boardId) {
         console.log('[UIManager] Loading board data for:', boardId);
         try {
-            // Load nodes and edges in parallel to reduce sequential network roundtrips
-            const [nodes, edges] = await Promise.all([
-                window.api.listNodes(boardId),
-                window.api.listEdges(boardId)
+            const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Request timeout')), 15000));
+            const [nodes, edges] = await Promise.race([
+                Promise.all([
+                    window.api.listNodes(boardId),
+                    window.api.listEdges(boardId)
+                ]),
+                timeout
             ]);
+            console.log('[UIManager] Nodes:', nodes?.length, 'Edges:', edges?.length);
             
             if (window.nodeManager) {
                 window.nodeManager.setNodes(nodes);
