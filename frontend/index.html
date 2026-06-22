@@ -118,24 +118,61 @@
             text-shadow: 2px 3px 8px rgba(0,0,0,0.8);
             margin: 0;
         }
-        .auth-description {
+        /* ── SEO DESCRIPTION TILE (matches login/register tile style) ── */
+        .auth-desc-tile {
+            background: #f5eedc;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(138,122,95,0.07) 27px, rgba(138,122,95,0.07) 28px),
+                linear-gradient(180deg, #f8f2e0 0%, #f0e8cc 100%);
+            border: 1px solid rgba(138,122,95,0.5);
+            box-shadow:
+                4px 6px 0 rgba(0,0,0,0.3),
+                8px 10px 30px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255,255,255,0.6);
+            padding: 24px 28px 28px;
+            border-radius: 2px;
+            width: 440px;
+            transform: rotate(-0.8deg);
+            position: relative;
+            margin: 0 auto 28px;
+        }
+        .auth-desc-tile::before {
+            content: '';
+            position: absolute;
+            top: -6px; left: -10px; right: -10px; height: 20px;
+            background: rgba(255, 240, 180, 0.75);
+            transform: rotate(0.3deg);
+            border-radius: 2px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        .auth-desc-tile .tile-heading {
+            font-family: 'Special Elite', monospace;
+            font-size: 11px; letter-spacing: 3px;
+            color: rgba(60,40,10,0.55);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            border-bottom: 1px dashed rgba(138,122,95,0.4);
+            padding-bottom: 8px;
+            position: relative; z-index: 2;
+        }
+        .auth-desc-tile .desc-body {
             font-family: 'Courier Prime', monospace;
             font-size: 13px;
-            color: #e4d8c4;
-            text-align: center;
-            max-width: 460px;
-            line-height: 1.6;
-            margin: 0 auto 28px;
-            padding: 12px 18px;
-            background: rgba(0,0,0,0.35);
-            border: 1px solid rgba(205, 184, 152, 0.2);
-            border-radius: 4px;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
-            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+            line-height: 1.7;
+            color: #1c1c1e;
+            position: relative; z-index: 2;
         }
-        [data-theme="dark"] .auth-description {
-            background: rgba(0,0,0,0.5);
-            color: #c8b898;
+        [data-theme="dark"] .auth-desc-tile {
+            background: #2a231d;
+            background-image: repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(200,180,150,0.06) 27px, rgba(200,180,150,0.06) 28px),
+                              linear-gradient(180deg, #2f2820 0%, #251f18 100%);
+        }
+        [data-theme="dark"] .auth-desc-tile::before { background: rgba(60,45,30,0.6); }
+        [data-theme="dark"] .auth-desc-tile .tile-heading { color: #9a8a78; }
+        [data-theme="dark"] .auth-desc-tile .desc-body { color: #e4d8c4; }
+        @media (max-width: 680px) {
+            .auth-desc-tile { width: 90vw; max-width: 400px; }
         }
 
         /* Two tiles sit side by side */
@@ -1118,9 +1155,12 @@
                 <h1>Detective Corkboard</h1>
             </div>
 
-            <!-- Case file description — visible to Google, fits the theme -->
-            <div class="auth-description">
-                Pin your ideas like a detective. An infinite corkboard for plans, designs, flowcharts, and brainstorms.
+            <!-- Case file description tile — visible to Google, fits the theme -->
+            <div class="auth-desc-tile">
+                <div class="tile-heading">📋 CASE FILE</div>
+                <div class="desc-body">
+                    Pin your ideas like a detective. An infinite corkboard for plans, designs, flowcharts, and brainstorms.
+                </div>
             </div>
 
             <!-- Two tiles side by side -->
