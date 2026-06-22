@@ -247,14 +247,12 @@ class AuthService:
         self.user_repo.update(user)
 
     def get_settings(self, user: User) -> dict:
-        """Return the user's stored settings, or empty dict if none exist."""
-        return user.settings or {}
+        """Return the user's stored settings."""
+        return user.settings
 
     def update_settings(self, user: User, updates: dict) -> dict:
         """Merge partial updates into existing settings and persist."""
-        current = user.settings or {}
-        current.update(updates)
-        user.settings = current
+        user.settings.update(updates)
         self.user_repo.update(user)
-        return current
+        return user.settings
 
