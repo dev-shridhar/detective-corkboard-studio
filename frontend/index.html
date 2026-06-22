@@ -106,97 +106,81 @@
             align-items: center;
         }
 
-        /* ── Logo + app name row above tiles ── */
+        /* ── Logo + app name — page header pinned at top ── */
         .auth-brand {
-            display: flex; align-items: center; gap: 14px;
-            margin-bottom: 20px;
-            margin-top: -60px;
-            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.7));
-            position: relative; z-index: 3;
+            display: flex; align-items: center; gap: 12px;
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            filter: drop-shadow(0 4px 16px rgba(0,0,0,0.8));
+            z-index: 10;
         }
-        .auth-brand img { width: 56px; height: 56px; object-fit: contain; }
+        .auth-brand img { width: 48px; height: 48px; object-fit: contain; }
         .auth-brand h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 28px; font-weight: 800;
+            font-size: 26px; font-weight: 800;
             color: #f5eedc;
-            text-shadow: 2px 3px 8px rgba(0,0,0,0.8);
+            text-shadow: 2px 3px 10px rgba(0,0,0,0.9);
             margin: 0;
         }
         [data-theme="dark"] .auth-brand h1 { color: #e4d8c4; }
 
-        /* ── SIDE SEO TILES (absolute positioned) ── */
+        /* ── SIDE STICKY NOTES (absolute positioned) ── */
         .auth-side-tile {
-            background: #f5eedc;
-            background-image:
-                repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(138,122,95,0.07) 27px, rgba(138,122,95,0.07) 28px),
-                linear-gradient(180deg, #f8f2e0 0%, #f0e8cc 100%);
-            border: 1px solid rgba(138,122,95,0.5);
-            box-shadow:
-                4px 6px 0 rgba(0,0,0,0.3),
-                8px 10px 30px rgba(0,0,0,0.5),
-                inset 0 1px 0 rgba(255,255,255,0.6);
-            padding: 20px 22px 22px;
-            border-radius: 2px;
-            width: 220px;
             position: absolute;
             z-index: 2;
+            width: 200px;
+            padding: 26px 18px 18px;
+            border-radius: 3px;
+            box-shadow:
+                2px 3px 6px rgba(0,0,0,0.2),
+                6px 8px 24px rgba(0,0,0,0.3);
+            font-family: 'Courier Prime', monospace;
         }
-        .auth-side-tile::before {
-            content: '';
-            position: absolute;
-            top: -6px; left: -10px; right: -10px; height: 20px;
-            background: rgba(255, 240, 180, 0.75);
-            border-radius: 2px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            z-index: 1;
-        }
-        .auth-side-tile .tile-heading {
-            font-family: 'Special Elite', monospace;
-            font-size: 11px; letter-spacing: 3px;
-            color: rgba(60,40,10,0.55);
-            text-transform: uppercase;
+        .auth-side-tile .sticky-header {
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            color: rgba(0,0,0,0.3);
             margin-bottom: 10px;
-            border-bottom: 1px dashed rgba(138,122,95,0.4);
-            padding-bottom: 8px;
-            position: relative; z-index: 2;
+            position: relative; z-index: 1;
         }
         .auth-side-tile .desc-body {
-            font-family: 'Courier Prime', monospace;
-            font-size: 13px;
-            line-height: 1.7;
-            color: #1c1c1e;
-            position: relative; z-index: 2;
+            font-size: 12px;
+            line-height: 1.8;
+            position: relative; z-index: 1;
         }
         .auth-side-tile.left {
-            right: calc(50% + 220px);
-            top: 30px;
-            transform: rotate(-2.5deg);
+            right: calc(50% + 260px);
+            top: calc(50% - 150px);
+            transform: rotate(-2deg);
+            background: #d4edda;
+            background-image:
+                repeating-linear-gradient(transparent, transparent 25px, rgba(0,0,0,0.06) 25px, rgba(0,0,0,0.06) 26px);
+            color: #1a3a1a;
         }
         .auth-side-tile.right {
-            left: calc(50% + 220px);
-            bottom: 30px;
+            left: calc(50% + 260px);
+            top: calc(50% + 70px);
             transform: rotate(2.5deg);
-        }
-        .auth-side-tile.green-note {
+            background: #fff9c4;
             background-image:
-                repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(39,174,96,0.1) 27px, rgba(39,174,96,0.1) 28px),
-                linear-gradient(180deg, #f0fff4 0%, #d4f0dc 100%);
-            border-color: rgba(39,174,96,0.35);
+                repeating-linear-gradient(transparent, transparent 25px, rgba(0,0,0,0.07) 25px, rgba(0,0,0,0.07) 26px);
+            color: #3a2c00;
         }
-        .auth-side-tile.yellow-note {
-            background-image:
-                repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(180,160,60,0.15) 27px, rgba(180,160,60,0.15) 28px),
-                linear-gradient(180deg, #fffde8 0%, #f5eda0 100%);
-            border-color: rgba(180,160,60,0.4);
+        [data-theme="dark"] .auth-side-tile.left {
+            background: #1a3a1a;
+            background-image: repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.05) 25px, rgba(255,255,255,0.05) 26px);
+            color: #c8e6c9;
         }
-        [data-theme="dark"] .auth-side-tile {
-            background: #2a231d;
-            background-image: repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(200,180,150,0.06) 27px, rgba(200,180,150,0.06) 28px),
-                              linear-gradient(180deg, #2f2820 0%, #251f18 100%);
+        [data-theme="dark"] .auth-side-tile.left .sticky-header { color: rgba(255,255,255,0.3); }
+        [data-theme="dark"] .auth-side-tile.right {
+            background: #3a2c00;
+            background-image: repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.05) 25px, rgba(255,255,255,0.05) 26px);
+            color: #e4d8c4;
         }
-        [data-theme="dark"] .auth-side-tile .tile-heading { color: #9a8a78; }
-        [data-theme="dark"] .auth-side-tile .desc-body { color: #e4d8c4; }
-        [data-theme="dark"] .auth-side-tile::before { background: rgba(60,45,30,0.6); }
+        [data-theme="dark"] .auth-side-tile.right .sticky-header { color: rgba(255,255,255,0.3); }
 
         /* ── THE CASE-FILE TILE ── */
         .auth-card {
@@ -314,11 +298,10 @@
 
         @media (max-width: 900px) {
             .auth-side-tile { display: none; }
-            .auth-brand { margin-top: -40px; }
+            .auth-brand { top: 16px; }
         }
         @media (max-width: 680px) {
             .auth-card { width: 90vw; max-width: 340px; }
-            .auth-brand { margin-top: -20px; }
         }
 
         /* ── BOARD MESSAGE TILES (cascading pinned notes) ── */
@@ -1174,34 +1157,27 @@
 
 <!-- ═══════════════════ AUTH SCREEN ═══════════════════ -->
 <div id="auth-screen">
+
+    <!-- App brand — page header pinned at top -->
+    <div class="auth-brand">
+        <img src="assets/logo.png" alt="Detective Corkboard" />
+        <h1>Detective Corkboard</h1>
+    </div>
+
     <div class="auth-form-side">
         <div class="auth-board-scene">
 
-            <!-- App brand above the tiles, shifted up -->
-            <div class="auth-brand">
-                <img src="assets/logo.png" alt="Detective Corkboard" />
-                <h1>Detective Corkboard</h1>
-            </div>
-
-            <!-- Left SEO tile — absolute, higher, tilted -->
-            <div class="auth-side-tile left green-note">
-                <div class="auth-pushpin">
-                    <div class="pin-head" style="background:radial-gradient(circle at 35% 35%, #27ae60, #1a6634);"></div>
-                    <div class="pin-shaft"></div>
-                </div>
-                <div class="tile-heading">📋 FIELD NOTE</div>
+            <!-- Left sticky note — upper-mid left -->
+            <div class="auth-side-tile left">
+                <div class="sticky-header">📋 FIELD NOTE</div>
                 <div class="desc-body">
                     Pin your ideas like a detective. An infinite corkboard for your next big case.
                 </div>
             </div>
 
-            <!-- Right SEO tile — absolute, lower, tilted -->
-            <div class="auth-side-tile right yellow-note">
-                <div class="auth-pushpin">
-                    <div class="pin-head" style="background:radial-gradient(circle at 35% 35%, #f1c40f, #b8860b);"></div>
-                    <div class="pin-shaft"></div>
-                </div>
-                <div class="tile-heading">📋 CASE FILE</div>
+            <!-- Right sticky note — lower-mid right -->
+            <div class="auth-side-tile right">
+                <div class="sticky-header">📋 CASE FILE</div>
                 <div class="desc-body">
                     Plan designs, map flowcharts, brainstorm ideas. Start connecting the clues.
                 </div>
