@@ -59,6 +59,24 @@ def create_db_and_tables() -> None:
             session.commit()
     except Exception:
         pass
+    # Add settings column to users table (migration for existing databases)
+    try:
+        with Session(engine) as session:
+            session.exec(text(
+                "ALTER TABLE users ADD COLUMN settings JSON DEFAULT '{\"theme\": \"light\", \"yarn\": \"above\", \"bar\": \"horizontal\"}'"
+            ))
+            session.commit()
+    except Exception:
+        pass
+    # Backfill any rows that still have NULL settings
+    try:
+        with Session(engine) as session:
+            session.exec(text(
+                "UPDATE users SET settings = '{\"theme\": \"light\", \"yarn\": \"above\", \"bar\": \"horizontal\"}' WHERE settings IS NULL"
+            ))
+            session.commit()
+    except Exception:
+        pass
 
 
 def get_session() -> Generator[Session, None, None]:
