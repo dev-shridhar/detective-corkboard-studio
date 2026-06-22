@@ -82,8 +82,10 @@
             content: '';
             position: absolute; inset: 0;
             background: radial-gradient(ellipse at center,
-                rgba(8,6,3,0.25) 0%,
-                rgba(8,6,3,0.55) 100%);
+                rgba(8,6,3,0.35) 0%,
+                rgba(8,6,3,0.65) 100%);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
             z-index: 0;
         }
         .auth-preview { display: none; }
@@ -118,11 +120,67 @@
             text-shadow: 2px 3px 8px rgba(0,0,0,0.8);
             margin: 0;
         }
+        /* ── SEO DESCRIPTION TILE (matches login/register tile style) ── */
+        .auth-desc-tile {
+            background: #f5eedc;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(138,122,95,0.07) 27px, rgba(138,122,95,0.07) 28px),
+                linear-gradient(180deg, #f8f2e0 0%, #f0e8cc 100%);
+            border: 1px solid rgba(138,122,95,0.5);
+            box-shadow:
+                4px 6px 0 rgba(0,0,0,0.3),
+                8px 10px 30px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255,255,255,0.6);
+            padding: 24px 28px 28px;
+            border-radius: 2px;
+            width: 440px;
+            transform: rotate(-0.8deg);
+            position: relative;
+            margin: 0 auto 28px;
+        }
+        .auth-desc-tile::before {
+            content: '';
+            position: absolute;
+            top: -6px; left: -10px; right: -10px; height: 20px;
+            background: rgba(255, 240, 180, 0.75);
+            transform: rotate(0.3deg);
+            border-radius: 2px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        .auth-desc-tile .tile-heading {
+            font-family: 'Special Elite', monospace;
+            font-size: 11px; letter-spacing: 3px;
+            color: rgba(60,40,10,0.55);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            border-bottom: 1px dashed rgba(138,122,95,0.4);
+            padding-bottom: 8px;
+            position: relative; z-index: 2;
+        }
+        .auth-desc-tile .desc-body {
+            font-family: 'Courier Prime', monospace;
+            font-size: 13px;
+            line-height: 1.7;
+            color: #1c1c1e;
+            position: relative; z-index: 2;
+        }
+        [data-theme="dark"] .auth-desc-tile {
+            background: #2a231d;
+            background-image: repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(200,180,150,0.06) 27px, rgba(200,180,150,0.06) 28px),
+                              linear-gradient(180deg, #2f2820 0%, #251f18 100%);
+        }
+        [data-theme="dark"] .auth-desc-tile::before { background: rgba(60,45,30,0.6); }
+        [data-theme="dark"] .auth-desc-tile .tile-heading { color: #9a8a78; }
+        [data-theme="dark"] .auth-desc-tile .desc-body { color: #e4d8c4; }
+        @media (max-width: 680px) {
+            .auth-desc-tile { width: 90vw; max-width: 400px; }
+        }
 
         /* Two tiles sit side by side */
         .auth-tiles-row {
             display: flex;
-            gap: 28px;
+            gap: 100px;
             align-items: flex-start;
             flex-wrap: wrap;
             justify-content: center;
@@ -147,6 +205,46 @@
             margin-top: 30px;
         }
         .auth-card.tile-register { transform: rotate(1.8deg); margin-top: 45px; }
+
+        /* ── Hover hints on auth tiles ── */
+        .auth-card {
+            transition: box-shadow 0.25s ease, transform 0.25s ease;
+        }
+        .auth-card:hover {
+            box-shadow:
+                6px 8px 0 rgba(0,0,0,0.4),
+                12px 16px 40px rgba(0,0,0,0.6),
+                inset 0 1px 0 rgba(255,255,255,0.6);
+        }
+        .auth-card.tile-login:hover { transform: rotate(-0.5deg) translateY(-4px); }
+        .auth-card.tile-register:hover { transform: rotate(1.3deg) translateY(-4px); }
+        .auth-card .hover-hint {
+            position: absolute;
+            top: -68px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Special Elite', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: #f5eedc;
+            background: rgba(0,0,0,0.55);
+            border: 1px solid rgba(205,184,152,0.3);
+            padding: 5px 14px;
+            border-radius: 3px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            pointer-events: none;
+            z-index: 5;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
+        }
+        .auth-card:hover .hover-hint {
+            opacity: 1;
+        }
+        [data-theme="dark"] .auth-card .hover-hint {
+            background: rgba(0,0,0,0.7);
+            color: #e4d8c4;
+        }
 
         /* Red pushpin at the top-center of each tile */
         .auth-pushpin {
@@ -1099,6 +1197,14 @@
                 <h1>Detective Corkboard</h1>
             </div>
 
+            <!-- Case file description tile — visible to Google, fits the theme -->
+            <div class="auth-desc-tile">
+                <div class="tile-heading">📋 CASE FILE</div>
+                <div class="desc-body">
+                    Pin your ideas like a detective. An infinite corkboard for plans, designs, flowcharts, and brainstorms.
+                </div>
+            </div>
+
             <!-- Two tiles side by side -->
             <div class="auth-tiles-row">
 
@@ -1117,6 +1223,7 @@
                         Case #2025-DET<br>Status: <strong>ACTIVE</strong>
                     </div>
 
+                    <div class="hover-hint">🔁 KNOWN AGENT →</div>
                     <div class="auth-stamp" style="position:relative;z-index:2;">CLASSIFIED</div>
                     <div class="tile-heading">🔑 Agent Login</div>
                     <form id="form-login" onsubmit="handleLogin(event)" onkeydown="if(event.key==='Enter') handleLogin(event)" autocomplete="off">
@@ -1147,6 +1254,7 @@
                         Access Level:<br><strong>DETECTIVE</strong>
                     </div>
 
+                    <div class="hover-hint">🆕 NEW RECRUIT →</div>
                     <div class="auth-stamp" style="position:relative;z-index:2;border-color:#b7950b;color:#b7950b;">NEW DOSSIER</div>
                     <div class="tile-heading">📋 New Agent</div>
                     <form id="form-register" onsubmit="handleRegister(event)" onkeydown="if(event.key==='Enter') handleRegister(event)" autocomplete="off">
