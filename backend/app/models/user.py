@@ -1,7 +1,8 @@
 import uuid
 from datetime import datetime
 from typing import Optional, List, TYPE_CHECKING
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import SQLModel, Field, Relationship, Column
+from sqlalchemy import JSON
 
 if TYPE_CHECKING:
     from app.models.board import Board
@@ -27,6 +28,7 @@ class User(UserBase, table=True):
     verification_code: Optional[str] = Field(default=None, nullable=True)
     verification_code_expires_at: Optional[datetime] = Field(default=None, nullable=True)
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    settings: Optional[dict] = Field(default=None, sa_column=Column(JSON))
 
     # One user → many boards
     boards: List["Board"] = Relationship(back_populates="owner")

@@ -31,11 +31,20 @@ class AuthManager {
         document.getElementById('board-screen').style.display = 'none';
     }
 
-    _showBoardScreen() {
+    async _showBoardScreen() {
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('board-screen').style.display = 'block';
-        const savedTheme = localStorage.getItem('setting_theme') || 'light';
-        document.documentElement.setAttribute('data-theme', savedTheme);
+        try {
+            const settings = await window.api.getSettings();
+            for (const [key, value] of Object.entries(settings)) {
+                if (key in window._settings) {
+                    window._settings[key] = value;
+                }
+            }
+        } catch (err) {
+            console.warn('[AuthManager] Failed to load settings from backend, using defaults');
+        }
+        document.documentElement.setAttribute('data-theme', window._settings.theme);
         if (window.ui && typeof window.ui.init === 'function') {
             window.ui.init().catch(err => {
                 console.error('[AuthManager] ui.init() failed:', err);
