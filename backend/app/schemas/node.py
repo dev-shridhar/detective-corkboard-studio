@@ -13,6 +13,7 @@ class NodeShape(str, Enum):
 
 
 class NodeCreate(BaseModel):
+    id: Optional[uuid.UUID] = None
     title: str
     description: Optional[str] = None
     shape: NodeShape = NodeShape.NOTE_CARD
