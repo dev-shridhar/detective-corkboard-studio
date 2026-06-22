@@ -118,6 +118,25 @@
             text-shadow: 2px 3px 8px rgba(0,0,0,0.8);
             margin: 0;
         }
+        .auth-description {
+            font-family: 'Courier Prime', monospace;
+            font-size: 13px;
+            color: #e4d8c4;
+            text-align: center;
+            max-width: 460px;
+            line-height: 1.6;
+            margin: 0 auto 28px;
+            padding: 12px 18px;
+            background: rgba(0,0,0,0.35);
+            border: 1px solid rgba(205, 184, 152, 0.2);
+            border-radius: 4px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+        }
+        [data-theme="dark"] .auth-description {
+            background: rgba(0,0,0,0.5);
+            color: #c8b898;
+        }
 
         /* Two tiles sit side by side */
         .auth-tiles-row {
@@ -1097,6 +1116,11 @@
             <div class="auth-brand">
                 <img src="assets/logo.png" alt="Detective Corkboard" />
                 <h1>Detective Corkboard</h1>
+            </div>
+
+            <!-- Case file description — visible to Google, fits the theme -->
+            <div class="auth-description">
+                Pin your ideas like a detective. An infinite corkboard for plans, designs, flowcharts, and brainstorms.
             </div>
 
             <!-- Two tiles side by side -->
