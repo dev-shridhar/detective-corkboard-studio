@@ -1674,6 +1674,8 @@
         const description = descInput ? descInput.value.trim() : "";
         if (!name) return;
         
+        document.getElementById('case-selector-overlay').style.display = 'none';
+        showBoardLoading('Establishing case dossier');
         try {
             const board = await window.api.createBoard({
                 name: name,
@@ -1681,13 +1683,15 @@
             });
             nameInput.value = '';
             if (descInput) descInput.value = '';
-            document.getElementById('case-selector-overlay').style.display = 'none';
             if (window.ui) {
                 window.ui.currentBoardId = board.id;
                 await window.ui.init();
             }
+            hideBoardLoading();
+            showBoardMessage('Case established. Board ready.', 'success', 3000);
         } catch (err) {
-            alert("Failed to establish case dossier: " + err.message);
+            hideBoardLoading();
+            showBoardMessage("Failed to establish case dossier: " + err.message, 'error');
         }
     };
 
