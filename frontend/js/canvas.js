@@ -242,7 +242,8 @@ class CanvasEngine {
                     // Start string connection flow
                     this.connectingSource = node;
                     if (window.edgeManager) {
-                        const pinScreen = this.worldToScreen(node.x, node.y);
+                        const pinWorld = window.nodeManager ? window.nodeManager.getPinWorldPosition(node) : { x: node.x, y: node.y };
+                        const pinScreen = this.worldToScreen(pinWorld.x, pinWorld.y);
                         const activeYarnColor = window.ui && window.ui.currentYarnColor || '#c0392b';
                         window.edgeManager.startPreview(pinScreen.x, pinScreen.y, activeYarnColor);
                     }
@@ -300,9 +301,14 @@ class CanvasEngine {
                     this.canvas.style.cursor = 'default';
                 }
 
-                if (this.hoveredNode !== newHoveredNode) {
-                    this.hoveredNode = newHoveredNode;
-                    this.requestDraw(); // Redraw immediately to render/hide the delete button
+                const newPinHintNode = (hover && hover.isPin) ? hover.node : null;
+                let needRedraw = (this.hoveredNode !== newHoveredNode) || (this._pinHintNode !== newPinHintNode);
+                
+                this.hoveredNode = newHoveredNode;
+                this._pinHintNode = newPinHintNode;
+                
+                if (needRedraw) {
+                    this.requestDraw(); // Redraw immediately to render/hide the delete button or tooltip hint
                 }
             }
         });

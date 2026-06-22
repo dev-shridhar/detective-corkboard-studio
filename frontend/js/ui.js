@@ -293,6 +293,7 @@ class UIManager {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     titleEl.blur();
+                    this.saveAndCloseInspector();
                 }
             };
         }
@@ -305,6 +306,7 @@ class UIManager {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     descEl.blur();
+                    this.saveAndCloseInspector();
                 }
             };
         }
@@ -316,6 +318,7 @@ class UIManager {
             conceptsEl.onkeydown = (e) => {
                 if (e.key === 'Enter') {
                     conceptsEl.blur();
+                    this.saveAndCloseInspector();
                 }
             };
         }
@@ -380,6 +383,11 @@ class UIManager {
         }
     }
 
+    async saveAndCloseInspector() {
+        await this.saveActiveNodeIntel();
+        this.closeInspector();
+    }
+
     renderInspectorLinks() {
         const container = document.getElementById('insp-links');
         if (!container) return;
@@ -410,9 +418,25 @@ class UIManager {
                 link.title = titleInput.value.trim();
                 this.saveActiveNodeIntel();
             });
+            titleInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    link.title = titleInput.value.trim();
+                    titleInput.blur();
+                    this.saveAndCloseInspector();
+                }
+            });
             urlInput.addEventListener('blur', () => {
                 link.url = urlInput.value.trim();
                 this.saveActiveNodeIntel();
+            });
+            urlInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    link.url = urlInput.value.trim();
+                    urlInput.blur();
+                    this.saveAndCloseInspector();
+                }
             });
             deleteBtn.addEventListener('click', () => {
                 this.inspectorLinks.splice(idx, 1);
@@ -465,6 +489,17 @@ class UIManager {
         };
 
         if (!updatedData.title) updatedData.title = "Untitled Clue";
+
+        // Check if anything actually changed compared to the activeNode properties
+        const hasChanged = 
+            updatedData.title !== node.title ||
+            updatedData.description !== node.description ||
+            updatedData.shape !== node.shape ||
+            updatedData.color !== node.color ||
+            JSON.stringify(updatedData.concepts) !== JSON.stringify(node.concepts || []) ||
+            JSON.stringify(updatedData.links) !== JSON.stringify(node.links || []);
+
+        if (!hasChanged) return;
 
         try {
             const updatedNode = await window.api.updateNode(this.currentBoardId, node.id, updatedData);
