@@ -35,7 +35,7 @@ class NodeManager {
 
     /**
      * Hit testing: detects if screen coordinate collides with a tile
-     * or its center pushpin.
+     * or its top-middle pushpin.
      */
     hitTest(screenX, screenY, transform) {
         const worldPos = transform.screenToWorld(screenX, screenY);
@@ -46,7 +46,7 @@ class NodeManager {
             const dims = this.getNodeDimensions(node);
             
             // Map coordinates relative to the rotated card
-            const tilt = this._tilts[node.id] || 0;
+            const tilt = this.getTilt(node);
             const cos = Math.cos(-tilt);
             const sin = Math.sin(-tilt);
             
@@ -69,8 +69,9 @@ class NodeManager {
             
             if (lx >= -dims.w / 2 && lx <= dims.w / 2 &&
                 ly >= -dims.h / 2 && ly <= dims.h / 2) {
-                // If clicked within 12px of center, they clicked the pushpin!
-                const isPin = Math.hypot(lx, ly) < 12;
+                // Check if clicked within 12px of the top-middle pushpin
+                const pinOffset = this.getPinLocalOffset(node);
+                const isPin = Math.hypot(lx - pinOffset.x, ly - pinOffset.y) < 12;
                 return { node, isPin, isDelete: false };
             }
         }
@@ -89,6 +90,33 @@ class NodeManager {
             default:
                 return { w: 130, h: 70 };
         }
+    }
+
+    getTilt(node) {
+        if (!node || !node.id) return 0;
+        if (!this._tilts[node.id]) {
+            const idStr = String(node.id);
+            const seed = idStr.charCodeAt(0) + idStr.charCodeAt(idStr.length - 1);
+            this._tilts[node.id] = (seed % 6 - 3) * (Math.PI / 180); // tilt range: [-3, 3] degrees
+        }
+        return this._tilts[node.id];
+    }
+
+    getPinLocalOffset(node) {
+        const dims = this.getNodeDimensions(node);
+        if (node.shape === 'tape_label') {
+            return { x: 0, y: -dims.h / 2 + 6 };
+        }
+        return { x: 0, y: -dims.h / 2 + 10 };
+    }
+
+    getPinWorldPosition(node) {
+        const tilt = this.getTilt(node);
+        const offset = this.getPinLocalOffset(node);
+        return {
+            x: node.x - offset.y * Math.sin(tilt),
+            y: node.y + offset.y * Math.cos(tilt)
+        };
     }
 
     startDrag(node, screenX, screenY, transform) {
@@ -151,11 +179,7 @@ class NodeManager {
         ctx.scale(scale, scale);
         
         // Apply consistent tilt angle based on UUID
-        if (!this._tilts[node.id]) {
-            const seed = node.id.charCodeAt(0) + node.id.charCodeAt(node.id.length - 1);
-            this._tilts[node.id] = (seed % 6 - 3) * (Math.PI / 180); // tilt range: [-3, 3] degrees
-        }
-        ctx.rotate(this._tilts[node.id]);
+        ctx.rotate(this.getTilt(node));
         
         // Add drop shadow
         ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
@@ -346,10 +370,12 @@ class NodeManager {
         
         ctx.restore();
         
-        // Draw Pushpin center point (always at center of node, opaque matching search queries)
+        // Draw Pushpin center point (always at top middle of node, opaque matching search queries)
         ctx.save();
         ctx.globalAlpha = opacity;
-        this._drawPushpin(ctx, screenPos.x, screenPos.y, scale, '#c0392b');
+        const pinWorld = this.getPinWorldPosition(node);
+        const pinScreen = transform.worldToScreen(pinWorld.x, pinWorld.y);
+        this._drawPushpin(ctx, pinScreen.x, pinScreen.y, scale, '#c0392b');
         ctx.restore();
     }
 

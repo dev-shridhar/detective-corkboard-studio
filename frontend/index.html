@@ -1308,8 +1308,9 @@
                     <div id="insp-links" style="display:flex; flex-direction:column; gap:6px; max-height: 180px; overflow-y: auto; margin-bottom: 8px;"></div>
                     <button class="btn btn-secondary" onclick="window.ui.addInspectorLink()" style="padding: 6px; font-size: 10px;">+ ADD RESOURCE</button>
                     
-                    <div class="card-actions" style="margin-top: auto;">
-                        <button class="btn btn-primary" onclick="deleteActiveNode()" style="background-color:#c0392b; color:#fff; border-color:#c0392b;">✕ DELETE EVIDENCE</button>
+                    <div class="card-actions" style="margin-top: auto; display: flex; flex-direction: column; gap: 8px;">
+                        <button class="btn btn-primary" onclick="window.ui.saveAndCloseInspector()" style="background-color:#27ae60; color:#fff; border-color:#27ae60; width: 100%;">💾 SAVE CHANGES</button>
+                        <button class="btn btn-primary" onclick="deleteActiveNode()" style="background-color:#c0392b; color:#fff; border-color:#c0392b; width: 100%;">✕ DELETE EVIDENCE</button>
                     </div>
                 </div>
             </div>

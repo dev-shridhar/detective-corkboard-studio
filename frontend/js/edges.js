@@ -51,8 +51,10 @@ class EdgeManager {
             }
         }
 
-        const p1 = transform.worldToScreen(src.x, src.y);
-        const p2 = transform.worldToScreen(tgt.x, tgt.y);
+        const p1World = window.nodeManager ? window.nodeManager.getPinWorldPosition(src) : { x: src.x, y: src.y };
+        const p2World = window.nodeManager ? window.nodeManager.getPinWorldPosition(tgt) : { x: tgt.x, y: tgt.y };
+        const p1 = transform.worldToScreen(p1World.x, p1World.y);
+        const p2 = transform.worldToScreen(p2World.x, p2World.y);
         this._drawCatenaryString(ctx, p1, p2, edge.color || '#c0392b', edge.label, opacity);
     }
 
