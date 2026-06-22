@@ -1937,6 +1937,11 @@
         localStorage.setItem('setting_' + category, value);
         updateSettingsUI();
         applySetting(category, value);
+        if (window.api && window.api._accessToken) {
+            window.api.updateSettings({ [category]: value }).catch(err => {
+                console.warn('Failed to save setting to backend:', err);
+            });
+        }
     }
 
     function applySetting(category, value) {

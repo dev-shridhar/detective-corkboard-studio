@@ -7,7 +7,7 @@ from app.core.config import settings
 from app.core.database import get_session
 from app.core.security import SecurityUtils, oauth2_scheme
 from app.services.auth_service import AuthService
-from app.schemas.user import UserCreate, UserRead, TokenResponse, EmailVerifyRequest, ResendVerificationRequest
+from app.schemas.user import UserCreate, UserRead, TokenResponse, EmailVerifyRequest, ResendVerificationRequest, UserSettingsUpdate
 
 router = APIRouter()
 
@@ -157,6 +157,30 @@ def test_smtp(email: str):
             "message": str(e),
             "traceback": traceback.format_exc()
         }
+
+
+@router.get("/settings")
+def get_settings(
+    token: str = Depends(oauth2_scheme),
+    session: Session = Depends(get_session),
+):
+    """Return the settings for the currently authenticated user."""
+    service = AuthService(session)
+    user = service.get_current_user(token)
+    return service.get_settings(user)
+
+
+@router.put("/settings")
+def update_settings(
+    payload: UserSettingsUpdate,
+    token: str = Depends(oauth2_scheme),
+    session: Session = Depends(get_session),
+):
+    """Partially update settings for the currently authenticated user."""
+    service = AuthService(session)
+    user = service.get_current_user(token)
+    updates = {k: v for k, v in payload.model_dump().items() if v is not None}
+    return service.update_settings(user, updates)
 
 
 @router.get("/measure-db-latency")

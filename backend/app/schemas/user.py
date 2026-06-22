@@ -36,3 +36,9 @@ class EmailVerifyRequest(BaseModel):
 class ResendVerificationRequest(BaseModel):
     username_or_email: str
 
+
+class UserSettingsUpdate(BaseModel):
+    theme: Optional[str] = None
+    yarn: Optional[str] = None
+    bar: Optional[str] = None
+

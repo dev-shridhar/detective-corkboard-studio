@@ -246,3 +246,13 @@ class AuthService:
         user.hashed_refresh_token = None
         self.user_repo.update(user)
 
+    def get_settings(self, user: User) -> dict:
+        """Return the user's stored settings."""
+        return user.settings
+
+    def update_settings(self, user: User, updates: dict) -> dict:
+        """Merge partial updates into existing settings and persist."""
+        user.settings.update(updates)
+        self.user_repo.update(user)
+        return user.settings
+

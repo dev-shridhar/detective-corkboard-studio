@@ -85,6 +85,8 @@ class ApiClient {
     getMe() { return this._request('GET', '/auth/me'); }
     verifyEmail(payload) { return this._request('POST', '/auth/verify-email', payload); }
     resendVerification(payload) { return this._request('POST', '/auth/resend-verification', payload); }
+    getSettings() { return this._request('GET', '/auth/settings'); }
+    updateSettings(data) { return this._request('PUT', '/auth/settings', data); }
 
 
     // --- Boards ---
