@@ -39,12 +39,17 @@ class AuthManager {
             for (const [key, value] of Object.entries(settings)) {
                 if (key in window._settings) {
                     window._settings[key] = value;
+                    if (typeof window.applySetting === 'function') {
+                        window.applySetting(key, value);
+                    }
                 }
             }
         } catch (err) {
             console.warn('[AuthManager] Failed to load settings from backend, using defaults');
+            if (typeof window.applySetting === 'function') {
+                window.applySetting('theme', window._settings.theme);
+            }
         }
-        document.documentElement.setAttribute('data-theme', window._settings.theme);
         if (window.ui && typeof window.ui.init === 'function') {
             window.ui.init().catch(err => {
                 console.error('[AuthManager] ui.init() failed:', err);
