@@ -151,63 +151,67 @@
         [data-theme="dark"] .auth-brand::before { background: rgba(60,45,30,0.6); }
         [data-theme="dark"] .auth-brand h1 { color: #e4d8c4; }
 
-        /* ── CORNER STICKY NOTES (scattered across the board) ── */
-        .auth-corner-note {
+        /* ── SIDE STICKY NOTES (around the auth card) ── */
+        .auth-side-tile {
             position: absolute;
             z-index: 2;
-            width: 190px;
-            padding: 24px 16px 16px;
+            width: 180px;
+            padding: 22px 14px 14px;
             border-radius: 3px;
             box-shadow:
                 2px 3px 6px rgba(0,0,0,0.2),
                 6px 8px 24px rgba(0,0,0,0.3);
             font-family: 'Courier Prime', monospace;
-            font-size: 12px;
+            font-size: 11px;
             line-height: 1.7;
             background-image:
                 repeating-linear-gradient(transparent, transparent 25px, rgba(0,0,0,0.06) 25px, rgba(0,0,0,0.06) 26px);
         }
-        .auth-corner-note.tl {
-            top: 130px; left: 30px;
-            transform: rotate(-2.8deg);
+        .auth-side-tile.tl {
+            right: calc(50% + 210px);
+            top: calc(50% - 170px);
+            transform: rotate(-2.5deg);
             background-color: #d4edda;
             color: #1a3a1a;
         }
-        .auth-corner-note.tr {
-            top: 150px; right: 20px;
-            transform: rotate(2.2deg);
+        .auth-side-tile.tr {
+            left: calc(50% + 210px);
+            top: calc(50% - 170px);
+            transform: rotate(2deg);
             background-color: #f8d7da;
             color: #4a1a1a;
         }
-        .auth-corner-note.bl {
-            bottom: 50px; left: 40px;
-            transform: rotate(3deg);
+        .auth-side-tile.bl {
+            right: calc(50% + 210px);
+            top: calc(50% + 100px);
+            transform: rotate(2.8deg);
             background-color: #d0e8f7;
             color: #1a2a3a;
         }
-        .auth-corner-note.br {
-            bottom: 40px; right: 30px;
-            width: 220px;
-            transform: rotate(-2deg);
+        .auth-side-tile.br {
+            left: calc(50% + 210px);
+            top: calc(50% + 100px);
+            width: 210px;
+            transform: rotate(-2.2deg);
             background-color: #fff9c4;
             color: #3a2c00;
         }
-        [data-theme="dark"] .auth-corner-note.tl {
+        [data-theme="dark"] .auth-side-tile.tl {
             background-color: #1a3a1a;
             background-image: repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.05) 25px, rgba(255,255,255,0.05) 26px);
             color: #c8e6c9;
         }
-        [data-theme="dark"] .auth-corner-note.tr {
+        [data-theme="dark"] .auth-side-tile.tr {
             background-color: #3a1a1a;
             background-image: repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.05) 25px, rgba(255,255,255,0.05) 26px);
             color: #f0c8c8;
         }
-        [data-theme="dark"] .auth-corner-note.bl {
+        [data-theme="dark"] .auth-side-tile.bl {
             background-color: #1a2a3a;
             background-image: repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.05) 25px, rgba(255,255,255,0.05) 26px);
             color: #c0d8f0;
         }
-        [data-theme="dark"] .auth-corner-note.br {
+        [data-theme="dark"] .auth-side-tile.br {
             background-color: #3a2c00;
             background-image: repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.05) 25px, rgba(255,255,255,0.05) 26px);
             color: #e4d8c4;
@@ -325,7 +329,7 @@
         }
 
         @media (max-width: 900px) {
-            .auth-corner-note { display: none; }
+            .auth-side-tile { display: none; }
         }
         @media (max-width: 680px) {
             .auth-card { width: 90vw; max-width: 340px; }
@@ -1197,6 +1201,40 @@
 
     <div class="auth-form-side">
         <div class="auth-board-scene">
+
+            <!-- Side sticky notes — around the auth card -->
+            <div class="auth-side-tile tl">
+                <div class="auth-pushpin">
+                    <div class="pin-head" style="background:radial-gradient(circle at 35% 35%, #27ae60, #1a6634);"></div>
+                    <div class="pin-shaft"></div>
+                </div>
+                <div class="desc-body">Pin your ideas like a detective.</div>
+            </div>
+
+            <div class="auth-side-tile tr">
+                <div class="auth-pushpin">
+                    <div class="pin-head" style="background:radial-gradient(circle at 35% 35%, #e74c3c, #8e1c1c);"></div>
+                    <div class="pin-shaft"></div>
+                </div>
+                <div class="desc-body">An infinite corkboard for your next big case.</div>
+            </div>
+
+            <div class="auth-side-tile bl">
+                <div class="auth-pushpin">
+                    <div class="pin-head" style="background:radial-gradient(circle at 35% 35%, #3498db, #1a5276);"></div>
+                    <div class="pin-shaft"></div>
+                </div>
+                <div class="desc-body">Drag tiles, hang yarn, connect the dots.</div>
+            </div>
+
+            <div class="auth-side-tile br">
+                <div class="auth-pushpin">
+                    <div class="pin-head" style="background:radial-gradient(circle at 35% 35%, #f1c40f, #b8860b);"></div>
+                    <div class="pin-shaft"></div>
+                </div>
+                <div class="desc-body">Use it for plans, designs, flowcharts, mind maps, or just pinning up whatever's in your head.</div>
+            </div>
+
             <!-- Single auth tile with tabbed login/register -->
             <div class="auth-card">
                 <div class="auth-pushpin">
@@ -1245,38 +1283,7 @@
         </div><!-- /.auth-board-scene -->
     </div><!-- /.auth-form-side -->
 
-    <!-- Corner sticky notes — positioned relative to auth-screen (full viewport) -->
-    <div class="auth-corner-note tl">
-        <div class="auth-pushpin">
-            <div class="pin-head" style="background:radial-gradient(circle at 35% 35%, #27ae60, #1a6634);"></div>
-            <div class="pin-shaft"></div>
-        </div>
-        <div class="desc-body">Pin your ideas like a detective.</div>
-    </div>
 
-    <div class="auth-corner-note tr">
-        <div class="auth-pushpin">
-            <div class="pin-head" style="background:radial-gradient(circle at 35% 35%, #e74c3c, #8e1c1c);"></div>
-            <div class="pin-shaft"></div>
-        </div>
-        <div class="desc-body">An infinite corkboard for your next big case.</div>
-    </div>
-
-    <div class="auth-corner-note bl">
-        <div class="auth-pushpin">
-            <div class="pin-head" style="background:radial-gradient(circle at 35% 35%, #3498db, #1a5276);"></div>
-            <div class="pin-shaft"></div>
-        </div>
-        <div class="desc-body">Drag tiles, hang yarn, connect the dots.</div>
-    </div>
-
-    <div class="auth-corner-note br">
-        <div class="auth-pushpin">
-            <div class="pin-head" style="background:radial-gradient(circle at 35% 35%, #f1c40f, #b8860b);"></div>
-            <div class="pin-shaft"></div>
-        </div>
-        <div class="desc-body">Use it for plans, designs, flowcharts, mind maps, or just pinning up whatever's in your head.</div>
-    </div>
 
     <!-- Verify overlay — shown on top when email verification needed -->
     <div class="auth-verify-overlay" id="verify-overlay">
