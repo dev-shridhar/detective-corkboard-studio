@@ -106,60 +106,25 @@
             align-items: center;
         }
 
-        /* Logo + app name row above the two tiles */
-        /* ── BRAND AS PINNED TILE ── */
-        .auth-brand-tile {
-            background: #f5eedc;
-            background-image:
-                repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(138,122,95,0.07) 27px, rgba(138,122,95,0.07) 28px),
-                linear-gradient(180deg, #f8f2e0 0%, #f0e8cc 100%);
-            border: 1px solid rgba(138,122,95,0.5);
-            box-shadow:
-                4px 6px 0 rgba(0,0,0,0.3),
-                8px 10px 30px rgba(0,0,0,0.5),
-                inset 0 1px 0 rgba(255,255,255,0.6);
-            padding: 16px 28px;
-            border-radius: 2px;
-            position: relative;
-            margin: 0 auto 36px;
-            transform: rotate(0.5deg);
-            display: flex;
-            align-items: center;
-            gap: 14px;
+        /* ── Logo + app name row above tiles ── */
+        .auth-brand {
+            display: flex; align-items: center; gap: 14px;
+            margin-bottom: 20px;
+            margin-top: -60px;
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.7));
+            position: relative; z-index: 3;
         }
-        .auth-brand-tile::before {
-            content: '';
-            position: absolute;
-            top: -6px; left: -10px; right: -10px; height: 20px;
-            background: rgba(255, 240, 180, 0.75);
-            transform: rotate(-0.3deg);
-            border-radius: 2px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            z-index: 1;
-        }
-        .auth-brand-tile img { width: 48px; height: 48px; object-fit: contain; position: relative; z-index: 2; }
-        .auth-brand-tile h1 {
+        .auth-brand img { width: 56px; height: 56px; object-fit: contain; }
+        .auth-brand h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 26px; font-weight: 800;
-            color: #1c1c1e;
+            font-size: 28px; font-weight: 800;
+            color: #f5eedc;
+            text-shadow: 2px 3px 8px rgba(0,0,0,0.8);
             margin: 0;
-            position: relative; z-index: 2;
         }
-        [data-theme="dark"] .auth-brand-tile {
-            background: #2a231d;
-            background-image: repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(200,180,150,0.06) 27px, rgba(200,180,150,0.06) 28px),
-                              linear-gradient(180deg, #2f2820 0%, #251f18 100%);
-        }
-        [data-theme="dark"] .auth-brand-tile::before { background: rgba(60,45,30,0.6); }
-        [data-theme="dark"] .auth-brand-tile h1 { color: #e4d8c4; }
+        [data-theme="dark"] .auth-brand h1 { color: #e4d8c4; }
 
-        /* ── SIDE SEO TILES (left/right of auth card) ── */
-        .auth-tile-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 32px;
-        }
+        /* ── SIDE SEO TILES (absolute positioned) ── */
         .auth-side-tile {
             background: #f5eedc;
             background-image:
@@ -172,8 +137,9 @@
                 inset 0 1px 0 rgba(255,255,255,0.6);
             padding: 20px 22px 22px;
             border-radius: 2px;
-            width: 240px;
-            position: relative;
+            width: 220px;
+            position: absolute;
+            z-index: 2;
         }
         .auth-side-tile::before {
             content: '';
@@ -202,10 +168,14 @@
             position: relative; z-index: 2;
         }
         .auth-side-tile.left {
-            transform: rotate(-2deg) translateY(-30px);
+            right: calc(50% + 220px);
+            top: 30px;
+            transform: rotate(-2.5deg);
         }
         .auth-side-tile.right {
-            transform: rotate(2.5deg) translateY(30px);
+            left: calc(50% + 220px);
+            bottom: 30px;
+            transform: rotate(2.5deg);
         }
         .auth-side-tile.green-note {
             background-image:
@@ -342,15 +312,13 @@
             width: 320px; transform: rotate(-0.5deg); margin-top: 30px;
         }
 
-        @media (max-width: 860px) {
-            .auth-tile-row { flex-direction: column; gap: 24px; }
-            .auth-side-tile { width: 300px; max-width: 80vw; }
-            .auth-side-tile.left { transform: rotate(-1.5deg) translateY(0); }
-            .auth-side-tile.right { transform: rotate(1.5deg) translateY(0); }
+        @media (max-width: 900px) {
+            .auth-side-tile { display: none; }
+            .auth-brand { margin-top: -40px; }
         }
         @media (max-width: 680px) {
             .auth-card { width: 90vw; max-width: 340px; }
-            .auth-side-tile { width: 90vw; max-width: 340px; }
+            .auth-brand { margin-top: -20px; }
         }
 
         /* ── BOARD MESSAGE TILES (cascading pinned notes) ── */
@@ -1209,31 +1177,38 @@
     <div class="auth-form-side">
         <div class="auth-board-scene">
 
-            <!-- Brand as pinned tile -->
-            <div class="auth-brand-tile">
-                <div class="auth-pushpin">
-                    <div class="pin-head"></div>
-                    <div class="pin-shaft"></div>
-                </div>
+            <!-- App brand above the tiles, shifted up -->
+            <div class="auth-brand">
                 <img src="assets/logo.png" alt="Detective Corkboard" />
                 <h1>Detective Corkboard</h1>
             </div>
 
-            <div class="auth-tile-row">
-                <!-- Left SEO tile — higher, tilted, green -->
-                <div class="auth-side-tile left green-note">
-                    <div class="auth-pushpin">
-                        <div class="pin-head" style="background:radial-gradient(circle at 35% 35%, #27ae60, #1a6634);"></div>
-                        <div class="pin-shaft"></div>
-                    </div>
-                    <div class="tile-heading">📋 FIELD NOTE</div>
-                    <div class="desc-body">
-                        Pin your ideas like a detective. Drag tiles, connect them with yarn, and map out anything — plans, designs, mysteries, flowcharts, brainstorms.
-                    </div>
+            <!-- Left SEO tile — absolute, higher, tilted -->
+            <div class="auth-side-tile left green-note">
+                <div class="auth-pushpin">
+                    <div class="pin-head" style="background:radial-gradient(circle at 35% 35%, #27ae60, #1a6634);"></div>
+                    <div class="pin-shaft"></div>
                 </div>
+                <div class="tile-heading">📋 FIELD NOTE</div>
+                <div class="desc-body">
+                    Pin your ideas like a detective. An infinite corkboard for your next big case.
+                </div>
+            </div>
 
-                <!-- Single auth tile with tabbed login/register -->
-                <div class="auth-card">
+            <!-- Right SEO tile — absolute, lower, tilted -->
+            <div class="auth-side-tile right yellow-note">
+                <div class="auth-pushpin">
+                    <div class="pin-head" style="background:radial-gradient(circle at 35% 35%, #f1c40f, #b8860b);"></div>
+                    <div class="pin-shaft"></div>
+                </div>
+                <div class="tile-heading">📋 CASE FILE</div>
+                <div class="desc-body">
+                    Plan designs, map flowcharts, brainstorm ideas. Start connecting the clues.
+                </div>
+            </div>
+
+            <!-- Single auth tile with tabbed login/register -->
+            <div class="auth-card">
                 <div class="auth-pushpin">
                     <div class="pin-head"></div>
                     <div class="pin-shaft"></div>
@@ -1277,19 +1252,6 @@
                     <button type="submit" class="auth-submit">CREATE DOSSIER →</button>
                 </form>
             </div>
-
-                <!-- Right SEO tile — lower, tilted, yellow -->
-                <div class="auth-side-tile right yellow-note">
-                    <div class="auth-pushpin">
-                        <div class="pin-head" style="background:radial-gradient(circle at 35% 35%, #f1c40f, #b8860b);"></div>
-                        <div class="pin-shaft"></div>
-                    </div>
-                    <div class="tile-heading">📋 CASE FILE</div>
-                    <div class="desc-body">
-                        Build flowcharts, mind maps, mood boards, and storyboards. Free. No signup required. Start connecting the clues.
-                    </div>
-                </div>
-            </div><!-- /.auth-tile-row -->
         </div><!-- /.auth-board-scene -->
     </div><!-- /.auth-form-side -->
 
