@@ -177,15 +177,6 @@
             .auth-desc-tile { width: 90vw; max-width: 400px; }
         }
 
-        /* Two tiles sit side by side */
-        .auth-tiles-row {
-            display: flex;
-            gap: 100px;
-            align-items: flex-start;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
         /* ── THE CASE-FILE TILE ── */
         .auth-card {
             background: #f5eedc;
@@ -197,17 +188,11 @@
                 4px 6px 0 rgba(0,0,0,0.3),
                 8px 10px 30px rgba(0,0,0,0.5),
                 inset 0 1px 0 rgba(255,255,255,0.6);
-            padding: 32px 36px 36px;
+            padding: 36px 40px 40px;
             border-radius: 2px;
-            width: 280px;
-            transform: rotate(-1.5deg);
+            width: 380px;
+            transform: rotate(-1deg);
             position: relative;
-            margin-top: 30px;
-        }
-        .auth-card.tile-register { transform: rotate(1.8deg); margin-top: 45px; }
-
-        /* ── Hover hints on auth tiles ── */
-        .auth-card {
             transition: box-shadow 0.25s ease, transform 0.25s ease;
         }
         .auth-card:hover {
@@ -215,40 +200,7 @@
                 6px 8px 0 rgba(0,0,0,0.4),
                 12px 16px 40px rgba(0,0,0,0.6),
                 inset 0 1px 0 rgba(255,255,255,0.6);
-        }
-        .auth-card.tile-login:hover { transform: rotate(-0.5deg) translateY(-4px); }
-        .auth-card.tile-register:hover { transform: rotate(1.3deg) translateY(-4px); }
-        .auth-card .hover-hint {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            font-family: 'Special Elite', monospace;
-            font-size: 10px;
-            letter-spacing: 2px;
-            color: #f5eedc;
-            background: rgba(0,0,0,0.55);
-            border: 1px solid rgba(205,184,152,0.3);
-            padding: 5px 14px;
-            border-radius: 3px;
-            white-space: nowrap;
-            opacity: 0;
-            transition: opacity 0.25s ease, transform 0.25s ease;
-            pointer-events: none;
-            z-index: 5;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
-        }
-        .auth-card.tile-login .hover-hint {
-            right: calc(100% + 16px);
-        }
-        .auth-card.tile-register .hover-hint {
-            left: calc(100% + 16px);
-        }
-        .auth-card:hover .hover-hint {
-            opacity: 1;
-        }
-        [data-theme="dark"] .auth-card .hover-hint {
-            background: rgba(0,0,0,0.7);
-            color: #e4d8c4;
+            transform: rotate(-0.3deg) translateY(-3px);
         }
 
         /* Red pushpin at the top-center of each tile */
@@ -283,7 +235,7 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             z-index: 1;
         }
-        .tile-register::before { transform: rotate(0.8deg); }
+
 
         /* tile heading */
         .tile-heading {
@@ -340,9 +292,7 @@
         }
 
         @media (max-width: 680px) {
-            .auth-tiles-row { flex-direction: column; align-items: center; }
-            .auth-card.tile-register { margin-top: 20px; }
-            .auth-card { width: 90vw; max-width: 320px; }
+            .auth-card { width: 90vw; max-width: 340px; }
         }
 
         /* ── BOARD MESSAGE TILES (cascading pinned notes) ── */
@@ -1215,76 +1165,51 @@
                 </div>
             </div>
 
-            <!-- Two tiles side by side -->
-            <div class="auth-tiles-row">
-
-                <!-- ── LOGIN TILE ── -->
-                <div class="auth-card tile-login">
-                    <div class="auth-pushpin">
-                        <div class="pin-head"></div>
-                        <div class="pin-shaft"></div>
-                    </div>
-
-                    <!-- Decorative deco tiles pinned ON the login tile -->
-                    <div class="deco-tile" style="top:-18px; right:-60px; transform:rotate(6deg); width:110px;">
-                        <strong>⚠ NOTICE</strong><br>All activity is logged &amp; monitored
-                    </div>
-                    <div class="deco-tile red-note" style="bottom:-24px; left:-50px; transform:rotate(-5deg); width:120px;">
-                        Case #2025-DET<br>Status: <strong>ACTIVE</strong>
-                    </div>
-
-                    <div class="hover-hint">🔁 KNOWN AGENT →</div>
-                    <div class="auth-stamp" style="position:relative;z-index:2;">CLASSIFIED</div>
-                    <div class="tile-heading">🔑 Agent Login</div>
-                    <form id="form-login" onsubmit="handleLogin(event)" onkeydown="if(event.key==='Enter') handleLogin(event)" autocomplete="off">
-                        <div class="auth-field">
-                            <label for="login-username">USERNAME OR EMAIL</label>
-                            <input id="login-username" type="text" placeholder="detective_name" required autocomplete="off" />
-                        </div>
-                        <div class="auth-field">
-                            <label for="login-password">PASSWORD</label>
-                            <input id="login-password" type="password" placeholder="••••••••" required autocomplete="new-password" />
-                        </div>
-                        <button type="submit" class="auth-submit">OPEN CASE FILE →</button>
-                    </form>
+            <!-- Single auth tile with tabbed login/register -->
+            <div class="auth-card">
+                <div class="auth-pushpin">
+                    <div class="pin-head"></div>
+                    <div class="pin-shaft"></div>
                 </div>
 
-                <!-- ── REGISTER TILE ── -->
-                <div class="auth-card tile-register">
-                    <div class="auth-pushpin" style="--pin-color:#f39c12;">
-                        <div class="pin-head" style="background:radial-gradient(circle at 35% 35%, #f1c40f, #9a7d0a);"></div>
-                        <div class="pin-shaft"></div>
-                    </div>
+                <div class="auth-stamp">CLASSIFIED</div>
+                <div class="tile-heading">🔐 AGENT ACCESS</div>
 
-                    <!-- Decorative deco tiles on the register tile -->
-                    <div class="deco-tile green-note" style="top:-16px; right:-56px; transform:rotate(5deg); width:115px;">
-                        🆕 New recruits<br>welcome aboard!
-                    </div>
-                    <div class="deco-tile" style="bottom:-20px; left:-44px; transform:rotate(-4deg); width:108px; font-size:10px;">
-                        Access Level:<br><strong>DETECTIVE</strong>
-                    </div>
-
-                    <div class="hover-hint">🆕 NEW RECRUIT →</div>
-                    <div class="auth-stamp" style="position:relative;z-index:2;border-color:#b7950b;color:#b7950b;">NEW DOSSIER</div>
-                    <div class="tile-heading">📋 New Agent</div>
-                    <form id="form-register" onsubmit="handleRegister(event)" onkeydown="if(event.key==='Enter') handleRegister(event)" autocomplete="off">
-                        <div class="auth-field">
-                            <label for="reg-username">USERNAME</label>
-                            <input id="reg-username" type="text" placeholder="detective_name" required autocomplete="off" />
-                        </div>
-                        <div class="auth-field">
-                            <label for="reg-email">EMAIL</label>
-                            <input id="reg-email" type="email" placeholder="you@example.com" required autocomplete="off" />
-                        </div>
-                        <div class="auth-field">
-                            <label for="reg-password">PASSWORD</label>
-                            <input id="reg-password" type="password" placeholder="••••••••" required autocomplete="new-password" />
-                        </div>
-                        <button type="submit" class="auth-submit">CREATE DOSSIER →</button>
-                    </form>
+                <div class="auth-tabs">
+                    <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">LOGIN</button>
+                    <button class="auth-tab" id="tab-register" onclick="switchTab('register')">REGISTER</button>
                 </div>
 
-            </div><!-- /.auth-tiles-row -->
+                <!-- Login Form -->
+                <form id="form-login" onsubmit="handleLogin(event)" onkeydown="if(event.key==='Enter') handleLogin(event)" autocomplete="off">
+                    <div class="auth-field">
+                        <label for="login-username">USERNAME OR EMAIL</label>
+                        <input id="login-username" type="text" placeholder="detective_name" required autocomplete="off" />
+                    </div>
+                    <div class="auth-field">
+                        <label for="login-password">PASSWORD</label>
+                        <input id="login-password" type="password" placeholder="••••••••" required autocomplete="new-password" />
+                    </div>
+                    <button type="submit" class="auth-submit">OPEN CASE FILE →</button>
+                </form>
+
+                <!-- Register Form -->
+                <form id="form-register" style="display:none;" onsubmit="handleRegister(event)" onkeydown="if(event.key==='Enter') handleRegister(event)" autocomplete="off">
+                    <div class="auth-field">
+                        <label for="reg-username">USERNAME</label>
+                        <input id="reg-username" type="text" placeholder="detective_name" required autocomplete="off" />
+                    </div>
+                    <div class="auth-field">
+                        <label for="reg-email">EMAIL</label>
+                        <input id="reg-email" type="email" placeholder="you@example.com" required autocomplete="off" />
+                    </div>
+                    <div class="auth-field">
+                        <label for="reg-password">PASSWORD</label>
+                        <input id="reg-password" type="password" placeholder="••••••••" required autocomplete="new-password" />
+                    </div>
+                    <button type="submit" class="auth-submit">CREATE DOSSIER →</button>
+                </form>
+            </div>
         </div><!-- /.auth-board-scene -->
     </div><!-- /.auth-form-side -->
 
@@ -1533,7 +1458,13 @@
     let verificationTarget = '';
 
     function switchTab(tab) {
-        // Login + Register are always visible; only toggle verify overlay
+        // Toggle between login and register forms
+        document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
+        document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
+        document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+        document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+
+        // Verify overlay
         const overlay = document.getElementById('verify-overlay');
         if (tab === 'verify') {
             overlay.classList.add('active');
