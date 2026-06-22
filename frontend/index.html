@@ -220,9 +220,8 @@
         .auth-card.tile-register:hover { transform: rotate(1.3deg) translateY(-4px); }
         .auth-card .hover-hint {
             position: absolute;
-            top: -68px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 50%;
+            transform: translateY(-50%);
             font-family: 'Special Elite', monospace;
             font-size: 10px;
             letter-spacing: 2px;
@@ -237,6 +236,12 @@
             pointer-events: none;
             z-index: 5;
             text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
+        }
+        .auth-card.tile-login .hover-hint {
+            right: calc(100% + 16px);
+        }
+        .auth-card.tile-register .hover-hint {
+            left: calc(100% + 16px);
         }
         .auth-card:hover .hover-hint {
             opacity: 1;
@@ -349,15 +354,7 @@
             align-items: flex-end; gap: 16px;
             pointer-events: none;
         }
-        /* On auth screen: float centered between the two tiles */
-        body:has(#auth-screen:not([style*="display: none"])) #board-messages {
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            bottom: auto;
-            right: auto;
-            align-items: center;
-        }
+
         .board-msg-tile {
             background: #fff9c4;
             background-image: linear-gradient(135deg, #fff9c4 0%, #f9ef9a 100%);
