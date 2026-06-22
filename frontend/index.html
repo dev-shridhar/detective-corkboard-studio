@@ -107,21 +107,8 @@
         }
 
         /* Logo + app name row above the two tiles */
-        .auth-brand {
-            display: flex; align-items: center; gap: 14px;
-            margin-bottom: 28px;
-            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.7));
-        }
-        .auth-brand img { width: 56px; height: 56px; object-fit: contain; }
-        .auth-brand h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 28px; font-weight: 800;
-            color: #f5eedc;
-            text-shadow: 2px 3px 8px rgba(0,0,0,0.8);
-            margin: 0;
-        }
-        /* ── SEO DESCRIPTION TILE (matches login/register tile style) ── */
-        .auth-desc-tile {
+        /* ── BRAND AS PINNED TILE ── */
+        .auth-brand-tile {
             background: #f5eedc;
             background-image:
                 repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(138,122,95,0.07) 27px, rgba(138,122,95,0.07) 28px),
@@ -131,51 +118,115 @@
                 4px 6px 0 rgba(0,0,0,0.3),
                 8px 10px 30px rgba(0,0,0,0.5),
                 inset 0 1px 0 rgba(255,255,255,0.6);
-            padding: 24px 28px 28px;
+            padding: 16px 28px;
             border-radius: 2px;
-            width: 440px;
-            transform: rotate(-0.8deg);
             position: relative;
-            margin: 0 auto 28px;
+            margin: 0 auto 36px;
+            transform: rotate(0.5deg);
+            display: flex;
+            align-items: center;
+            gap: 14px;
         }
-        .auth-desc-tile::before {
+        .auth-brand-tile::before {
             content: '';
             position: absolute;
             top: -6px; left: -10px; right: -10px; height: 20px;
             background: rgba(255, 240, 180, 0.75);
-            transform: rotate(0.3deg);
+            transform: rotate(-0.3deg);
             border-radius: 2px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             z-index: 1;
         }
-        .auth-desc-tile .tile-heading {
+        .auth-brand-tile img { width: 48px; height: 48px; object-fit: contain; position: relative; z-index: 2; }
+        .auth-brand-tile h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px; font-weight: 800;
+            color: #1c1c1e;
+            margin: 0;
+            position: relative; z-index: 2;
+        }
+        [data-theme="dark"] .auth-brand-tile {
+            background: #2a231d;
+            background-image: repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(200,180,150,0.06) 27px, rgba(200,180,150,0.06) 28px),
+                              linear-gradient(180deg, #2f2820 0%, #251f18 100%);
+        }
+        [data-theme="dark"] .auth-brand-tile::before { background: rgba(60,45,30,0.6); }
+        [data-theme="dark"] .auth-brand-tile h1 { color: #e4d8c4; }
+
+        /* ── SIDE SEO TILES (left/right of auth card) ── */
+        .auth-tile-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 32px;
+        }
+        .auth-side-tile {
+            background: #f5eedc;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(138,122,95,0.07) 27px, rgba(138,122,95,0.07) 28px),
+                linear-gradient(180deg, #f8f2e0 0%, #f0e8cc 100%);
+            border: 1px solid rgba(138,122,95,0.5);
+            box-shadow:
+                4px 6px 0 rgba(0,0,0,0.3),
+                8px 10px 30px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255,255,255,0.6);
+            padding: 20px 22px 22px;
+            border-radius: 2px;
+            width: 240px;
+            position: relative;
+        }
+        .auth-side-tile::before {
+            content: '';
+            position: absolute;
+            top: -6px; left: -10px; right: -10px; height: 20px;
+            background: rgba(255, 240, 180, 0.75);
+            border-radius: 2px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        .auth-side-tile .tile-heading {
             font-family: 'Special Elite', monospace;
             font-size: 11px; letter-spacing: 3px;
             color: rgba(60,40,10,0.55);
             text-transform: uppercase;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             border-bottom: 1px dashed rgba(138,122,95,0.4);
             padding-bottom: 8px;
             position: relative; z-index: 2;
         }
-        .auth-desc-tile .desc-body {
+        .auth-side-tile .desc-body {
             font-family: 'Courier Prime', monospace;
             font-size: 13px;
             line-height: 1.7;
             color: #1c1c1e;
             position: relative; z-index: 2;
         }
-        [data-theme="dark"] .auth-desc-tile {
+        .auth-side-tile.left {
+            transform: rotate(-2deg) translateY(-30px);
+        }
+        .auth-side-tile.right {
+            transform: rotate(2.5deg) translateY(30px);
+        }
+        .auth-side-tile.green-note {
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(39,174,96,0.1) 27px, rgba(39,174,96,0.1) 28px),
+                linear-gradient(180deg, #f0fff4 0%, #d4f0dc 100%);
+            border-color: rgba(39,174,96,0.35);
+        }
+        .auth-side-tile.yellow-note {
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(180,160,60,0.15) 27px, rgba(180,160,60,0.15) 28px),
+                linear-gradient(180deg, #fffde8 0%, #f5eda0 100%);
+            border-color: rgba(180,160,60,0.4);
+        }
+        [data-theme="dark"] .auth-side-tile {
             background: #2a231d;
             background-image: repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(200,180,150,0.06) 27px, rgba(200,180,150,0.06) 28px),
                               linear-gradient(180deg, #2f2820 0%, #251f18 100%);
         }
-        [data-theme="dark"] .auth-desc-tile::before { background: rgba(60,45,30,0.6); }
-        [data-theme="dark"] .auth-desc-tile .tile-heading { color: #9a8a78; }
-        [data-theme="dark"] .auth-desc-tile .desc-body { color: #e4d8c4; }
-        @media (max-width: 680px) {
-            .auth-desc-tile { width: 90vw; max-width: 400px; }
-        }
+        [data-theme="dark"] .auth-side-tile .tile-heading { color: #9a8a78; }
+        [data-theme="dark"] .auth-side-tile .desc-body { color: #e4d8c4; }
+        [data-theme="dark"] .auth-side-tile::before { background: rgba(60,45,30,0.6); }
 
         /* ── THE CASE-FILE TILE ── */
         .auth-card {
@@ -291,8 +342,15 @@
             width: 320px; transform: rotate(-0.5deg); margin-top: 30px;
         }
 
+        @media (max-width: 860px) {
+            .auth-tile-row { flex-direction: column; gap: 24px; }
+            .auth-side-tile { width: 300px; max-width: 80vw; }
+            .auth-side-tile.left { transform: rotate(-1.5deg) translateY(0); }
+            .auth-side-tile.right { transform: rotate(1.5deg) translateY(0); }
+        }
         @media (max-width: 680px) {
             .auth-card { width: 90vw; max-width: 340px; }
+            .auth-side-tile { width: 90vw; max-width: 340px; }
         }
 
         /* ── BOARD MESSAGE TILES (cascading pinned notes) ── */
@@ -1040,7 +1098,7 @@
     [data-theme="dark"] .board-msg-tile.error { background: #2d1a1a; background-image: linear-gradient(135deg, #2d1a1a 0%, #221212 100%); }
     [data-theme="dark"] .board-msg-tile.success { background: #1a2d1a; background-image: linear-gradient(135deg, #1a2d1a 0%, #122212 100%); }
     [data-theme="dark"] .board-msg-tile.loading { background: #1a1a2d; background-image: linear-gradient(135deg, #1a1a2d 0%, #121222 100%); }
-    [data-theme="dark"] .auth-brand h1 { color: #e4d8c4; }
+
     [data-theme="dark"] .deco-tile { background: linear-gradient(135deg, #2d2818 0%, #221e10 100%); color: #c8b898; }
     [data-theme="dark"] .detail-panel-overlay { background: rgba(0, 0, 0, 0.75); }
     [data-theme="dark"] #detail-panel { background: var(--paper-light); }
@@ -1151,22 +1209,31 @@
     <div class="auth-form-side">
         <div class="auth-board-scene">
 
-            <!-- App brand above the tiles -->
-            <div class="auth-brand">
+            <!-- Brand as pinned tile -->
+            <div class="auth-brand-tile">
+                <div class="auth-pushpin">
+                    <div class="pin-head"></div>
+                    <div class="pin-shaft"></div>
+                </div>
                 <img src="assets/logo.png" alt="Detective Corkboard" />
                 <h1>Detective Corkboard</h1>
             </div>
 
-            <!-- Case file description tile — visible to Google, fits the theme -->
-            <div class="auth-desc-tile">
-                <div class="tile-heading">📋 CASE FILE</div>
-                <div class="desc-body">
-                    Pin your ideas like a detective. An infinite corkboard for plans, designs, flowcharts, and brainstorms.
+            <div class="auth-tile-row">
+                <!-- Left SEO tile — higher, tilted, green -->
+                <div class="auth-side-tile left green-note">
+                    <div class="auth-pushpin">
+                        <div class="pin-head" style="background:radial-gradient(circle at 35% 35%, #27ae60, #1a6634);"></div>
+                        <div class="pin-shaft"></div>
+                    </div>
+                    <div class="tile-heading">📋 FIELD NOTE</div>
+                    <div class="desc-body">
+                        Pin your ideas like a detective. Drag tiles, connect them with yarn, and map out anything — plans, designs, mysteries, flowcharts, brainstorms.
+                    </div>
                 </div>
-            </div>
 
-            <!-- Single auth tile with tabbed login/register -->
-            <div class="auth-card">
+                <!-- Single auth tile with tabbed login/register -->
+                <div class="auth-card">
                 <div class="auth-pushpin">
                     <div class="pin-head"></div>
                     <div class="pin-shaft"></div>
@@ -1210,6 +1277,19 @@
                     <button type="submit" class="auth-submit">CREATE DOSSIER →</button>
                 </form>
             </div>
+
+                <!-- Right SEO tile — lower, tilted, yellow -->
+                <div class="auth-side-tile right yellow-note">
+                    <div class="auth-pushpin">
+                        <div class="pin-head" style="background:radial-gradient(circle at 35% 35%, #f1c40f, #b8860b);"></div>
+                        <div class="pin-shaft"></div>
+                    </div>
+                    <div class="tile-heading">📋 CASE FILE</div>
+                    <div class="desc-body">
+                        Build flowcharts, mind maps, mood boards, and storyboards. Free. No signup required. Start connecting the clues.
+                    </div>
+                </div>
+            </div><!-- /.auth-tile-row -->
         </div><!-- /.auth-board-scene -->
     </div><!-- /.auth-form-side -->
 
