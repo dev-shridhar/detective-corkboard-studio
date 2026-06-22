@@ -78,6 +78,17 @@ class CreateNodeCommand extends Command {
             // Restore deleted node with exact properties and ID
             const payloadWithId = { ...this.payload, id: this.nodeId };
             window.api.createNode(this.boardId, payloadWithId)
+                .then(node => {
+                    this.nodeId = node.id;
+                    if (window.nodeManager) {
+                        const nodes = window.nodeManager.getNodes();
+                        const idx = nodes.findIndex(n => n.id === payloadWithId.id);
+                        if (idx !== -1) {
+                            nodes[idx] = node;
+                            window.nodeManager.setNodes(nodes);
+                        }
+                    }
+                })
                 .catch(err => console.error('[CreateNodeCommand] Restore error:', err));
         } else {
             window.api.createNode(this.boardId, this.payload)

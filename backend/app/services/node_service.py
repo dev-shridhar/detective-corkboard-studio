@@ -29,7 +29,10 @@ class NodeService:
         board.updated_at = datetime.utcnow()
         self.board_service.board_repo.update(board)
 
-        node = Node(**payload.model_dump(), board_id=board_id)
+        node_data = payload.model_dump()
+        if node_data.get("id") is None:
+            node_data.pop("id", None)
+        node = Node(**node_data, board_id=board_id)
         return self.node_repo.create(node)
 
     def update_node(self, board_id: UUID, node_id: UUID, payload: NodeUpdate, owner: User) -> Node:
