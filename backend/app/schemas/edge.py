@@ -5,6 +5,7 @@ from datetime import datetime
 
 
 class EdgeCreate(BaseModel):
+    id: Optional[uuid.UUID] = None
     source_node_id: uuid.UUID
     target_node_id: uuid.UUID
     color: str = "#c0392b"
