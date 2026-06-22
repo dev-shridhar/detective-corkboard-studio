@@ -29,7 +29,10 @@ class EdgeService:
         board.updated_at = datetime.utcnow()
         self.board_service.board_repo.update(board)
 
-        edge = Edge(**payload.model_dump(), board_id=board_id)
+        edge_data = payload.model_dump()
+        if edge_data.get("id") is None:
+            edge_data.pop("id", None)
+        edge = Edge(**edge_data, board_id=board_id)
         return self.edge_repo.create(edge)
 
     def update_edge(self, board_id: UUID, edge_id: UUID, payload: EdgeUpdate, owner: User) -> Edge:

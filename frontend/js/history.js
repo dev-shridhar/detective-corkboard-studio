@@ -233,6 +233,16 @@ class CreateEdgeCommand extends Command {
         if (this.edgeId) {
             const payloadWithId = { ...this.payload, id: this.edgeId };
             window.api.createEdge(this.boardId, payloadWithId)
+                .then(edge => {
+                    this.edgeId = edge.id;
+                    if (window.edgeManager) {
+                        const idx = window.edgeManager._edges.findIndex(e => e.id === payloadWithId.id);
+                        if (idx !== -1) {
+                            window.edgeManager._edges[idx] = edge;
+                            if (window.canvasEngine) window.canvasEngine.requestDraw();
+                        }
+                    }
+                })
                 .catch(err => console.error('[CreateEdgeCommand] Restore error:', err));
         } else {
             window.api.createEdge(this.boardId, this.payload)
