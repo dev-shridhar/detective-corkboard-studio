@@ -13,6 +13,7 @@ const API_BASE = (window.location.hostname === 'localhost' || window.location.ho
 class ApiClient {
     constructor() {
         this._accessToken = null;
+        this._pendingCreations = new Map();
     }
 
     setToken(token) {
@@ -96,12 +97,52 @@ class ApiClient {
     // --- Nodes ---
     listNodes(boardId) { return this._request('GET', `/boards/${boardId}/nodes`); }
     createNode(boardId, data) { return this._request('POST', `/boards/${boardId}/nodes`, data); }
-    updateNode(boardId, nodeId, data) { return this._request('PATCH', `/boards/${boardId}/nodes/${nodeId}`, data); }
-    deleteNode(boardId, nodeId) { return this._request('DELETE', `/boards/${boardId}/nodes/${nodeId}`); }
+    async updateNode(boardId, nodeId, data) {
+        if (typeof nodeId === 'string' && nodeId.startsWith('temp-')) {
+            const pending = this._pendingCreations.get(nodeId);
+            if (pending) {
+                console.log(`[ApiClient] Queueing updateNode for temp ID ${nodeId}...`);
+                const realNode = await pending;
+                return this.updateNode(boardId, realNode.id, data);
+            }
+        }
+        return this._request('PATCH', `/boards/${boardId}/nodes/${nodeId}`, data);
+    }
+    async deleteNode(boardId, nodeId) {
+        if (typeof nodeId === 'string' && nodeId.startsWith('temp-')) {
+            const pending = this._pendingCreations.get(nodeId);
+            if (pending) {
+                console.log(`[ApiClient] Queueing deleteNode for temp ID ${nodeId}...`);
+                const realNode = await pending;
+                return this.deleteNode(boardId, realNode.id);
+            }
+        }
+        return this._request('DELETE', `/boards/${boardId}/nodes/${nodeId}`);
+    }
 
     // --- Edges ---
     listEdges(boardId) { return this._request('GET', `/boards/${boardId}/edges`); }
-    createEdge(boardId, data) { return this._request('POST', `/boards/${boardId}/edges`, data); }
+    async createEdge(boardId, data) {
+        let sourceId = data.source_node_id;
+        let targetId = data.target_node_id;
+        if (typeof sourceId === 'string' && sourceId.startsWith('temp-')) {
+            const pending = this._pendingCreations.get(sourceId);
+            if (pending) {
+                console.log(`[ApiClient] Queueing createEdge (resolving source temp ID ${sourceId})...`);
+                const realNode = await pending;
+                data.source_node_id = realNode.id;
+            }
+        }
+        if (typeof targetId === 'string' && targetId.startsWith('temp-')) {
+            const pending = this._pendingCreations.get(targetId);
+            if (pending) {
+                console.log(`[ApiClient] Queueing createEdge (resolving target temp ID ${targetId})...`);
+                const realNode = await pending;
+                data.target_node_id = realNode.id;
+            }
+        }
+        return this._request('POST', `/boards/${boardId}/edges`, data);
+    }
     updateEdge(boardId, edgeId, data) { return this._request('PATCH', `/boards/${boardId}/edges/${edgeId}`, data); }
     deleteEdge(boardId, edgeId) { return this._request('DELETE', `/boards/${boardId}/edges/${edgeId}`); }
 }
