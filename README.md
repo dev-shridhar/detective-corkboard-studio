@@ -1,7 +1,7 @@
 # 🕵️ Detective Corkboard
 
 > **Pin your ideas like a detective.**  
-> An infinite corkboard canvas with retro detective vibes. Drag tiles, hang yarn, connect your thoughts. Use it for plans, designs, flowcharts, mind maps, or just pinning up whatever's in your head.
+> An infinite corkboard for your next big case. Drag tiles, hang yarn, connect the dots. Use it for plans, designs, flowcharts, mind maps, or just pinning up whatever's in your head.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
@@ -11,9 +11,9 @@
 
 ## ✨ What It Is
 
-A web-based visual board builder wrapped in a noir detective theme. Pin sticky notes, polaroids, newspaper clippings, and tape labels onto an infinite canvas. Connect them with realistic hanging yarn. Move things around. Make a mess. Find the pattern.
+Pin sticky notes, polaroids, newspaper clippings, and tape labels onto an infinite canvas. Connect them with yarn. Move things around. Make a mess. Find the pattern.
 
-**The theme is detective — the use is whatever you want.**
+**Think like a detective. Pin your ideas.**
 
 - 📌 **Drag tiles** onto an infinite canvas with smooth pan and zoom
 - 🧵 **Connect them with yarn** — physics-driven catenary curves in multiple colors
