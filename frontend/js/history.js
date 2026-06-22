@@ -77,7 +77,7 @@ class CreateNodeCommand extends Command {
         if (this.nodeId) {
             // Restore deleted node with exact properties and ID
             const payloadWithId = { ...this.payload, id: this.nodeId };
-            window.api.createNode(this.boardId, payloadWithId)
+            const restorePromise = window.api.createNode(this.boardId, payloadWithId)
                 .then(node => {
                     this.nodeId = node.id;
                     if (window.nodeManager) {
@@ -88,10 +88,17 @@ class CreateNodeCommand extends Command {
                             window.nodeManager.setNodes(nodes);
                         }
                     }
+                    window.api._pendingCreations.delete(payloadWithId.id);
+                    return node;
                 })
-                .catch(err => console.error('[CreateNodeCommand] Restore error:', err));
+                .catch(err => {
+                    console.error('[CreateNodeCommand] Restore error:', err);
+                    window.api._pendingCreations.delete(payloadWithId.id);
+                    throw err;
+                });
+            window.api._pendingCreations.set(payloadWithId.id, restorePromise);
         } else {
-            window.api.createNode(this.boardId, this.payload)
+            const createPromise = window.api.createNode(this.boardId, this.payload)
                 .then(node => {
                     this.nodeId = node.id;
                     // Replace temp node in local state
@@ -106,15 +113,20 @@ class CreateNodeCommand extends Command {
                             }
                         }
                     }
+                    window.api._pendingCreations.delete(tempId);
+                    return node;
                 })
                 .catch(err => {
                     console.error('[CreateNodeCommand] Create error:', err);
+                    window.api._pendingCreations.delete(tempId);
                     // Rollback
                     if (window.nodeManager) {
                         const nodes = window.nodeManager.getNodes().filter(n => n.id !== tempId);
                         window.nodeManager.setNodes(nodes);
                     }
+                    throw err;
                 });
+            window.api._pendingCreations.set(tempId, createPromise);
         }
     }
 
