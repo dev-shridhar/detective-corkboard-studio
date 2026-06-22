@@ -50,7 +50,16 @@ class UIManager {
     async switchBoard(boardId) {
         this.currentBoardId = boardId;
         this.closeDetailPanel();
+        if (typeof window.showBoardLoading === 'function') {
+            window.showBoardLoading('Opening case dossier');
+        }
         await this.loadBoard(boardId);
+        if (typeof window.hideBoardLoading === 'function') {
+            window.hideBoardLoading();
+        }
+        if (typeof window.showBoardMessage === 'function') {
+            window.showBoardMessage('Case dossier opened.', 'success', 2000);
+        }
         const selector = document.getElementById('board-selector');
         if (selector) selector.value = boardId;
     }
