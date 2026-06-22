@@ -151,69 +151,54 @@
         [data-theme="dark"] .auth-brand::before { background: rgba(60,45,30,0.6); }
         [data-theme="dark"] .auth-brand h1 { color: #e4d8c4; }
 
-        /* ── SIDE STICKY NOTES (around the auth card) ── */
+        /* ── SIDE NOTES (retro paper, same style as auth card) ── */
         .auth-side-tile {
             position: absolute;
             z-index: 2;
             width: 180px;
             padding: 22px 14px 14px;
-            border-radius: 3px;
-            box-shadow:
-                2px 3px 6px rgba(0,0,0,0.2),
-                6px 8px 24px rgba(0,0,0,0.3);
+            border-radius: 2px;
             font-family: 'Courier Prime', monospace;
             font-size: 11px;
             line-height: 1.7;
+            background: #f5eedc;
             background-image:
-                repeating-linear-gradient(transparent, transparent 25px, rgba(0,0,0,0.06) 25px, rgba(0,0,0,0.06) 26px);
+                repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(138,122,95,0.07) 27px, rgba(138,122,95,0.07) 28px),
+                linear-gradient(180deg, #f8f2e0 0%, #f0e8cc 100%);
+            border: 1px solid rgba(138,122,95,0.5);
+            box-shadow:
+                4px 6px 0 rgba(0,0,0,0.3),
+                8px 10px 30px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255,255,255,0.6);
+            color: #1c1c1e;
         }
         .auth-side-tile.tl {
             right: calc(50% + 240px);
             top: calc(50% - 210px);
             transform: rotate(-2.5deg);
-            background-color: #d4edda;
-            color: #1a3a1a;
         }
         .auth-side-tile.tr {
             left: calc(50% + 220px);
             top: calc(50% - 180px);
             transform: rotate(2deg);
-            background-color: #f8d7da;
-            color: #4a1a1a;
         }
         .auth-side-tile.bl {
-            right: calc(50% + 240px);
+            right: calc(50% + 290px);
             top: calc(50% + 120px);
+            width: 170px;
             transform: rotate(2.8deg);
-            background-color: #d0e8f7;
-            color: #1a2a3a;
         }
         .auth-side-tile.br {
-            left: calc(50% + 220px);
-            top: calc(50% + 100px);
+            left: calc(50% + 260px);
+            top: calc(50% + 140px);
             width: 210px;
             transform: rotate(-2.2deg);
-            background-color: #fff9c4;
-            color: #3a2c00;
         }
-        [data-theme="dark"] .auth-side-tile.tl {
-            background-color: #1a3a1a;
-            background-image: repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.05) 25px, rgba(255,255,255,0.05) 26px);
-            color: #c8e6c9;
-        }
-        [data-theme="dark"] .auth-side-tile.tr {
-            background-color: #3a1a1a;
-            background-image: repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.05) 25px, rgba(255,255,255,0.05) 26px);
-            color: #f0c8c8;
-        }
-        [data-theme="dark"] .auth-side-tile.bl {
-            background-color: #1a2a3a;
-            background-image: repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.05) 25px, rgba(255,255,255,0.05) 26px);
-            color: #c0d8f0;
-        }
-        [data-theme="dark"] .auth-side-tile.br {
-            background-color: #3a2c00;
-            background-image: repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.05) 25px, rgba(255,255,255,0.05) 26px);
+        [data-theme="dark"] .auth-side-tile {
+            background: #2a231d;
+            background-image: repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(200,180,150,0.06) 27px, rgba(200,180,150,0.06) 28px),
+                              linear-gradient(180deg, #2f2820 0%, #251f18 100%);
+            border-color: rgba(138,122,95,0.4);
             color: #e4d8c4;
         }
 
