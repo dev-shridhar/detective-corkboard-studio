@@ -1988,7 +1988,7 @@
     // Apply settings on page load
     document.addEventListener('DOMContentLoaded', () => {
         for (const [cat, val] of Object.entries(window._settings)) {
-            applySetting(cat, val);
+            if (cat !== 'theme') applySetting(cat, val);
         }
     });
 </script>
