@@ -1,6 +1,7 @@
-# 🕵️ Detective Corkboard Studio
+# 🕵️ Detective Corkboard
 
-> A premium, real-time collaborative investigation board builder — think **Figma meets a classic detective corkboard**. Users can drag tiles, hang yarn strings between them, attach details and links, and share multi-user boards in real time.
+> **Pin your ideas like a detective.**  
+> An infinite corkboard canvas with retro detective vibes. Drag tiles, hang yarn, connect your thoughts. Use it for plans, designs, flowcharts, mind maps, or just pinning up whatever's in your head.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
@@ -8,22 +9,25 @@
 
 ---
 
-## ✨ Overview
+## ✨ What It Is
 
-Detective Corkboard Studio is a web-based, multi-user creative workspace where you can:
+A web-based visual board builder wrapped in a noir detective theme. Pin sticky notes, polaroids, newspaper clippings, and tape labels onto an infinite canvas. Connect them with realistic hanging yarn. Move things around. Make a mess. Find the pattern.
 
-- 🪄 **Create blank boards** with an infinite canvas (Figma-style pan and zoom)
-- 📌 **Drag and drop tiles** (newspaper clippings, note cards, polaroid photos, tape labels) anywhere on the board
-- 🧵 **Connect tiles with realistic hanging yarn strings** — complete with catenary curve physics, multiple thread colors, and interactive attach-and-detach
-- 📝 **Attach rich details** to each tile — descriptions, concept lists, external resource links, and metadata
-- ↩️ **Full undo / redo history** (Ctrl+Z / Ctrl+Y) for all board interactions
-- 🔍 **Global search bar** to highlight and filter visible tiles across the board
-- 👥 **Multi-user collaboration** — multiple users can view and edit the same board simultaneously
-- 🔐 **Secure user authentication** — JWT-based token system with registration and login
+**The theme is detective — the use is whatever you want.**
+
+- 📌 **Drag tiles** onto an infinite canvas with smooth pan and zoom
+- 🧵 **Connect them with yarn** — physics-driven catenary curves in multiple colors
+- 🗂️ **Four tile types** — note cards, tape labels, polaroids, newspaper clippings
+- 🎨 **Color your tiles** and match your yarn to your mood
+- 📝 **Attach rich details** — descriptions, concept tags, resource links
+- ↩️ **Undo / redo** everything (Ctrl+Z / Ctrl+Y)
+- 🔍 **Search** across all tiles to find what you need
+- 🔐 **Secure user authentication** with JWT tokens
+- 🌙 **Dark mode** included
 
 ---
 
-## 🗂 Repository Structure
+## 🗂 Repo Structure
 
 ```
 detective-corkboard-studio/
@@ -78,6 +82,8 @@ detective-corkboard-studio/
 │   │   ├── auth.js             # Login/register client logic
 │   │   ├── api.js              # HTTP client for backend API
 │   │   └── history.js          # Undo/redo command stack
+│   ├── robots.txt
+│   ├── sitemap.xml
 │   └── index.html
 │
 ├── .github/
@@ -85,14 +91,15 @@ detective-corkboard-studio/
 │       └── ci.yml              # GitHub Actions CI pipeline
 ├── docker-compose.yml
 ├── .gitignore
-└── DEVELOPMENT_PLAN.md
+├── DEVELOPMENT_PLAN.md
+└── DEPLOYMENT_GUIDE.md
 ```
 
 ---
 
-## 🚀 Quick Start (Coming Soon)
+## 🚀 Getting Started
 
-Setup instructions will be added when the first working build is ready.
+Coming soon.
 
 ---
 
